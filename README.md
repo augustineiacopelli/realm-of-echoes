@@ -1,2 +1,1194 @@
-# realm-of-echoes
-A browser-based RPG with six regions to traverse, twelve original creatures to fight or spare, and six Echo Shards to recover before facing The Unmade at the world's edge.
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Realm of Echoes · RPG</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0d0d1a;--panel:#12122a;--border:#2a2a50;
+  --gold:#f0c040;--gold2:#c89a20;
+  --white:#dde0f0;--red:#d94040;--green:#40c870;
+  --blue:#4090e0;--cyan:#30d0d8;--purple:#a060e0;
+  --gray:#505080;--amber:#e08030;--rose:#d05080;
+}
+*{box-sizing:border-box;margin:0;padding:0;touch-action:manipulation;}
+html,body{height:100%;overflow:hidden;}
+body{background:var(--bg);color:var(--white);font-family:'Press Start 2P',monospace;
+  display:flex;flex-direction:column;align-items:center;}
+#nav{width:100%;background:var(--panel);border-bottom:2px solid var(--gold);
+  padding:7px 14px;display:flex;align-items:center;gap:10px;font-size:7px;flex-shrink:0;z-index:30;}
+.screen{width:100%;max-width:560px;display:none;flex-direction:column;flex:1;overflow-y:auto;}
+.screen.active{display:flex;}
+#map-screen{position:fixed;inset:0;top:30px;max-width:100%;width:100%;overflow:hidden;background:var(--bg);z-index:10;}
+/* TITLE */
+#title-screen{align-items:center;text-align:center;gap:12px;padding:18px 14px 24px;flex-shrink:0;overflow-y:auto;}
+#title-art{font-size:20px;color:var(--gold);text-shadow:0 0 20px var(--gold2);line-height:1.5;}
+.title-sub{font-size:7px;color:var(--cyan);letter-spacing:2px;}
+.title-lore{font-size:6px;color:var(--white);line-height:2.3;max-width:340px;border:1px solid var(--border);padding:10px 14px;background:#0a0a18;}
+.region-strip{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;margin-top:2px;}
+.region-pip{font-size:8px;padding:4px 7px;border:1px solid var(--border);background:var(--panel);border-radius:3px;color:var(--white);}
+.start-btn{font-family:'Press Start 2P',monospace;font-size:10px;background:var(--gold);color:#000;
+  border:none;padding:13px 30px;cursor:pointer;animation:pulse 1.6s infinite;box-shadow:0 0 14px var(--gold2);}
+@keyframes pulse{0%,100%{transform:scale(1);}50%{transform:scale(1.04);}}
+.hint-txt{font-size:6px;color:var(--gray);}
+/* MAP */
+#map-wrap{position:absolute;inset:0;background:#000;overflow:hidden;}
+#map-canvas{width:100%;height:100%;image-rendering:pixelated;display:block;}
+#map-overlay{position:absolute;inset:0;pointer-events:none;}
+#zone-flash{position:absolute;bottom:6px;left:50%;transform:translateX(-50%);
+  background:#000b;border:1px solid var(--gold);padding:3px 10px;font-size:6px;
+  color:var(--gold);opacity:0;transition:opacity .5s;white-space:nowrap;pointer-events:none;}
+#map-hud{display:flex;gap:5px;align-items:center;flex-wrap:nowrap;font-size:6px;
+  padding:4px 8px;background:rgba(12,12,26,0.85);border-bottom:1px solid rgba(42,42,80,0.6);
+  position:absolute;top:0;left:0;right:0;z-index:5;overflow:hidden;}
+#hud-hp{color:#40c870;}#hud-mp{color:#30d0d8;}#hud-gold{color:var(--gold);}
+#hud-region{color:#c0a040;margin-left:auto;white-space:nowrap;}
+#dpad{display:grid;grid-template-columns:repeat(3,46px);grid-template-rows:repeat(3,46px);
+  gap:3px;position:absolute;bottom:14px;right:12px;z-index:5;}
+.dpad-btn{font-family:'Press Start 2P',monospace;font-size:14px;
+  background:rgba(12,12,26,0.65);border:2px solid rgba(80,80,140,0.75);color:var(--white);
+  cursor:pointer;display:flex;align-items:center;justify-content:center;border-radius:6px;
+  user-select:none;-webkit-user-select:none;}
+.dpad-btn:active{background:var(--border);}
+.dpad-center{background:transparent!important;border-color:transparent!important;
+  font-size:5px;color:var(--gray);line-height:1.4;text-align:center;}
+#map-msg{font-size:6px;color:var(--cyan);position:absolute;bottom:14px;left:12px;
+  max-width:52%;z-index:5;text-shadow:0 1px 5px #000;line-height:1.8;}
+#interact-btn{
+  display:none;position:absolute;bottom:72px;left:12px;z-index:20;
+  font-family:'Press Start 2P',monospace;font-size:7px;
+  background:var(--gold);color:#000;border:none;
+  padding:9px 14px;cursor:pointer;
+  box-shadow:0 0 10px var(--gold2);
+}
+/* SHOP */
+#shop-overlay{display:none;position:fixed;inset:0;background:#000d;z-index:50;align-items:center;justify-content:center;}
+#shop-overlay.active{display:flex;}
+#shop-box{background:var(--panel);border:3px solid var(--gold);padding:16px;max-width:340px;width:92%;
+  display:flex;flex-direction:column;gap:9px;max-height:90vh;overflow-y:auto;}
+#shop-title{font-size:9px;color:var(--gold);text-align:center;}
+#shop-gold{font-size:7px;color:var(--gold);text-align:center;}
+.shop-item{display:flex;align-items:center;gap:8px;padding:6px 4px;border-bottom:1px solid var(--border);}
+.shop-item-name{font-size:7px;flex:1;}
+.shop-item-stat{font-size:6px;color:var(--cyan);}
+.shop-item-cost{font-size:6px;color:var(--gold);margin-left:4px;}
+.shop-btn{font-family:'Press Start 2P',monospace;font-size:6px;background:var(--border);
+  border:1px solid var(--gold);color:var(--gold);padding:4px 8px;cursor:pointer;}
+.shop-btn:hover{background:var(--gold);color:#000;}
+.shop-btn:disabled{opacity:.3;pointer-events:none;}
+.shop-btn.equip{border-color:var(--cyan);color:var(--cyan);}
+.shop-btn.equip:hover{background:var(--cyan);color:#000;}
+.shop-item-equipped{font-size:5px;color:#40c870;margin-left:4px;}
+#shop-close{font-family:'Press Start 2P',monospace;font-size:7px;background:transparent;
+  border:2px solid var(--gray);color:var(--gray);padding:6px 14px;cursor:pointer;align-self:center;margin-top:4px;}
+#shop-close:hover{border-color:var(--white);color:var(--white);}
+#shop-msg{font-size:7px;color:#40c870;text-align:center;min-height:14px;}
+/* BATTLE */
+#battle-screen{padding:8px 8px 12px;gap:8px;flex-shrink:0;}
+#scene-box{width:100%;aspect-ratio:16/9;background:#000;border:3px solid var(--border);overflow:hidden;flex-shrink:0;}
+#scene-canvas{width:100%;height:100%;image-rendering:pixelated;display:block;}
+#status-bars{display:flex;gap:8px;flex-wrap:wrap;flex-shrink:0;}
+.ccard{flex:1;min-width:130px;background:var(--panel);border:2px solid var(--border);padding:7px 9px;}
+.cname{font-size:6px;color:var(--gold);margin-bottom:5px;}
+.bar-row{display:flex;align-items:center;gap:5px;margin-bottom:3px;}
+.bar-lbl{font-size:5px;color:var(--white);white-space:nowrap;width:32px;}
+.bar-wrap{flex:1;height:7px;background:#1a1a30;border:1px solid #333355;}
+.bar{height:100%;transition:width .4s,background .4s;}
+.bar.hp{background:#40c870;}.bar.hp.low{background:var(--red);}.bar.hp.mid{background:var(--gold);}
+.bar.mp{background:var(--cyan);}
+#dialogue-box{background:#080816;border:3px solid var(--white);padding:12px 14px 10px;
+  min-height:78px;position:relative;cursor:pointer;flex-shrink:0;}
+#dlg-name{font-size:8px;color:var(--gold);margin-bottom:7px;}
+#dlg-text{font-size:8px;line-height:1.9;color:var(--white);white-space:pre-wrap;}
+#dlg-arrow{position:absolute;bottom:7px;right:10px;font-size:8px;color:var(--white);animation:blink .9s infinite;}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+#action-panel{background:var(--panel);border:2px solid var(--border);padding:9px;
+  display:none;flex-direction:column;gap:7px;flex-shrink:0;}
+#act-label{font-size:6px;color:var(--gray);margin-bottom:2px;}
+.arow{display:flex;gap:7px;flex-wrap:wrap;}
+.btn{font-family:'Press Start 2P',monospace;font-size:7px;padding:7px 10px;border:2px solid var(--border);
+  background:#0d0d20;color:var(--white);cursor:pointer;transition:background .15s,border-color .15s,color .15s;
+  flex:1;min-width:70px;text-align:center;}
+.btn:hover{background:var(--border);border-color:var(--white);}
+.btn.fight{border-color:var(--red);color:var(--red);}.btn.fight:hover{background:var(--red);color:#000;}
+.btn.act{border-color:var(--cyan);color:var(--cyan);}.btn.act:hover{background:var(--cyan);color:#000;}
+.btn.magic{border-color:var(--purple);color:var(--purple);}.btn.magic:hover{background:var(--purple);color:#fff;}
+.btn.item{border-color:var(--gold);color:var(--gold);}.btn.item:hover{background:var(--gold);color:#000;}
+.btn.spare{border-color:#40c870;color:#40c870;}.btn.spare:hover{background:#40c870;color:#000;}
+.btn:disabled{opacity:.35;pointer-events:none;}
+/* END */
+#end-screen{align-items:center;text-align:center;gap:14px;padding:22px 16px;flex-shrink:0;}
+#end-screen h2{font-size:14px;}
+#end-screen p{font-size:7px;line-height:2.2;color:var(--white);max-width:340px;white-space:pre-wrap;}
+.restart-btn{font-family:'Press Start 2P',monospace;font-size:8px;background:var(--gold);
+  color:#000;border:none;padding:10px 22px;cursor:pointer;margin-top:6px;}
+#flash{position:fixed;inset:0;background:#fff;opacity:0;pointer-events:none;z-index:999;transition:opacity .14s;}
+</style>
+</head>
+<body>
+<div id="nav">
+  <span>REALM OF ECHOES</span>
+</div>
+<div id="flash"></div>
+
+<div id="shop-overlay">
+  <div id="shop-box">
+    <div id="shop-title">⚔ MERCHANT ⚔</div>
+    <div id="shop-gold"></div>
+    <div id="shop-items"></div>
+    <div id="shop-msg"></div>
+    <button id="shop-close" onclick="closeShop()">LEAVE</button>
+  </div>
+</div>
+
+<!-- TITLE -->
+<div id="title-screen" class="screen active">
+  <div id="title-art">REALM<br>OF<br>ECHOES</div>
+  <div class="title-sub">— six regions · six shards —</div>
+  <div style="font-size:6px;color:var(--gray);margin-top:-4px;">by Picco Iacopelli</div>
+  <div class="title-lore">
+    The Echo Stone shattered into six fragments,<br>
+    each claimed by a different corner of the world.<br><br>
+    Cross the Verdant Wood, the Amber Desert,<br>
+    the Frost Wastes, the Shadowfen,<br>
+    the Stone Peaks, and the Ember Caldera.<br><br>
+    Collect all six shards. Face what waits<br>
+    at the end of the world.
+  </div>
+  <div class="region-strip">
+    <div class="region-pip">🌿 Wood</div>
+    <div class="region-pip">🏜️ Desert</div>
+    <div class="region-pip">❄️ Frost</div>
+    <div class="region-pip">🌑 Shadow</div>
+    <div class="region-pip">⛰️ Peaks</div>
+    <div class="region-pip">🌋 Caldera</div>
+  </div>
+  <button class="start-btn" onclick="startGame()">&#9658; BEGIN JOURNEY</button>
+  <div class="hint-txt">Arrow keys / D-pad &middot; Enter villages to shop &amp; rest</div>
+</div>
+
+<!-- MAP -->
+<div id="map-screen" class="screen">
+  <div id="map-wrap">
+    <canvas id="map-canvas" width="320" height="180"></canvas>
+    <div id="map-overlay"><div id="zone-flash"></div></div>
+  </div>
+  <div id="map-hud">
+    <span id="hud-hp">HP:20/20</span>
+    <span id="hud-mp">MP:10/10</span>
+    <span id="hud-gold">G:0</span>
+    <span id="hud-atk">ATK:3</span>
+    <span id="hud-def">DEF:0</span>
+    <span id="hud-lv" style="color:var(--gold)">Lv:1</span>
+    <span id="hud-shards" style="color:var(--cyan)">✦:0/6</span>
+    <span id="hud-region"></span>
+  </div>
+  <div id="dpad">
+    <div></div>
+    <button class="dpad-btn" ontouchstart="dpadStart('up');event.preventDefault()" ontouchend="dpadEnd()" onmousedown="dpadStart('up')" onmouseup="dpadEnd()">▲</button>
+    <div></div>
+    <button class="dpad-btn" ontouchstart="dpadStart('left');event.preventDefault()" ontouchend="dpadEnd()" onmousedown="dpadStart('left')" onmouseup="dpadEnd()">◀</button>
+    <div class="dpad-btn dpad-center">MAP</div>
+    <button class="dpad-btn" ontouchstart="dpadStart('right');event.preventDefault()" ontouchend="dpadEnd()" onmousedown="dpadStart('right')" onmouseup="dpadEnd()">▶</button>
+    <div></div>
+    <button class="dpad-btn" ontouchstart="dpadStart('down');event.preventDefault()" ontouchend="dpadEnd()" onmousedown="dpadStart('down')" onmouseup="dpadEnd()">▼</button>
+    <div></div>
+  </div>
+  <button id="interact-btn" onclick="doInteract()">ENTER</button>
+  <div id="map-msg"></div>
+</div>
+
+<!-- BATTLE -->
+<div id="battle-screen" class="screen">
+  <div id="scene-box"><canvas id="scene-canvas" width="320" height="180"></canvas></div>
+  <div id="status-bars">
+    <div class="ccard">
+      <div class="cname">WANDERER</div>
+      <div class="bar-row"><span class="bar-lbl" id="hero-hp-txt">HP20/20</span><div class="bar-wrap"><div class="bar hp" id="hero-hp-bar" style="width:100%"></div></div></div>
+      <div class="bar-row"><span class="bar-lbl" id="hero-mp-txt">MP10/10</span><div class="bar-wrap"><div class="bar mp" id="hero-mp-bar" style="width:100%"></div></div></div>
+    </div>
+    <div class="ccard" id="enemy-card">
+      <div class="cname" id="enemy-name-lbl">Enemy</div>
+      <div class="bar-row"><span class="bar-lbl" id="enemy-hp-txt">HP</span><div class="bar-wrap"><div class="bar hp" id="enemy-hp-bar" style="width:100%"></div></div></div>
+    </div>
+  </div>
+  <div id="dialogue-box" onclick="advanceDialogue()">
+    <div id="dlg-name"></div>
+    <div id="dlg-text"></div>
+    <div id="dlg-arrow">▼</div>
+  </div>
+  <div id="action-panel">
+    <div id="act-label">WHAT WILL YOU DO?</div>
+    <div class="arow">
+      <button class="btn fight" onclick="doFight()">FIGHT</button>
+      <button class="btn act" id="act-btn" onclick="doAct()">COMMUNE</button>
+    </div>
+    <div class="arow">
+      <button class="btn magic" id="magic-btn" onclick="doMagic()">ECHO BLAST</button>
+      <button class="btn item" onclick="doItem()">POTION</button>
+    </div>
+    <div class="arow">
+      <button class="btn spare" id="spare-btn" onclick="doSpare()">SPARE</button>
+    </div>
+  </div>
+  <div id="footer-tap" style="font-size:6px;color:var(--gray);text-align:center;padding:3px 0;display:none;">Tap text box to continue</div>
+</div>
+
+<!-- END -->
+<div id="end-screen" class="screen">
+  <h2 id="end-title">GAME OVER</h2>
+  <p id="end-msg"></p>
+  <button class="restart-btn" onclick="location.reload()">Play Again</button>
+</div>
+
+<script>
+// ════════════════════════════════════════════════════════════════
+// TILE CONSTANTS
+// 0=void  1=grass  2=forest  3=cave  4=mire  5=path  6=final-gate(win)
+// 7=mountain  8=village-path  9=tower-exterior  10=dungeon
+// 11=black  12=shop  13=inn  14=tower-inside  15=exit
+// 16=boss  17=sand  18=snow  19=bridge  20=ruins
+// 21=lava  22=volcanic-rock
+// ════════════════════════════════════════════════════════════════
+const T={
+  VOID:0,GRASS:1,FOREST:2,CAVE:3,MIRE:4,PATH:5,WIN:6,
+  MOUNTAIN:7,VPATH:8,CASTLE:9,DUNGEON:10,BLACK:11,
+  SHOP:12,INN:13,TOWER_IN:14,EXIT:15,BOSS:16,SAND:17,SNOW:18,BRIDGE:19,
+  RUINS:20,LAVA:21,VOLC:22
+};
+const PASSABLE=new Set([1,2,3,4,5,6,8,9,12,13,14,15,16,17,18,19,20]);
+// lava is impassable unless path; volcanic-rock impassable
+const DANGER=new Set([2,3,4,10,14,16,20]);
+const REGION_NAMES=[
+  '🌿 Verdant Wood','🏜️ Amber Desert','❄️ Frost Wastes',
+  '🌑 Shadowfen','⛰️ Stone Peaks','🌋 Ember Caldera'
+];
+
+let TW=14,TH=14;
+
+// Tile colors
+const TC={
+  0:'#08080e',1:'#1a5218',2:'#0c2c0a',3:'#1e0e2a',4:'#0e2018',5:'#4a3010',
+  6:'#8a6800',7:'#303030',8:'#5a4030',9:'#4a3810',10:'#100c1a',11:'#000',
+  12:'#5a2c08',13:'#281440',14:'#1a1508',15:'#0c2008',16:'#200404',
+  17:'#988038',18:'#8898a8',19:'#5a4020',20:'#221a08',21:'#380c00',22:'#2a1c08'
+};
+
+// ════════════════════════════════════════════════════════════════
+// WORLD MAP  60×38
+// Regions: cols 0-9=Wood, 10-19=Desert, 20-29=Snow, 30-39=Spooky, 40-49=Mountain, 50-59=Lava
+// Bottom row 34 is the main highway path connecting all regions
+// ════════════════════════════════════════════════════════════════
+const WORLD=[
+[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+[7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7],
+[7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,22,22,22,22,22,7,7,7,7],
+[1,1,2,2,9,9,9,1,1,1,17,17,7,7,9,9,9,17,17,17,18,18,18,18,9,9,9,18,18,18,20,4,4,4,9,9,9,20,20,20,7,7,7,7,9,9,9,7,7,7,21,22,22,22,9,21,5,5,6,6],
+[1,1,2,2,9,9,9,1,1,1,17,17,7,7,9,9,9,17,17,17,18,18,18,18,9,9,9,18,18,18,20,4,4,4,9,9,9,20,20,20,7,7,7,7,9,9,9,7,7,7,21,22,22,22,9,9,9,21,21,21],
+[1,1,2,2,9,16,9,1,1,1,17,17,7,7,9,16,9,17,17,17,18,18,18,18,9,16,9,18,18,18,20,4,4,4,9,16,9,20,20,20,7,7,7,7,9,16,9,7,7,7,21,22,22,22,9,16,9,21,21,21],
+[1,1,2,2,9,9,9,1,1,1,17,17,17,17,9,9,9,17,17,17,18,3,3,3,9,9,9,18,18,18,20,4,4,4,9,9,9,20,20,20,7,7,7,7,9,9,9,7,7,7,21,22,22,22,9,9,9,21,21,21],
+[1,1,2,2,9,9,9,1,1,1,17,17,17,17,9,9,9,17,17,17,18,3,3,3,9,9,9,18,18,18,20,4,4,4,9,9,9,20,20,20,7,7,7,7,9,9,9,7,7,7,21,21,21,21,9,9,9,21,21,21],
+[1,1,2,2,2,1,1,1,1,1,17,17,17,17,17,17,17,7,7,7,18,3,3,3,3,18,18,18,18,18,20,4,4,4,4,20,20,20,20,20,7,5,5,5,5,5,7,7,7,7,21,21,21,21,21,5,21,21,21,21],
+[1,1,2,2,2,1,1,1,1,1,17,17,17,17,17,17,17,7,7,7,18,3,3,3,3,18,18,18,18,18,20,4,4,4,4,20,20,20,20,20,7,5,5,5,5,5,7,7,7,7,21,21,21,21,21,5,21,21,21,21],
+[1,1,2,2,2,1,1,1,1,1,17,17,17,17,17,17,17,7,7,7,18,3,3,3,3,18,18,18,18,18,20,4,4,4,4,20,20,20,20,20,7,5,5,5,5,5,7,7,7,7,21,21,21,22,22,5,22,22,21,21],
+[1,1,1,1,1,1,1,1,1,1,17,17,17,17,17,17,17,7,7,7,18,3,3,3,3,18,18,18,18,18,20,20,20,20,20,20,20,20,20,20,7,5,5,5,5,5,7,7,7,7,21,21,21,22,22,5,22,22,21,21],
+[1,2,2,2,2,1,1,1,1,1,17,17,17,17,17,17,17,17,17,17,18,18,18,18,18,18,18,18,18,18,20,20,20,2,2,20,2,2,2,20,7,5,5,5,5,5,7,7,7,7,21,21,21,22,22,5,22,22,21,21],
+[1,2,2,2,2,1,1,1,1,1,17,17,17,17,17,17,17,17,17,17,18,18,18,18,18,18,18,18,18,18,20,20,20,2,2,20,2,2,2,20,7,5,5,5,3,5,3,7,7,7,21,21,21,22,22,5,22,22,21,21],
+[1,2,2,2,2,1,1,1,1,1,17,17,17,17,17,17,17,17,17,17,19,19,19,19,19,18,19,19,19,19,20,20,20,2,2,20,2,2,2,20,7,5,5,5,3,5,3,7,7,7,21,21,21,22,22,5,22,22,21,21],
+[1,2,2,2,2,1,1,1,1,1,17,17,17,17,17,17,17,17,17,17,19,19,19,19,19,18,19,19,19,19,20,20,20,2,2,20,2,2,2,20,7,5,5,5,3,5,3,7,7,7,21,21,21,22,22,5,22,22,21,21],
+[1,2,2,2,2,1,1,1,1,1,17,17,17,17,17,17,17,17,17,17,18,18,18,18,18,18,3,3,3,3,20,20,20,2,2,20,2,2,2,20,7,5,5,5,3,5,3,7,7,7,21,21,21,22,22,5,22,22,21,21],
+[1,1,1,1,1,1,1,1,1,1,17,17,17,17,17,17,17,17,17,17,18,18,18,18,18,18,3,3,3,3,20,20,20,2,2,20,2,2,2,20,7,5,5,5,3,5,3,7,7,7,21,21,21,21,21,5,21,21,21,21],
+[1,1,1,2,2,1,2,1,1,1,17,17,17,17,17,17,17,17,17,17,18,18,18,18,18,18,3,3,3,3,20,20,20,2,2,20,2,2,2,20,7,5,5,5,3,5,3,7,7,7,21,21,21,21,21,5,21,21,21,21],
+[1,1,1,2,2,1,2,1,1,1,17,17,17,17,17,17,17,17,17,17,18,18,18,18,18,18,3,3,3,3,20,20,20,20,20,20,20,20,20,20,7,7,7,7,7,5,7,7,7,7,21,21,21,21,21,5,21,21,21,21],
+[1,1,1,2,2,1,2,1,1,1,17,17,17,17,17,17,17,17,17,17,18,18,18,18,18,18,3,3,3,3,10,10,10,10,20,20,20,20,20,20,19,19,19,19,19,5,19,19,19,19,21,21,21,21,21,5,21,21,21,21],
+[1,1,1,2,2,1,2,1,1,1,17,17,17,17,17,17,17,17,17,17,18,18,18,18,18,18,18,18,18,18,10,10,10,10,20,20,20,20,20,20,19,19,19,19,19,5,19,19,19,19,21,21,21,21,21,5,21,21,21,21],
+[1,1,1,2,2,1,2,1,1,1,17,17,17,17,17,17,17,17,17,17,18,18,18,18,18,18,18,18,18,18,10,10,10,10,20,20,20,20,20,20,7,7,7,5,5,5,5,5,5,7,21,22,22,22,22,5,21,21,21,21],
+[1,1,1,2,2,1,2,1,1,1,17,17,17,17,17,17,17,17,17,17,18,18,18,18,18,18,18,18,18,18,10,10,10,10,20,20,20,20,20,20,7,7,7,5,5,5,5,5,5,7,21,22,22,22,22,5,21,21,21,21],
+[1,1,1,2,2,1,2,1,1,1,17,17,17,17,17,17,17,17,17,17,18,18,18,18,18,18,18,18,18,18,10,10,10,10,20,20,20,20,20,20,7,7,7,5,5,5,5,5,5,7,21,22,22,22,22,5,21,21,21,21],
+[1,1,1,1,1,1,1,1,1,1,17,17,17,17,17,17,17,17,17,17,18,18,18,18,18,18,18,18,18,18,10,10,10,10,20,20,20,20,20,20,7,7,7,5,5,5,5,5,5,7,21,22,22,22,22,5,21,21,21,21],
+[1,1,8,8,8,8,8,8,1,1,17,17,8,8,8,8,8,8,17,17,18,18,8,8,8,8,8,8,18,18,10,10,8,8,8,8,8,8,20,20,7,7,8,8,8,8,8,8,5,7,21,21,8,8,8,8,8,8,21,21],
+[1,1,8,12,8,8,13,8,1,1,17,17,8,12,8,8,13,8,17,17,18,18,8,12,8,8,13,8,18,18,20,20,8,12,8,8,13,8,20,20,7,7,8,12,8,8,13,8,5,7,21,21,8,12,8,8,13,8,21,21],
+[1,1,8,8,8,8,8,8,1,1,17,17,8,8,8,8,8,8,17,17,18,18,8,8,8,8,8,8,18,18,20,20,8,8,8,8,8,8,20,20,7,7,8,8,8,8,8,8,5,7,21,21,8,8,8,8,8,8,21,21],
+[1,1,8,8,8,8,8,8,1,1,17,17,8,8,8,8,8,8,17,17,18,18,8,8,8,8,8,8,18,18,20,20,8,8,8,8,8,8,20,20,7,7,8,8,8,8,8,8,7,7,21,21,8,8,8,8,8,8,21,21],
+[1,1,8,8,8,8,8,8,1,1,17,17,8,8,8,8,8,8,17,17,18,18,8,8,8,8,8,8,18,18,20,20,8,8,8,8,8,8,20,20,7,7,8,8,8,8,8,8,7,7,21,21,8,8,8,8,8,8,21,21],
+[1,1,1,1,1,1,1,1,1,1,17,17,17,17,17,17,17,17,17,17,18,18,18,18,18,18,18,18,18,18,20,20,20,20,20,20,20,20,20,20,7,7,7,7,7,5,7,7,7,7,21,21,21,21,21,5,21,21,21,21],
+[1,1,1,1,1,1,1,1,1,1,17,17,17,17,17,17,17,17,17,17,18,18,18,18,18,18,18,18,18,18,20,20,20,20,20,20,20,20,20,20,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5],
+[1,1,5,5,5,5,5,5,5,1,17,17,17,17,17,17,17,17,17,17,18,18,18,18,18,18,18,18,18,18,20,20,20,20,20,20,20,20,20,20,7,7,7,7,7,7,7,7,7,7,21,21,21,21,21,21,21,21,21,21],
+[1,1,1,5,5,5,5,5,1,1,17,17,17,17,17,17,17,17,17,17,18,18,18,18,18,18,18,18,18,18,20,20,20,20,20,20,20,20,20,20,7,7,7,7,7,7,7,7,7,7,21,21,21,21,21,21,21,21,21,21],
+[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+];
+
+const HERO_WORLD_COL=5;
+const HERO_WORLD_ROW=36;
+
+// Six shard towers, one per region
+// Each has a guardian. The SIXTH is the final boss gate.
+const SHARD_TOWERS=[
+  {col:5, row:7,  name:'Verdant Spire',   region:0, cleared:false},
+  {col:15,row:7,  name:'Dune Citadel',    region:1, cleared:false},
+  {col:25,row:7,  name:'Frost Obelisk',   region:2, cleared:false},
+  {col:35,row:7,  name:'Shadow Bastion',  region:3, cleared:false},
+  {col:45,row:7,  name:'Peak Fortress',   region:4, cleared:false},
+  {col:55,row:7,  name:'Caldera Throne',  region:5, cleared:false},
+];
+
+// Village interiors
+const VILLAGE_TEMPLATE=(id,name,wex,wey)=>({
+  id,name,cols:18,rows:14,
+  heroEntryCol:9,heroEntryRow:7,
+  worldExitCol:wex,worldExitRow:wey,
+  tiles:[
+    [11,11,11,11,11,11,11,11,11,11,11,11,11,11,11,11,11,11],
+    [11,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,11],
+    [11,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,11],
+    [11,8,8,12,8,8,8,8,8,8,8,8,8,8,13,8,8,11],
+    [11,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,11],
+    [11,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,11],
+    [11,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,11],
+    [11,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,11],
+    [11,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,11],
+    [11,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,11],
+    [11,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,11],
+    [11,11,11,11,11,11,11,11,11,15,11,11,11,11,11,11,11,11],
+    [11,11,11,11,11,11,11,11,11,11,11,11,11,11,11,11,11,11],
+    [11,11,11,11,11,11,11,11,11,11,11,11,11,11,11,11,11,11],
+  ]
+});
+
+// Village entry: doorway at col base+5 (path corridor), row 28 only
+// Exit returns player to same col, row 33 (safely below village tiles)
+const VILLAGES=[
+  VILLAGE_TEMPLATE('v1','Thornhaven',  5, 33),
+  VILLAGE_TEMPLATE('v2','Sandmere',    15,33),
+  VILLAGE_TEMPLATE('v3','Glacespire',  25,33),
+  VILLAGE_TEMPLATE('v4','Gloomhall',   35,33),
+  VILLAGE_TEMPLATE('v5','Cresthold',   45,33),
+  VILLAGE_TEMPLATE('v6','Ashgate',     55,33),
+];
+
+const VILLAGE_ENTRIES={};
+VILLAGES.forEach((v,i)=>{
+  const doorCol=i*10+5;
+  VILLAGE_ENTRIES[doorCol+',28']=v;
+});
+
+const SHOP_ITEMS=[
+  {name:'Potion x3',     stat:'Potions +3', key:'potion', slot:null,    val:3,  cost:20},
+  {name:'Thornblade',    stat:'ATK +3',     key:'atk',    slot:'weapon',val:3,  cost:30},
+  {name:'Sandedge',      stat:'ATK +6',     key:'atk',    slot:'weapon',val:6,  cost:65},
+  {name:'Frost Sword',   stat:'ATK +9',     key:'atk',    slot:'weapon',val:9,  cost:110},
+  {name:'Echo Blade',    stat:'ATK +14',    key:'atk',    slot:'weapon',val:14, cost:180},
+  {name:'Bark Vest',     stat:'DEF +2',     key:'def',    slot:'armor', val:2,  cost:25},
+  {name:'Chain Coat',    stat:'DEF +5',     key:'def',    slot:'armor', val:5,  cost:58},
+  {name:'Stone Plate',   stat:'DEF +9',     key:'def',    slot:'armor', val:9,  cost:110},
+  {name:'Ember Shield',  stat:'DEF +14',    key:'def',    slot:'armor', val:14, cost:175},
+  {name:'Echo Lens I',   stat:'MagPow +4',  key:'magpow', slot:'tome',  val:4,  cost:45},
+  {name:'Echo Lens II',  stat:'MagPow +9',  key:'magpow', slot:'tome',  val:9,  cost:100},
+  {name:'Echo Lens III', stat:'MagPow +15', key:'magpow', slot:'tome',  val:15, cost:175},
+];
+const INN_COST=12;
+
+// ════════════════════════════════════════════════════════════════
+// ENEMY ROSTER — 12 originals across all 6 regions
+// ════════════════════════════════════════════════════════════════
+const ENEMIES=[
+  // ── REGION 1: GRASS/FOREST ──
+  // 0 — Moss Lurker
+  {name:'Moss Lurker',emoji:'🌿',hp:12,maxHp:12,atk:4,color:'#3a9050',bgType:'forest',
+   gold:8,xp:5,
+   intro:['* A MOSS LURKER emerges from the undergrowth!\n* It reeks of damp earth.','* It watches you with amber eyes.'],
+   actText:'* You crouch and go very still.\n* LURKER: ...Traveler smells like old road.\n* LURKER: Not prey.',
+   actSpares:true,spareReady:false,
+   spareText:'* The Moss Lurker lumbers back into the ferns.\n* LURKER: Take the river path next time.',
+   deathText:'* The Moss Lurker dissolves into the ground.',
+   attackLines:['* LURKER whips thorny vines!','* LURKER slams with a root-fist!','* LURKER exhales spores!']},
+  // 1 — Briar Wraith
+  {name:'Briar Wraith',emoji:'🍃',hp:16,maxHp:16,atk:5,color:'#206030',bgType:'forest',
+   gold:11,xp:8,
+   intro:['* A BRIAR WRAITH drifts from the canopy!\n* Thorns orbit its flickering form.','* WRAITH: Another trespasser walks the old wood.'],
+   actText:'* You name the oldest tree in the forest.\n* WRAITH stills.\n* WRAITH: ...You know the First Trees?\n* WRAITH: Then you have some right to be here.',
+   actSpares:true,spareReady:false,
+   spareText:'* The Briar Wraith recedes into the bark.\n* WRAITH: Walk lightly.',
+   deathText:'* The Briar Wraith unravels into leaves.',
+   attackLines:['* WRAITH lashes with briar whips!','* WRAITH drives thorns into the ground!','* WRAITH shrieks — bark splinters fly!']},
+
+  // ── REGION 2: DESERT ──
+  // 2 — Dune Crawler
+  {name:'Dune Crawler',emoji:'🦂',hp:18,maxHp:18,atk:6,color:'#c09030',bgType:'desert',
+   gold:14,xp:10,
+   intro:['* A DUNE CRAWLER bursts from beneath the sand!\n* Mandibles click rhythmically.','* It sizes you up with six gleaming eyes.'],
+   actText:'* You offer it a piece of dried meat.\n* CRAWLER pauses.\n* CRAWLER: (It actually accepts the offering.)',
+   actSpares:true,spareReady:false,
+   spareText:'* The Dune Crawler buries itself again.\n* A small treasure glints where it stood.',
+   deathText:'* The Dune Crawler goes still in the sand.',
+   attackLines:['* CRAWLER stings with its tail!','* CRAWLER sprays caustic sand!','* CRAWLER CLAWS at your legs!']},
+  // 3 — Sand Revenant
+  {name:'Sand Revenant',emoji:'💀',hp:22,maxHp:22,atk:7,color:'#d0a040',bgType:'desert',
+   gold:18,xp:13,
+   intro:['* A SAND REVENANT rises from a half-buried tomb!\n* Old wrappings trail behind it.','* REVENANT: You disturb a thousand years of silence.'],
+   actText:'* You read the inscription on its tomb aloud.\n* REVENANT: ...You can read the Old Script?\n* REVENANT: Then you know what I was.\n* REVENANT: What I protected.',
+   actSpares:true,spareReady:false,
+   spareText:'* The Sand Revenant sinks back into the earth.\n* REVENANT: Remember the name on that stone.',
+   deathText:'* The Sand Revenant crumbles to dust.\n* The wind carries it away.',
+   attackLines:['* REVENANT slashes with a bone blade!','* REVENANT hurls a sand vortex!','* REVENANT drains your warmth!']},
+
+  // ── REGION 3: SNOW/FROST ──
+  // 4 — Frost Imp
+  {name:'Frost Imp',emoji:'🧊',hp:20,maxHp:20,atk:7,color:'#80c0d8',bgType:'frost',
+   gold:16,xp:12,
+   intro:['* A FROST IMP drops from an icicle overhead!\n* It chatters and shivers despite being the cold itself.','* IMP: You are in my territory! Very rude! Very!'],
+   actText:'* You laugh warmly at the Imp\'s complaining.\n* IMP: What? What is funny?\n* IMP: ...Okay, maybe a little funny.\n* IMP: I have not spoken to anyone in very long.',
+   actSpares:true,spareReady:false,
+   spareText:'* The Frost Imp flutters away, muttering.\n* IMP: Come back sometime. I make good icicles.',
+   deathText:'* The Frost Imp melts into a sad little puddle.',
+   attackLines:['* IMP hurls an ice shard!','* IMP breathes a freezing gust!','* IMP encases your feet in ice!']},
+  // 5 — Glacier Wyrm
+  {name:'Glacier Wyrm',emoji:'🐍',hp:28,maxHp:28,atk:9,color:'#a0d0e8',bgType:'frost',
+   gold:24,xp:18,
+   intro:['* A GLACIER WYRM erupts from beneath the ice!\n* The ground shakes.','* WYRM: Something warm moves across my ceiling.\n* WYRM: Interesting.'],
+   actText:'* You press your hand to the ice and hum a low note.\n* The Wyrm resonates.\n* WYRM: You carry echo frequency.\n* WYRM: You seek the stone. I know where it fractured.',
+   actSpares:true,spareReady:false,
+   spareText:'* The Glacier Wyrm sinks back beneath the ice.\n* WYRM: Follow the cold current. It leads to the shard.',
+   deathText:'* The Glacier Wyrm crashes through the ice and is gone.',
+   attackLines:['* WYRM coils and CRUSHES!','* WYRM snaps with frozen jaws!','* WYRM whips its tail across the ice!']},
+
+  // ── REGION 4: SPOOKY ──
+  // 6 — Fen Haunt
+  {name:'Fen Haunt',emoji:'👻',hp:24,maxHp:24,atk:8,color:'#6080a0',bgType:'spooky',
+   gold:20,xp:15,
+   intro:['* A FEN HAUNT drifts up from the murk!\n* It pulses with cold inner light.','* HAUNT: ...I had a name, once.\n* HAUNT: I think I\'ve forgotten it.'],
+   actText:'* You speak a name — any name — aloud.\n* The Haunt resonates.\n* HAUNT: That isn\'t my name.\n* HAUNT: But it is a name. It is enough.',
+   actSpares:true,spareReady:false,
+   spareText:'* The Fen Haunt fades slowly.\n* HAUNT: Thank you. For remembering that names matter.',
+   deathText:'* The Fen Haunt disperses into mist.',
+   attackLines:['* HAUNT drains warmth from the air!','* HAUNT phase-strikes from behind!','* HAUNT shrieks — the mire churns!']},
+  // 7 — Ruin Warden
+  {name:'Ruin Warden',emoji:'⚗️',hp:30,maxHp:30,atk:10,color:'#9070a0',bgType:'spooky',
+   gold:26,xp:20,
+   intro:['* A RUIN WARDEN rises from the crumbled arch!\n* Old glyphs glow across its shoulders.','* WARDEN: These ruins are protected by covenant.\n* WARDEN: State your purpose.'],
+   actText:'* You recite the Three Oaths of the Wanderer.\n* WARDEN: ...You know the Oaths.\n* WARDEN: Then you are no tomb-robber.',
+   actSpares:true,spareReady:false,
+   spareText:'* The Ruin Warden settles back into the stone.\n* WARDEN: What was lost here cannot be taken.\n* WARDEN: Only found.',
+   deathText:'* The Ruin Warden crumbles. The glyphs go dark.',
+   attackLines:['* WARDEN sweeps with an ancient blade!','* WARDEN launches a glyph-bolt!','* WARDEN drives you back with a shockwave!']},
+
+  // ── REGION 5: MOUNTAIN ──
+  // 8 — Stoneback Brute
+  {name:'Stoneback Brute',emoji:'🪨',hp:35,maxHp:35,atk:12,color:'#808898',bgType:'mountain',
+   gold:30,xp:24,
+   intro:['* A STONEBACK BRUTE drops from a cliff ledge!\n* The impact cracks the path.','* BRUTE: Mountain belongs to Brute.\n* BRUTE: You small. Leave.'],
+   actText:'* You challenge the Brute to a feat of strength — moving a boulder.\n* BRUTE: (It watches, intrigued.)\n* BRUTE: ...Small one is stronger than looks.\n* BRUTE: Maybe Small One belongs on mountain.',
+   actSpares:true,spareReady:false,
+   spareText:'* The Stoneback Brute thumps its chest.\n* BRUTE: Small One passes. This time.',
+   deathText:'* The Stoneback Brute tumbles off the ledge.\n* A distant rumble.',
+   attackLines:['* BRUTE slams both fists down!','* BRUTE hurls a chunk of cliff!','* BRUTE CHARGES full-speed!']},
+  // 9 — Peak Specter
+  {name:'Peak Specter',emoji:'🌬️',hp:32,maxHp:32,atk:11,color:'#b0b8d0',bgType:'mountain',
+   gold:28,xp:22,
+   intro:['* A PEAK SPECTER materializes from the wind!\n* Its form is made of frozen air.','* SPECTER: You carry the weight of purpose.\n* SPECTER: The peaks judge purpose harshly.'],
+   actText:'* You speak aloud why you are climbing.\n* The Specter considers.\n* SPECTER: Many have said similar things.\n* SPECTER: They all turned back.\n* SPECTER: ...You might not.',
+   actSpares:true,spareReady:false,
+   spareText:'* The Peak Specter disperses into the wind.\n* SPECTER: The summit answers to the honest.',
+   deathText:'* The Peak Specter is swept away by its own gale.',
+   attackLines:['* SPECTER fires a gale-blast!','* SPECTER phases and strikes!','* SPECTER pulls you toward the cliff edge!']},
+
+  // ── REGION 6: LAVA ──
+  // 10 — Ember Hound
+  {name:'Ember Hound',emoji:'🔥',hp:38,maxHp:38,atk:13,color:'#e04020',bgType:'lava',
+   gold:34,xp:27,
+   intro:['* An EMBER HOUND bounds from the lava flow!\n* Its paw-prints scorch the rock.','* It lets out a low, volcanic growl.'],
+   actText:'* You hold out your hand, palm up.\n* The Hound stops.\n* HOUND: (It lowers its head slowly.)\n* HOUND: (It sniffs. Then looks at you with molten eyes.)',
+   actSpares:true,spareReady:false,
+   spareText:'* The Ember Hound huffs a gout of steam and trots away.\n* It glances back once.',
+   deathText:'* The Ember Hound cools into charred stone.',
+   attackLines:['* HOUND rakes with burning claws!','* HOUND breathes a cone of flame!','* HOUND slams with a magma-coated shoulder!']},
+  // 11 — Lava Golem
+  {name:'Lava Golem',emoji:'🌋',hp:45,maxHp:45,atk:14,color:'#c03010',bgType:'lava',
+   gold:40,xp:32,
+   intro:['* A LAVA GOLEM rises from the caldera!\n* Molten rock drips from its fists.','* GOLEM: The Caldera does not permit passage.\n* GOLEM: It never has.'],
+   actText:'* You hold up a shard fragment.\n* It hums against the heat.\n* GOLEM: (It reaches out and touches the shard with one enormous finger.)\n* GOLEM: ...The echo frequency. You carry it.\n* GOLEM: The last one who carried that frequency is why we are all here.',
+   actSpares:true,spareReady:false,
+   spareText:'* The Lava Golem slowly steps aside.\n* GOLEM: Finish what was started.\n* GOLEM: The Caldera will remember.',
+   deathText:'* The Lava Golem cracks apart and hardens into obsidian.',
+   attackLines:['* GOLEM slams with a magma fist!','* GOLEM hurls a glob of lava!','* GOLEM erupts — shrapnel everywhere!','* GOLEM stomps — the ground splits!']},
+];
+
+// Final boss — appears after all 6 shards
+const FINAL_BOSS={
+  name:'The Unmade',emoji:'✦',hp:280,maxHp:280,atk:28,def:10,color:'#c080ff',bgType:'boss',
+  gold:1000,xp:500,
+  intro:[
+    '* THE UNMADE rises from the void at the world\'s edge!\n* Six echoes pulse around it — one from each shard.',
+    '* UNMADE: Six shards. Six regions. Six scars I left on this world.\n* UNMADE: And you stitched a path through all of them.\n* UNMADE: Remarkable. And terrible.'
+  ],
+  actText:'* You hold all six shards aloft.\n* They resonate together, throwing light that hurts to look at.\n* THE UNMADE recoils — and in its face you see something crumbling.\n* UNMADE: I shattered the Stone because the last one who held it whole\n* UNMADE: burned three regions to ash in a single afternoon.\n* UNMADE: You would reassemble a weapon.',
+  actSpares:true,spareReady:false,
+  spareText:'* THE UNMADE stills.\n* UNMADE: Then you understand.\n* UNMADE: Carry the shards separately.\n* UNMADE: Keep them apart. Keep the world whole.\n* It releases — and the void recedes.',
+  deathText:'* THE UNMADE fractures and dissolves.\n* The six shards glow.\n* Something ancient and unbearably heavy\n* lifts from the world.',
+  attackLines:[
+    '* THE UNMADE fires a volley of void shards!',
+    '* THE UNMADE rewrites the space around you!',
+    '* THE UNMADE channels the Shattering directly!',
+    '* THE UNMADE screams — the world cracks!',
+    '* THE UNMADE drains your echo resonance!',
+    '* THE UNMADE strikes from everywhere at once!',
+    '* THE UNMADE collapses a memory onto you — it hurts!'
+  ]
+};
+
+// Zone enemy pools by tile type (indices into ENEMIES)
+const ZONE_ENEMIES={
+  2:[0,0,1],         // forest → moss lurker, briar wraith
+  4:[6,6,7],         // mire → fen haunt, ruin warden
+  17:[2,2,3],        // sand → dune crawler, sand revenant
+  18:[4,4,5],        // snow → frost imp, glacier wyrm
+  10:[6,7],          // dungeon → spooky
+  20:[6,7],          // ruins → spooky
+  14:[7,7,6],        // tower inside → spooky
+  7:[8,8,9],         // mountain
+  21:[10,10,11],     // lava (but lava is impassable; reaches via path tiles — handled below
+};
+// For path/boss tiles in lava region (cols 50-59), use lava enemies
+// We'll check region by column in encounter logic
+
+const ENCOUNTER_RATE=0.30;
+const ENCOUNTER_COOLDOWN=2;
+
+// ════════════════════════════════════════════════════════════════
+// STATE
+// ════════════════════════════════════════════════════════════════
+let G={
+  phase:'title',
+  map:WORLD,mapCols:60,mapRows:38,
+  currentInterior:null,
+  heroCol:HERO_WORLD_COL,heroRow:HERO_WORLD_ROW,
+  heroHp:20,heroMaxHp:20,
+  heroMp:10,heroMaxMp:10,
+  heroAtk:3,heroDef:0,heroMagPow:5,
+  gold:0,potions:2,xp:0,xpNext:20,level:1,
+  stepsSince:999,
+  enemy:null,
+  dlgQ:[],dlgI:0,afterDlg:null,
+  pacifist:true,
+  keysDown:{},dpadDir:null,dpadTick:null,
+  shopOwned:{},
+  equipped:{weapon:null,armor:null,tome:null},
+  shards:0,
+  finalBossActive:false,
+  shopCooldown:false,innCooldown:false,
+};
+
+// ════════════════════════════════════════════════════════════════
+// SCREENS
+// ════════════════════════════════════════════════════════════════
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+// ════════════════════════════════════════════════════════════════
+// MAP
+// ════════════════════════════════════════════════════════════════
+const mc=document.getElementById('map-canvas');
+const mx=mc.getContext('2d');
+
+function getTile(col,row){
+  const m=G.currentInterior||{tiles:G.map,cols:G.mapCols,rows:G.mapRows};
+  if(row<0||row>=m.rows||col<0||col>=m.cols)return T.VOID;
+  return(m.tiles[row]||[])[col]||0;
+}
+
+function getRegion(col){return Math.min(5,Math.floor(col/10));}
+
+function drawMapTile(col,row,sx,sy){
+  const t=getTile(col,row);
+  const w=TW,h=TH,cx=sx+w/2,cy=sy+h/2,p=w/12;
+  mx.fillStyle=TC[t]||'#000';mx.fillRect(sx,sy,w,h);
+  switch(t){
+    case 1:// grass
+      if((col+row)%4===0){mx.fillStyle='#266a22';mx.fillRect(sx+2*p,sy+8*p,p,3*p);mx.fillRect(sx+6*p,sy+7*p,p,4*p);}
+      break;
+    case 2:// forest
+      mx.fillStyle='#0a2008';mx.fillRect(sx+3*p,sy+5*p,6*p,7*p);
+      mx.fillStyle='#165814';mx.beginPath();mx.moveTo(cx,sy+p);mx.lineTo(sx+w-p,sy+7*p);mx.lineTo(sx+p,sy+7*p);mx.closePath();mx.fill();
+      break;
+    case 3:// cave
+      mx.fillStyle='#28084a';mx.beginPath();mx.moveTo(sx+5*p,sy+10*p);mx.lineTo(cx,sy+3*p);mx.lineTo(sx+9*p,sy+10*p);mx.closePath();mx.fill();
+      break;
+    case 4:// mire
+      mx.fillStyle='#143828';mx.fillRect(sx+2*p,sy+2*p,8*p,8*p);
+      mx.fillStyle='#0a2018';mx.fillRect(sx+4*p,sy+5*p,4*p,3*p);
+      break;
+    case 5:// path
+      mx.strokeStyle='#2a1808';mx.lineWidth=0.5*p;mx.strokeRect(sx+p,sy+p,4*p,4*p);mx.strokeRect(sx+6*p,sy+6*p,4*p,4*p);
+      break;
+    case 6:// final gate
+      mx.fillStyle='#b89000';mx.fillRect(sx+4*p,sy+2*p,4*p,9*p);
+      mx.fillStyle='#f0d840';mx.fillRect(sx+5*p,sy+3*p,2*p,6*p);
+      mx.fillStyle='#fff9';mx.beginPath();mx.arc(cx,sy+2*p,2*p,0,Math.PI*2);mx.fill();
+      break;
+    case 7:// mountain
+      mx.fillStyle='#404040';mx.beginPath();mx.moveTo(cx,sy+p);mx.lineTo(sx+w-p,sy+10*p);mx.lineTo(sx+p,sy+10*p);mx.closePath();mx.fill();
+      mx.fillStyle='#b0bcc8';mx.beginPath();mx.moveTo(cx,sy+p);mx.lineTo(sx+8*p,sy+4*p);mx.lineTo(sx+4*p,sy+4*p);mx.closePath();mx.fill();
+      break;
+    case 8:// village path
+      mx.fillStyle='#604838';mx.fillRect(sx,sy,TW,TH);
+      break;
+    case 9:// tower exterior
+      mx.fillStyle='#7a6830';mx.fillRect(sx+p,sy+2*p,10*p,8*p);
+      mx.fillStyle='#000';mx.fillRect(sx+4*p,sy+6*p,4*p,4*p);
+      break;
+    case 10:// dungeon
+      mx.fillStyle='#0e0c18';mx.fillRect(sx+2*p,sy+2*p,8*p,8*p);
+      break;
+    case 12:// shop
+      mx.fillStyle='#a07020';mx.fillRect(sx+p,sy+p,10*p,9*p);
+      mx.fillStyle='#f0c040';mx.font=Math.round(6*p)+'px serif';mx.textAlign='center';mx.textBaseline='middle';mx.fillText('$',cx,cy);
+      break;
+    case 13:// inn
+      mx.fillStyle='#301848';mx.fillRect(sx+p,sy+p,10*p,9*p);
+      mx.fillStyle='#a0a0ff';mx.font=Math.round(6*p)+'px serif';mx.textAlign='center';mx.textBaseline='middle';mx.fillText('z',cx,cy);
+      break;
+    case 15:// exit
+      mx.fillStyle='#0e2010';mx.fillRect(sx,sy,TW,TH);
+      mx.fillStyle='#40c870';mx.fillRect(sx+3*p,sy+3*p,6*p,6*p);
+      break;
+    case 16:// boss
+      mx.fillStyle='#200404';mx.fillRect(sx,sy,TW,TH);
+      mx.fillStyle='#c03020';mx.font=Math.round(8*p)+'px serif';mx.textAlign='center';mx.textBaseline='middle';mx.fillText('!',cx,cy);
+      break;
+    case 17:// sand
+      if((col+row)%5===0){mx.fillStyle='#c09030';mx.fillRect(sx+2*p,sy+2*p,3*p,2*p);}
+      break;
+    case 18:// snow
+      if((col+row)%3===0){mx.fillStyle='#c8d8e8';mx.fillRect(sx+3*p,sy+3*p,2*p,2*p);}
+      break;
+    case 19:// bridge
+      mx.fillStyle='#7a5820';mx.fillRect(sx,sy+4*p,w,4*p);
+      mx.fillStyle='#5a3808';mx.fillRect(sx+2*p,sy+2*p,2*p,8*p);mx.fillRect(sx+8*p,sy+2*p,2*p,8*p);
+      break;
+    case 20:// ruins
+      mx.fillStyle='#301e08';mx.fillRect(sx,sy,TW,TH);
+      mx.fillStyle='#504010';mx.fillRect(sx+p,sy+4*p,3*p,6*p);mx.fillRect(sx+6*p,sy+2*p,2*p,8*p);
+      break;
+    case 21:// lava
+      mx.fillStyle='#400800';mx.fillRect(sx,sy,TW,TH);
+      if((col+row)%3===0){mx.fillStyle='#e04000';mx.fillRect(sx+3*p,sy+4*p,6*p,4*p);}
+      break;
+    case 22:// volcanic rock
+      mx.fillStyle='#381000';mx.fillRect(sx,sy,TW,TH);
+      mx.fillStyle='#602010';mx.beginPath();mx.moveTo(cx,sy+p);mx.lineTo(sx+w-p,sy+9*p);mx.lineTo(sx+p,sy+9*p);mx.closePath();mx.fill();
+      mx.fillStyle='#e04000';mx.fillRect(sx+4*p,sy+0,4*p,3*p);
+      break;
+  }
+}
+
+function drawMap(){
+  const m=G.currentInterior||{tiles:G.map,cols:G.mapCols,rows:G.mapRows};
+  const cw=mc.width/(window.devicePixelRatio||1);
+  const ch=mc.height/(window.devicePixelRatio||1);
+  const camX=G.heroCol*TW+TW/2-cw/2;
+  const camY=G.heroRow*TH+TH/2-ch/2;
+  mx.clearRect(0,0,mc.width,mc.height);
+  const sc2=Math.floor(camX/TW)-1,sr=Math.floor(camY/TH)-1;
+  for(let r=sr;r<sr+Math.ceil(ch/TH)+3;r++){
+    for(let c=sc2;c<sc2+Math.ceil(cw/TW)+3;c++){
+      const sx=c*TW-camX,sy=r*TH-camY;
+      if(r<0||r>=m.rows||c<0||c>=m.cols){mx.fillStyle='#04040a';mx.fillRect(sx,sy,TW,TH);}
+      else drawMapTile(c,r,sx,sy);
+    }
+  }
+  mx.font=Math.round(TW*0.92)+'px serif';mx.textAlign='center';mx.textBaseline='middle';
+  mx.fillText('🧙',G.heroCol*TW-camX+TW/2,G.heroRow*TH-camY+TH/2);
+
+  // HUD
+  document.getElementById('hud-hp').textContent='HP:'+G.heroHp+'/'+G.heroMaxHp;
+  document.getElementById('hud-mp').textContent='MP:'+G.heroMp+'/'+G.heroMaxMp;
+  document.getElementById('hud-gold').textContent='G:'+G.gold;
+  document.getElementById('hud-atk').textContent='ATK:'+G.heroAtk;
+  document.getElementById('hud-def').textContent='DEF:'+G.heroDef;
+  document.getElementById('hud-lv').textContent='Lv:'+G.level;
+  document.getElementById('hud-shards').textContent='✦:'+G.shards+'/6';
+  if(!G.currentInterior){
+    const reg=getRegion(G.heroCol);
+    document.getElementById('hud-region').textContent=REGION_NAMES[reg]||'';
+  }else{
+    document.getElementById('hud-region').textContent=G.currentInterior.name;
+  }
+  updateInteractBtn();
+}
+
+function showZoneFlash(txt){
+  const el=document.getElementById('zone-flash');
+  el.textContent=txt;el.style.opacity=1;
+  setTimeout(()=>el.style.opacity=0,1800);
+}
+
+// ════════════════════════════════════════════════════════════════
+// INTERACT BUTTON
+// ════════════════════════════════════════════════════════════════
+function getInteractAction(){
+  if(G.phase!=='map')return null;
+  const t=getTile(G.heroCol,G.heroRow);
+  if(!G.currentInterior){
+    // Check hero's current tile and the tile directly north
+    for(let dr=0;dr<=1;dr++){
+      const vkey=G.heroCol+','+(G.heroRow-dr);
+      if(VILLAGE_ENTRIES[vkey])return{type:'village',v:VILLAGE_ENTRIES[vkey],label:'ENTER VILLAGE'};
+    }
+  }else{
+    if(t===T.SHOP)return{type:'shop',label:'SHOP'};
+    if(t===T.INN)return{type:'inn',label:'REST ('+INN_COST+'g)'};
+    if(t===T.EXIT)return{type:'exit',label:'LEAVE VILLAGE'};
+  }
+  return null;
+}
+
+function updateInteractBtn(){
+  const btn=document.getElementById('interact-btn');
+  const action=getInteractAction();
+  if(action){btn.style.display='block';btn.textContent=action.label;}
+  else btn.style.display='none';
+}
+
+function doInteract(){
+  const action=getInteractAction();
+  if(!action)return;
+  if(action.type==='village'){
+    const v=action.v;
+    G.currentInterior=v;G.heroCol=v.heroEntryCol;G.heroRow=v.heroEntryRow;
+    showZoneFlash('Entered '+v.name);
+    document.getElementById('map-msg').textContent='* You enter '+v.name+'.';
+    drawMap();updateInteractBtn();
+  }else if(action.type==='shop'){
+    openShop();
+  }else if(action.type==='inn'){
+    doInn();
+  }else if(action.type==='exit'){
+    const wx=G.currentInterior.worldExitCol;
+    const wy=G.currentInterior.worldExitRow;
+    G.currentInterior=null;G.heroCol=wx;G.heroRow=wy;
+    showZoneFlash('Back to the overworld');
+    document.getElementById('map-msg').textContent='* You step outside.';
+    drawMap();updateInteractBtn();
+  }
+}
+function tryMove(dir){
+  if(G.phase!=='map')return;
+  let nc=G.heroCol,nr=G.heroRow;
+  if(dir==='up')nr--;else if(dir==='down')nr++;
+  else if(dir==='left')nc--;else if(dir==='right')nc++;
+  const t=getTile(nc,nr);
+  if(!PASSABLE.has(t))return;
+  G.heroCol=nc;G.heroRow=nr;
+  handleStep(nc,nr,t,dir);
+  drawMap();
+  updateInteractBtn();
+}
+
+function handleStep(col,row,t,dir){
+  if(!G.currentInterior){
+    // Shard tower boss tile (16)
+    if(t===T.BOSS){
+      for(let i=0;i<SHARD_TOWERS.length;i++){
+        const st=SHARD_TOWERS[i];
+        if(col===st.col&&row===st.row&&!st.cleared){
+          triggerShardBoss(i);return;
+        }
+      }
+    }
+    // Final gate (6)
+    if(t===T.WIN){
+      if(G.shards<6){
+        document.getElementById('map-msg').textContent='* The gate pulses... but does not open.\n* You need all 6 Echo Shards.';
+        return;
+      }
+      G.finalBossActive=true;
+      triggerBattle(deepClone(FINAL_BOSS));return;
+    }
+  }
+
+  // Zone flash on region change
+  if(!G.currentInterior){
+    const reg=getRegion(col);
+    const rname=REGION_NAMES[reg];
+    if(rname!==document.getElementById('hud-region').textContent)showZoneFlash(rname);
+  }
+
+  // Encounters
+  const dangerTiles=new Set([2,3,4,10,14,16,20]);
+  // Also treat path tiles in lava region as dangerous
+  const inLava=!G.currentInterior&&getRegion(col)===5;
+  if(dangerTiles.has(t)||(inLava&&t===5)){
+    G.stepsSince++;
+    if(G.stepsSince>ENCOUNTER_COOLDOWN&&Math.random()<ENCOUNTER_RATE){
+      G.stepsSince=0;
+      const pool=getEnemyPool(t,col);
+      const idx=pool[Math.floor(Math.random()*pool.length)];
+      triggerBattle(deepClone(ENEMIES[idx]));
+    }
+  }else{G.stepsSince++;}
+}
+
+function getEnemyPool(t,col){
+  if(ZONE_ENEMIES[t])return ZONE_ENEMIES[t];
+  // Fallback by region
+  const reg=getRegion(col);
+  const byRegion=[[0,1],[2,3],[4,5],[6,7],[8,9],[10,11]];
+  return byRegion[reg]||[0];
+}
+
+function deepClone(o){return JSON.parse(JSON.stringify(o));}
+
+// ════════════════════════════════════════════════════════════════
+// SHARD BOSS
+// ════════════════════════════════════════════════════════════════
+function triggerShardBoss(idx){
+  const st=SHARD_TOWERS[idx];
+  // Each region has its own guardian (tougher version of region enemy)
+  const guardianIdx=[1,3,5,7,9,11][idx]; // top enemy of each region
+  const e=deepClone(ENEMIES[guardianIdx]);
+  e.hp=Math.round(e.hp*1.8);e.maxHp=e.hp;e.atk=Math.round(e.atk*1.4);
+  e.gold+=40;e.xp+=50;
+  e._shardIdx=idx;e._isShard=true;
+  e.intro=['* You approach '+st.name+'!\n* Its guardian stirs.','* GUARDIAN: The shard is not yours to take.\n* GUARDIAN: Prove otherwise.'];
+  triggerBattle(e);
+}
+
+// ════════════════════════════════════════════════════════════════
+// INN
+// ════════════════════════════════════════════════════════════════
+function doInn(){
+  if(G.heroHp>=G.heroMaxHp&&G.heroMp>=G.heroMaxMp){
+    document.getElementById('map-msg').textContent='* INNKEEPER: You look rested already.';return;
+  }
+  if(G.gold<INN_COST){
+    document.getElementById('map-msg').textContent='* INNKEEPER: Rest costs '+INN_COST+'g. You have '+G.gold+'g.';return;
+  }
+  G.gold-=INN_COST;G.heroHp=G.heroMaxHp;G.heroMp=G.heroMaxMp;
+  document.getElementById('map-msg').textContent='* You rest through the night.\n* HP and MP fully restored.';
+  drawMap();
+}
+
+// ════════════════════════════════════════════════════════════════
+// SHOP
+// ════════════════════════════════════════════════════════════════
+function openShop(){
+  document.getElementById('shop-gold').textContent='Your gold: '+G.gold+'g';
+  document.getElementById('shop-msg').textContent='';
+  const cont=document.getElementById('shop-items');cont.innerHTML='';
+  SHOP_ITEMS.forEach((item,i)=>{
+    const owned=!!G.shopOwned[i];
+    const isEq=item.slot&&G.equipped[item.slot]===i;
+    const row=document.createElement('div');row.className='shop-item';
+    row.innerHTML=`<span class="shop-item-name">${item.name}${isEq?'<span class="shop-item-equipped"> [EQ]</span>':''}</span>
+      <span class="shop-item-stat">${item.stat}</span><span class="shop-item-cost">${item.cost}g</span>`;
+    if(!owned){
+      const b=document.createElement('button');b.className='shop-btn';b.textContent='BUY';
+      b.disabled=G.gold<item.cost;
+      b.onclick=()=>{
+        if(G.gold<item.cost)return;
+        G.gold-=item.cost;G.shopOwned[i]=true;
+        if(item.slot)equipItem(i);
+        else if(item.key==='potion')G.potions+=item.val;
+        document.getElementById('shop-msg').textContent='Bought: '+item.name+'!';
+        openShop();
+      };row.appendChild(b);
+    }else if(item.slot&&!isEq){
+      const b=document.createElement('button');b.className='shop-btn equip';b.textContent='EQUIP';
+      b.onclick=()=>{equipItem(i);document.getElementById('shop-msg').textContent='Equipped: '+item.name+'!';openShop();};
+      row.appendChild(b);
+    }
+    cont.appendChild(row);
+  });
+  document.getElementById('shop-overlay').classList.add('active');
+}
+
+function equipItem(i){
+  const item=SHOP_ITEMS[i];if(!item.slot)return;
+  const old=G.equipped[item.slot];
+  if(old!==null){const p=SHOP_ITEMS[old];if(p.key==='atk')G.heroAtk-=p.val;else if(p.key==='def')G.heroDef-=p.val;else if(p.key==='magpow')G.heroMagPow-=p.val;}
+  G.equipped[item.slot]=i;
+  if(item.key==='atk')G.heroAtk+=item.val;else if(item.key==='def')G.heroDef+=item.val;else if(item.key==='magpow')G.heroMagPow+=item.val;
+}
+
+function recalcStats(){
+  G.heroAtk=3;G.heroDef=0;G.heroMagPow=5;
+  Object.values(G.equipped).forEach(i=>{
+    if(i!==null){const it=SHOP_ITEMS[i];if(it&&it.slot){
+      if(it.key==='atk')G.heroAtk+=it.val;else if(it.key==='def')G.heroDef+=it.val;else if(it.key==='magpow')G.heroMagPow+=it.val;
+    }}
+  });
+  G.heroAtk+=Math.floor((G.level-1)*0.9);
+  G.heroDef+=Math.floor((G.level-1)*0.5);
+  G.heroMagPow+=Math.floor((G.level-1)*0.7);
+}
+
+function closeShop(){document.getElementById('shop-overlay').classList.remove('active');}
+
+// ════════════════════════════════════════════════════════════════
+// BATTLE CANVAS
+// ════════════════════════════════════════════════════════════════
+const sce=document.getElementById('scene-canvas');
+const sc_ctx=sce.getContext('2d');
+const BG={
+  forest: {sky:'#1a2810',ground:'#2a4818',accent:'#386420'},
+  desert: {sky:'#2a2008',ground:'#3c2c08',accent:'#604810'},
+  frost:  {sky:'#0c1428',ground:'#182838',accent:'#284858'},
+  spooky: {sky:'#0a0818',ground:'#140c20',accent:'#201030'},
+  mountain:{sky:'#101018',ground:'#202030',accent:'#303048'},
+  lava:   {sky:'#200400',ground:'#300800',accent:'#500c00'},
+  boss:   {sky:'#08001a',ground:'#100830',accent:'#180848'},
+  cave:   {sky:'#0c0818',ground:'#180c28',accent:'#281440'},
+  mire:   {sky:'#08100a',ground:'#101808',accent:'#182010'},
+  dungeon:{sky:'#080810',ground:'#101020',accent:'#181830'},
+  ruins:  {sky:'#100c04',ground:'#181408',accent:'#281e10'},
+};
+
+function drawBattle(bgType,enemyColor,enemyEmoji){
+  const bg=BG[bgType]||BG.cave;
+  const w=sce.width,h=sce.height;
+  sc_ctx.fillStyle=bg.sky;sc_ctx.fillRect(0,0,w,h*0.55);
+  sc_ctx.fillStyle=bg.ground;sc_ctx.fillRect(0,h*0.55,w,h*0.45);
+  for(let i=0;i<28;i++){
+    const sx=(Math.sin(i*47.3)*0.5+0.5)*w,sy=(Math.sin(i*31.7)*0.5+0.5)*h*0.5;
+    sc_ctx.fillStyle='#ffffff33';sc_ctx.fillRect(sx,sy,1,1);
+  }
+  sc_ctx.fillStyle=bg.accent;sc_ctx.fillRect(0,h*0.53,w,h*0.05);
+  if(enemyColor){sc_ctx.fillStyle=enemyColor+'88';sc_ctx.beginPath();sc_ctx.arc(w*0.72,h*0.38,28,0,Math.PI*2);sc_ctx.fill();}
+  sc_ctx.font='40px serif';sc_ctx.textAlign='center';sc_ctx.textBaseline='middle';
+  sc_ctx.fillText(enemyEmoji||'❓',w*0.72,h*0.38);
+  sc_ctx.font='32px serif';sc_ctx.fillText('🧙',w*0.22,h*0.68);
+}
+
+// ════════════════════════════════════════════════════════════════
+// DIALOGUE
+// ════════════════════════════════════════════════════════════════
+function setDlg(name,text){
+  document.getElementById('dlg-name').textContent=name;
+  document.getElementById('dlg-text').textContent=text;
+  document.getElementById('dlg-arrow').style.display='block';
+}
+function queueDlg(lines,cb){G.dlgQ=lines;G.dlgI=0;G.afterDlg=cb;showDlgLine();}
+function showDlgLine(){
+  if(G.dlgI>=G.dlgQ.length){document.getElementById('dlg-arrow').style.display='none';if(G.afterDlg)G.afterDlg();return;}
+  setDlg('',G.dlgQ[G.dlgI]);G.dlgI++;
+}
+function advanceDialogue(){if(G.phase==='dialogue')showDlgLine();}
+function shakeDlg(){
+  const d=document.getElementById('dialogue-box');
+  d.style.transform='translateX(-4px)';setTimeout(()=>d.style.transform='translateX(4px)',60);
+  setTimeout(()=>d.style.transform='translateX(0)',120);
+}
+
+// ════════════════════════════════════════════════════════════════
+// BATTLE ENGINE
+// ════════════════════════════════════════════════════════════════
+function showActions(v){
+  document.getElementById('action-panel').style.display=v?'flex':'none';
+  document.getElementById('footer-tap').style.display=v?'none':'block';
+  document.getElementById('spare-btn').disabled=!(G.enemy&&G.enemy.spareReady);
+  document.getElementById('magic-btn').textContent='ECHO BLAST ('+G.heroMp+'mp)';
+}
+
+function updHeroHp(){
+  const pct=G.heroHp/G.heroMaxHp*100;
+  const bar=document.getElementById('hero-hp-bar');
+  bar.style.width=pct+'%';bar.className='bar hp'+(pct<25?' low':pct<50?' mid':'');
+  document.getElementById('hero-hp-txt').textContent='HP'+G.heroHp+'/'+G.heroMaxHp;
+  document.getElementById('hero-mp-bar').style.width=(G.heroMp/G.heroMaxMp*100)+'%';
+  document.getElementById('hero-mp-txt').textContent='MP'+G.heroMp+'/'+G.heroMaxMp;
+}
+
+function updEnemyHp(){
+  const e=G.enemy;if(!e)return;
+  const pct=e.hp/e.maxHp*100;
+  const bar=document.getElementById('enemy-hp-bar');
+  bar.style.width=pct+'%';bar.className='bar hp'+(pct<25?' low':pct<50?' mid':'');
+  document.getElementById('enemy-hp-txt').textContent='HP'+e.hp+'/'+e.maxHp;
+  document.getElementById('enemy-name-lbl').textContent=e.name;
+}
+
+function triggerBattle(e){
+  G.enemy=e;G.phase='dialogue';
+  showScreen('battle-screen');
+  drawBattle(e.bgType,e.color,e.emoji);
+  updHeroHp();updEnemyHp();showActions(false);
+  queueDlg(e.intro,()=>{G.phase='battle';showActions(true);setDlg('','* What will you do?');});
+}
+
+function endBattle(){
+  const e=G.enemy;
+  if(G.finalBossActive){triggerEnd(true);return;}
+  if(e&&e._isShard){
+    const idx=e._shardIdx;
+    SHARD_TOWERS[idx].cleared=true;G.shards++;
+    G.gold+=e.gold;G.xp+=e.xp||0;
+    const lv=checkLevel();
+    const msg='* ✦ ECHO SHARD CLAIMED! ('+G.shards+'/6)'+(G.shards<6?'\n* The next tower awaits.':'\n* All six shards are yours!\n* Seek the Final Gate.')+(lv?'\n* '+lv:'');
+    G.phase='map';
+    doFlash(()=>{showScreen('map-screen');resizeMapCanvas();drawMap();document.getElementById('map-msg').textContent=msg;});
+    return;
+  }
+  G.phase='map';
+  const earned=e?e.gold:0;const xpEarned=e?e.xp||0:0;
+  G.gold+=earned;G.xp+=xpEarned;
+  const lvMsg=checkLevel();
+  const parts=[];
+  if(earned)parts.push('* '+earned+'g earned!');
+  if(xpEarned)parts.push('* '+xpEarned+' XP! ('+G.xp+'/'+G.xpNext+')');
+  if(lvMsg)parts.push('* '+lvMsg);
+  doFlash(()=>{showScreen('map-screen');resizeMapCanvas();drawMap();document.getElementById('map-msg').textContent=parts.join(' ')||'* You return to the overworld.';});
+}
+
+function checkLevel(){
+  let msg='';
+  while(G.xp>=G.xpNext){
+    G.xp-=G.xpNext;G.level++;G.xpNext=Math.floor(G.xpNext*1.7);
+    G.heroMaxHp+=7;G.heroHp=Math.min(G.heroHp+7,G.heroMaxHp);
+    G.heroMaxMp+=3;G.heroMp=Math.min(G.heroMp+3,G.heroMaxMp);
+    recalcStats();msg='LEVEL UP! Lv.'+G.level+'!';
+  }
+  return msg;
+}
+
+function doFight(){
+  if(G.phase!=='battle')return;G.pacifist=false;
+  const e=G.enemy;
+  const dmg=Math.max(1,Math.floor(Math.random()*4)+G.heroAtk-Math.floor(e.def||0));
+  e.hp=Math.max(0,e.hp-dmg);updEnemyHp();showActions(false);
+  if(e.hp<=0){G.phase='dialogue';queueDlg(['* You strike for '+dmg+' damage!\n* '+e.name+' is defeated!',e.deathText],endBattle);return;}
+  enemyAtk('* You strike for '+dmg+' damage!');
+}
+
+function doAct(){
+  if(G.phase!=='battle')return;const e=G.enemy;showActions(false);G.phase='dialogue';
+  if(e.actSpares&&!e.spareReady){
+    e.spareReady=true;document.getElementById('spare-btn').disabled=false;
+    queueDlg([e.actText],()=>{G.phase='battle';showActions(true);setDlg('','* '+e.name+' seems willing to be spared.');});
+  }else{
+    queueDlg(['* You look around...\n* Nothing else to be done.'],()=>{G.phase='battle';showActions(true);setDlg('','* What will you do?');});
+  }
+}
+
+function doMagic(){
+  if(G.phase!=='battle')return;
+  const cost=4;
+  if(G.heroMp<cost){setDlg('','* Not enough MP! (Need '+cost+')');return;}
+  G.heroMp=Math.max(0,G.heroMp-cost);updHeroHp();showActions(false);G.phase='dialogue';
+  const e=G.enemy;
+  const dmg=Math.floor(Math.random()*6)+G.heroMagPow;
+  e.hp=Math.max(0,e.hp-dmg);updEnemyHp();
+  if(e.hp<=0){queueDlg(['* ECHO BLAST! '+dmg+' damage!\n* '+e.name+' is defeated!',e.deathText],endBattle);return;}
+  enemyAtk('* Echo Blast! '+dmg+' damage!');
+}
+
+function doItem(){
+  if(G.phase!=='battle')return;
+  if(G.potions<=0){setDlg('','* Out of potions!');return;}
+  showActions(false);G.phase='dialogue';
+  const heal=Math.min(8,G.heroMaxHp-G.heroHp);
+  G.heroHp=Math.min(G.heroMaxHp,G.heroHp+8);G.potions--;updHeroHp();
+  queueDlg(['* Potion used! (+'+heal+' HP)\n* Potions left: '+G.potions],()=>enemyAtk(null,true));
+}
+
+function doSpare(){
+  if(G.phase!=='battle')return;const e=G.enemy;
+  if(!e.spareReady){setDlg('','* '+e.name+' is not ready.\n* Try COMMUNE first.');return;}
+  showActions(false);G.phase='dialogue';
+  drawBattle(e.bgType,null,'✨');
+  queueDlg([e.spareText,'* '+e.name+' departs.'],endBattle);
+}
+
+function enemyAtk(prefix,skip){
+  const e=G.enemy;
+  const al=e.attackLines[Math.floor(Math.random()*e.attackLines.length)];
+  const rawDmg=skip?0:Math.floor(Math.random()*(e.atk/2))+Math.ceil(e.atk/2);
+  const defR=Math.floor(G.heroDef*(G.finalBossActive?0.3:1));
+  const dmg=Math.max(skip?0:1,rawDmg-defR);
+  if(!skip){G.heroHp=Math.max(0,G.heroHp-dmg);updHeroHp();shakeDlg();}
+  const lines=[];if(prefix)lines.push(prefix);if(!skip)lines.push(al+'\n* You take '+dmg+' damage!');
+  G.phase='dialogue';
+  queueDlg(lines.length?lines:['* ...'],()=>{
+    if(G.heroHp<=0){triggerEnd(false);return;}
+    G.phase='battle';showActions(true);
+    document.getElementById('magic-btn').textContent='ECHO BLAST ('+G.heroMp+'mp)';
+    setDlg('','* What will you do?');
+  });
+}
+
+// ════════════════════════════════════════════════════════════════
+// END
+// ════════════════════════════════════════════════════════════════
+function triggerEnd(win){
+  G.phase=win?'win':'gameover';showScreen('end-screen');
+  const title=document.getElementById('end-title');
+  const msg=document.getElementById('end-msg');
+  if(win){
+    title.style.color='var(--gold)';title.textContent='THE ECHO RESTORED';
+    msg.textContent=G.pacifist
+      ?'Six regions. Six shards. Six creatures\nspared across a broken world.\n\nYou listened to every one of them.\n\nThe Unmade was not a monster.\nIt was grief given form.\n\nThe Echo Stone remains shattered.\nAnd the world remains whole.\n\n— TRUE ENDING —'
+      :'Six regions. Six shards.\nOne wanderer who never turned back.\n\nThe Unmade is gone.\nThe world breathes again.\n\n— THE END —\n(Try sparing everyone next time!)';
+  }else{
+    title.style.color='var(--red)';title.textContent='THE WANDERER FALLS';
+    msg.textContent='* The echoes go silent...\n\nRest at an Inn to restore HP.\nThe realm still needs you.\n\nTry again.';
+  }
+}
+
+// ════════════════════════════════════════════════════════════════
+// FLASH + RESIZE + INPUT
+// ════════════════════════════════════════════════════════════════
+function doFlash(cb){
+  const f=document.getElementById('flash');
+  f.style.opacity=0.7;setTimeout(()=>{f.style.opacity=0;setTimeout(cb,150);},80);
+}
+
+function resizeMapCanvas(){
+  const wrap=document.getElementById('map-wrap');
+  const canvas=document.getElementById('map-canvas');
+  const dpr=window.devicePixelRatio||1;
+  const w=wrap.clientWidth,h=wrap.clientHeight;
+  if(w>0&&h>0){
+    canvas.width=Math.round(w*dpr);canvas.height=Math.round(h*dpr);
+    mx.setTransform(dpr,0,0,dpr,0,0);
+    TW=Math.max(12,Math.round(w/22));TH=TW;
+  }
+}
+window.addEventListener('resize',()=>{if(G.phase==='map'){resizeMapCanvas();drawMap();}});
+
+document.addEventListener('keydown',e=>{
+  const map={'ArrowUp':'up','ArrowDown':'down','ArrowLeft':'left','ArrowRight':'right'};
+  if(map[e.key]){if(!G.keysDown[e.key]){G.keysDown[e.key]=true;tryMove(map[e.key]);startRepeat(map[e.key]);}e.preventDefault();}
+  if(e.key===' '||e.key==='Enter'){
+    if(G.phase==='map')doInteract();
+    else advanceDialogue();
+    e.preventDefault();
+  }
+});
+document.addEventListener('keyup',e=>{
+  G.keysDown[e.key]=false;
+  if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.key))clearRepeat();
+});
+
+let _repeatTimer=null,_repeatDir=null;
+function startRepeat(dir){_repeatDir=dir;_repeatTimer=setTimeout(function rep(){tryMove(_repeatDir);_repeatTimer=setTimeout(rep,110);},280);}
+function clearRepeat(){clearTimeout(_repeatTimer);_repeatTimer=null;_repeatDir=null;}
+function dpadStart(dir){clearRepeat();tryMove(dir);startRepeat(dir);}
+function dpadEnd(){clearRepeat();}
+
+// ════════════════════════════════════════════════════════════════
+// START
+// ════════════════════════════════════════════════════════════════
+function startGame(){
+  G.phase='map';showScreen('map-screen');resizeMapCanvas();drawMap();
+  showZoneFlash('Welcome to the Realm of Echoes!');
+  document.getElementById('map-msg').textContent='* Six regions. Six shards.\n* Travel east. The path connects them all.';
+}
+</script>
+</body>
+</html>
