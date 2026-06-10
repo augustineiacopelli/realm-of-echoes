@@ -191,7 +191,9 @@ body{background:var(--bg);color:var(--white);font-family:'Press Start 2P',monosp
     <div class="region-pip">⛰️ Peaks</div>
     <div class="region-pip">🌋 Caldera</div>
   </div>
-  <button class="start-btn" onclick="startGame()">&#9658; BEGIN JOURNEY</button>
+  <button class="start-btn" onclick="startGame(false)">&#9658; NEW JOURNEY</button>
+  <button class="start-btn" id="continue-btn" onclick="startGame(true)" style="display:none;background:#2a3a6a;box-shadow:0 0 14px #4060c0;">&#9654; CONTINUE</button>
+  <div id="save-info" style="font-size:6px;color:var(--gray);display:none;"></div>
   <div class="hint-txt">Arrow keys / D-pad &middot; Enter villages to shop &amp; rest</div>
 </div>
 
@@ -235,6 +237,7 @@ body{background:var(--bg);color:var(--white);font-family:'Press Start 2P',monosp
       <div class="cname">WANDERER</div>
       <div class="bar-row"><span class="bar-lbl" id="hero-hp-txt">HP20/20</span><div class="bar-wrap"><div class="bar hp" id="hero-hp-bar" style="width:100%"></div></div></div>
       <div class="bar-row"><span class="bar-lbl" id="hero-mp-txt">MP10/10</span><div class="bar-wrap"><div class="bar mp" id="hero-mp-bar" style="width:100%"></div></div></div>
+      <div id="status-indicator" style="font-size:7px;min-height:12px;margin-top:3px;"></div>
     </div>
     <div class="ccard" id="enemy-card">
       <div class="cname" id="enemy-name-lbl">Enemy</div>
@@ -280,7 +283,7 @@ body{background:var(--bg);color:var(--white);font-family:'Press Start 2P',monosp
 <div id="end-screen" class="screen">
   <h2 id="end-title">GAME OVER</h2>
   <p id="end-msg"></p>
-  <button class="restart-btn" onclick="location.reload()">Play Again</button>
+  <button class="restart-btn" onclick="deleteSave();location.reload()">Play Again</button>
 </div>
 
 <script>
@@ -331,25 +334,25 @@ const WORLD=[
 [1,1,2,2,9,9,9,1,1,23,17,17,7,7,9,9,9,17,17,23,18,18,18,18,9,9,9,18,18,23,20,4,4,4,9,9,9,20,20,20,7,7,7,7,9,9,9,7,7,7,21,22,22,22,9,21,5,5,6,6],
 [1,1,2,2,9,9,9,1,1,23,17,17,7,7,9,9,9,17,17,23,18,18,18,18,9,9,9,18,18,23,20,4,4,4,9,9,9,20,20,20,7,7,7,7,9,9,9,7,7,7,21,22,22,22,9,9,9,21,21,21],
 [1,1,2,2,9,16,9,1,1,23,17,17,7,7,9,16,9,17,17,23,18,18,18,18,9,16,9,18,18,23,20,4,4,4,9,16,9,20,20,20,7,7,7,7,9,16,9,7,7,7,21,22,22,22,9,16,9,21,21,21],
-[1,1,2,2,9,9,9,1,1,23,17,17,17,24,9,9,9,17,17,23,18,3,3,3,9,9,9,18,18,23,20,24,4,4,9,9,9,20,20,20,7,7,7,7,9,9,9,7,7,7,21,22,22,22,9,9,9,21,21,21],
-[1,1,2,2,9,9,9,1,1,23,17,17,17,17,9,9,9,17,17,23,18,3,24,3,9,9,9,18,18,23,20,4,4,4,9,9,9,20,20,20,7,7,7,7,9,9,9,7,7,7,21,21,21,21,9,9,9,21,21,21],
-[1,1,2,24,2,1,1,1,1,23,17,17,17,17,17,17,17,7,7,23,18,3,3,3,3,18,18,18,18,23,20,4,4,4,4,20,20,20,20,20,7,5,5,5,5,5,7,7,7,7,21,21,21,21,21,5,21,21,21,21],
-[1,1,2,2,2,1,1,1,1,23,17,17,17,17,17,17,17,7,7,23,18,3,3,3,3,18,18,18,18,23,20,4,4,4,4,20,20,20,20,20,7,24,5,5,5,5,7,7,7,7,21,21,21,21,21,5,21,21,21,21],
+[1,1,2,2,9,9,9,1,1,23,17,17,17,17,9,9,9,17,17,23,18,3,3,3,9,9,9,18,18,23,20,20,4,4,9,9,9,20,20,20,7,7,7,7,9,9,9,7,7,7,21,22,22,22,9,9,9,21,21,21],
+[1,1,2,2,9,9,9,1,1,23,17,17,17,17,9,9,9,17,17,23,18,3,18,3,9,9,9,18,18,23,20,4,4,4,9,9,9,20,20,20,7,7,7,7,9,9,9,7,7,7,21,21,21,21,9,9,9,21,21,21],
+[1,1,2,1,2,1,1,1,1,23,17,17,17,17,17,17,17,7,7,23,18,3,3,3,3,18,18,18,18,23,20,4,4,4,4,20,20,20,20,20,7,5,5,5,5,5,7,7,7,7,21,21,21,21,21,5,21,21,21,21],
+[1,1,2,2,2,1,1,1,1,23,17,24,17,17,17,17,17,7,7,23,18,24,3,3,3,18,18,18,18,23,20,4,4,4,4,20,20,20,20,20,7,7,5,5,5,5,7,7,7,7,21,21,21,21,21,5,21,21,21,21],
 [1,1,2,2,2,1,1,1,1,23,17,17,17,17,17,17,17,7,7,23,18,3,3,3,3,18,18,18,18,23,20,4,4,4,4,20,20,20,20,20,7,5,5,5,5,5,7,7,7,7,21,21,21,22,22,5,22,22,21,21],
-[1,1,1,1,1,1,1,1,1,23,17,17,17,17,17,17,17,7,7,23,18,3,3,3,3,18,18,24,18,23,20,20,20,20,20,20,20,20,20,20,7,5,5,5,5,5,7,7,7,7,21,21,21,22,22,5,22,22,21,21],
-[1,2,2,2,2,1,24,1,1,23,17,17,17,17,17,17,17,17,17,23,18,18,18,18,18,18,18,18,18,23,20,20,20,2,2,20,2,24,2,20,7,5,5,5,5,5,7,7,7,7,21,21,21,22,22,5,22,22,21,21],
-[1,2,2,2,2,1,1,1,1,23,17,17,17,17,17,17,24,17,17,23,18,18,18,18,18,18,18,18,18,23,20,20,20,2,2,20,2,2,2,20,7,5,5,5,3,5,3,7,7,7,21,21,21,22,22,5,22,22,21,21],
+[1,1,1,1,1,1,1,1,1,23,17,17,17,17,17,17,17,7,7,23,18,3,3,3,3,18,18,18,18,23,20,20,20,20,20,20,20,20,20,20,7,5,5,5,5,5,7,7,7,7,21,21,21,22,22,24,22,22,21,21],
+[1,2,24,2,2,1,1,1,1,23,17,17,17,17,17,17,17,17,17,23,18,18,18,18,18,18,18,18,18,23,20,24,20,2,2,20,2,20,2,20,7,5,24,5,5,5,7,7,7,7,21,21,21,22,22,5,22,22,21,21],
+[1,2,2,2,2,1,1,1,1,23,17,17,17,17,17,17,17,17,17,23,18,18,18,18,18,18,18,18,18,23,20,20,20,2,2,20,2,2,2,20,7,5,5,5,3,5,3,7,7,7,21,21,21,22,22,5,22,22,21,21],
 [1,2,2,2,2,1,1,1,1,23,17,17,17,17,17,17,17,17,17,23,19,19,19,19,19,18,19,19,19,23,20,20,20,2,2,20,2,2,2,20,7,5,5,5,3,5,3,7,7,7,21,21,21,22,22,5,22,22,21,21],
-[1,2,2,2,2,1,1,1,1,23,17,17,17,17,17,17,17,17,17,23,19,19,19,19,19,18,19,19,19,23,20,20,20,2,2,20,2,2,2,20,7,5,5,5,3,5,24,7,7,7,21,21,21,22,22,5,22,22,21,21],
-[1,2,2,2,2,1,1,1,1,23,17,17,17,17,17,17,17,17,17,23,18,24,18,18,18,18,3,3,3,23,20,20,20,2,2,20,2,2,2,20,7,5,5,5,3,5,3,7,7,7,21,21,21,22,22,5,22,22,21,21],
+[1,2,2,2,2,1,1,1,1,23,17,17,17,17,17,17,17,17,17,23,19,19,19,19,19,18,19,24,19,23,20,20,20,2,2,20,2,2,2,20,7,5,5,5,3,5,7,7,7,7,21,21,21,22,22,5,22,22,21,21],
+[1,2,2,2,2,1,1,1,1,23,17,17,17,17,17,17,17,24,17,23,18,18,18,18,18,18,3,3,3,23,20,20,20,2,2,20,2,24,2,20,7,5,5,5,3,5,3,7,7,7,21,21,21,22,22,5,22,22,21,21],
 [1,1,1,1,1,1,1,1,1,23,17,17,17,17,17,17,17,17,17,23,18,18,18,18,18,18,3,3,3,23,20,20,20,2,2,20,2,2,2,20,7,5,5,5,3,5,3,7,7,7,21,21,21,21,21,5,21,21,21,21],
-[1,1,24,2,2,1,2,1,1,23,17,17,17,17,17,17,17,17,17,23,18,18,18,18,18,18,3,3,3,23,20,20,20,24,2,20,2,2,2,20,7,5,5,5,3,5,3,7,7,7,21,21,21,21,21,5,21,21,21,21],
-[1,1,1,2,2,1,2,1,1,23,17,24,17,17,17,17,17,17,17,23,18,18,18,18,18,18,3,3,3,23,20,20,20,20,20,20,20,20,20,20,7,7,7,7,7,5,7,7,7,7,21,21,21,21,21,5,21,21,21,21],
+[1,1,1,2,24,1,2,1,1,23,17,17,17,17,17,17,17,17,17,23,18,18,18,18,18,18,3,3,3,23,20,20,20,20,2,20,2,2,2,20,7,5,5,5,3,5,3,7,7,7,21,21,21,21,21,5,21,21,21,21],
+[1,1,1,2,2,1,2,1,1,23,17,17,17,17,17,17,17,17,17,23,18,18,18,18,18,18,3,3,3,23,20,20,20,20,20,20,20,20,20,20,7,7,7,7,7,5,7,7,7,7,21,21,21,21,21,5,21,21,21,21],
 [1,1,1,2,2,1,2,1,1,23,17,17,17,17,17,17,17,17,17,23,18,18,18,18,18,18,3,3,3,3,10,10,10,10,20,20,20,20,20,23,19,19,19,19,19,5,19,19,19,19,21,21,21,21,21,5,21,21,21,21],
 [1,1,1,2,2,1,2,1,1,23,17,17,17,17,17,17,17,17,17,23,18,18,18,18,18,18,18,18,18,18,10,10,10,10,20,20,20,20,20,23,19,19,19,19,19,5,19,19,19,19,21,21,21,21,21,5,21,21,21,21],
-[1,1,1,2,2,1,2,24,1,23,17,17,17,17,17,17,17,17,17,23,18,18,18,18,18,18,18,18,18,18,10,10,10,10,20,20,20,20,24,20,7,7,7,5,5,5,5,5,5,7,21,22,22,22,22,5,21,21,21,21],
-[1,1,1,2,2,1,2,1,1,23,17,17,17,17,17,17,17,17,24,23,18,18,18,18,18,18,18,18,18,18,10,10,10,10,20,20,20,20,20,20,7,7,7,5,5,5,5,5,5,7,21,22,22,22,22,5,21,21,21,21],
+[1,1,1,2,2,1,2,1,1,23,17,17,17,17,17,17,17,17,17,23,18,18,18,18,18,18,18,18,18,18,10,10,10,10,20,20,20,20,20,20,7,7,7,5,5,5,5,5,5,7,21,22,22,22,22,24,21,21,21,21],
 [1,1,1,2,2,1,2,1,1,23,17,17,17,17,17,17,17,17,17,23,18,18,18,18,18,18,18,18,18,18,10,10,10,10,20,20,20,20,20,20,7,7,7,5,5,5,5,5,24,7,21,22,22,22,22,5,21,21,21,21],
+[1,1,1,2,2,1,2,1,1,23,17,17,17,17,17,17,17,17,17,23,18,18,18,18,18,18,18,18,18,18,10,10,10,10,20,20,20,20,20,20,7,7,7,5,5,5,5,5,7,7,21,22,22,22,22,5,21,21,21,21],
 [1,1,1,1,1,1,1,1,1,23,17,17,17,17,17,17,17,17,17,23,18,18,18,18,18,18,18,18,18,18,10,10,10,10,20,20,20,20,20,20,7,7,7,5,5,5,5,5,5,7,21,22,22,22,22,5,21,21,21,21],
 [1,1,8,8,8,8,8,8,1,23,17,17,8,8,8,8,8,8,17,23,18,18,8,8,8,8,8,8,18,18,10,10,8,8,8,8,8,8,20,20,7,7,8,8,8,8,8,8,5,7,21,21,8,8,8,8,8,8,21,21],
 [1,1,8,12,8,8,13,8,1,23,17,17,8,12,8,8,13,8,17,23,18,18,8,12,8,8,13,8,18,23,20,20,8,12,8,8,13,8,20,20,7,7,8,12,8,8,13,8,5,7,21,21,8,12,8,8,13,8,21,21],
@@ -385,7 +388,7 @@ const VILLAGE_TEMPLATE=(id,name,wex,wey)=>({
   tiles:[
     [11,11,11,11,11,11,11,11,11,11,11,11,11,11,11,11,11,11],
     [11,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,11],
-    [11,8,8,8,8,8,8,8,23,8,8,8,8,8,8,8,8,11],
+    [11,8,8,8,8,8,8,8,25,8,8,8,8,8,8,8,8,11],
     [11,8,8,12,8,8,8,8,8,8,8,8,8,8,13,8,8,11],
     [11,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,11],
     [11,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,11],
@@ -473,14 +476,63 @@ const VILLAGE_NPCS={
 // ════════════════════════════════════════════════════════════════
 // CHEST CONTENTS -- by region index
 // ════════════════════════════════════════════════════════════════
-const CHEST_REWARDS=[
-  {gold:20, potion:0, msg:'* You find 20 gold!'},                        // region 1
-  {gold:30, potion:1, msg:'* You find 30 gold and a potion!'},           // region 2
-  {gold:45, potion:0, msg:'* You find 45 gold!'},                        // region 3
-  {gold:55, potion:1, msg:'* You find 55 gold and a potion!'},           // region 4
-  {gold:70, potion:0, msg:'* You find 70 gold!'},                        // region 5
-  {gold:90, potion:2, msg:'* You find 90 gold and 2 potions!'},          // region 6
-];
+// Chest rewards keyed by "col,row" — gold chests and unique item chests
+const CHEST_REWARDS={
+  // ── REGION 1: VERDANT WOOD ──
+  '2,14':{
+    gold:25,potion:1,
+    msg:'* An old traveler\'s cache.\n* You find 25 gold and a potion.'
+  },
+  '4,20':{
+    gold:0,potion:0,item:{name:'Thornweave Cloak',stat:'def',val:1},
+    msg:'* Wrapped in bark and vine — someone left this deliberately.\n* You find the THORNWEAVE CLOAK.\n* DEF +1'
+  },
+  // ── REGION 2: AMBER DESERT ──
+  '11,11':{
+    gold:35,potion:1,
+    msg:'* A caravan strongbox, half-buried.\n* You find 35 gold and a potion.'
+  },
+  '17,18':{
+    gold:0,potion:0,item:{name:'Sun-Bleached Tome',stat:'magpow',val:2},
+    msg:'* Pages scorched but readable. Someone studied the echo frequencies out here.\n* You find the SUN-BLEACHED TOME.\n* MagPow +2'
+  },
+  // ── REGION 3: FROST WASTES ──
+  '21,11':{
+    gold:50,potion:0,
+    msg:'* Frozen solid for decades, thawed by your touch.\n* You find 50 gold.'
+  },
+  '27,17':{
+    gold:0,potion:0,item:{name:'Frost Shard Pendant',stat:'maxhp',val:5},
+    msg:'* A pendant carved from a glacier fragment. It hums faintly.\n* You find the FROST SHARD PENDANT.\n* Max HP +5'
+  },
+  // ── REGION 4: SHADOWFEN ──
+  '31,14':{
+    gold:60,potion:1,
+    msg:'* Hidden beneath a collapsed arch.\n* You find 60 gold and a potion.'
+  },
+  '37,18':{
+    gold:0,potion:0,item:{name:'Wraith Silk',stat:'def',val:2},
+    msg:'* Woven from something that shouldn\'t exist. Lighter than air.\n* You find the WRAITH SILK.\n* DEF +2'
+  },
+  // ── REGION 5: STONE PEAKS ──
+  '42,14':{
+    gold:75,potion:0,
+    msg:'* A surveyor\'s pack, abandoned mid-climb.\n* You find 75 gold.'
+  },
+  '48,25':{
+    gold:0,potion:0,item:{name:'Peak Crystal',stat:'magpow',val:3},
+    msg:'* It resonates at the same frequency as the Echo Stone fragments.\n* You find the PEAK CRYSTAL.\n* MagPow +3'
+  },
+  // ── REGION 6: EMBER CALDERA ──
+  '55,13':{
+    gold:100,potion:2,
+    msg:'* Sealed with volcanic glass. The contents survived somehow.\n* You find 100 gold and 2 potions.'
+  },
+  '55,24':{
+    gold:0,potion:0,item:{name:'Ember Core',stat:'atk',val:2},
+    msg:'* A crystallised fragment from the first Shattering.\n* Still warm after all this time.\n* You find the EMBER CORE.\n* ATK +2'
+  },
+};
 // ════════════════════════════════════════════════════════════════
 // ENEMY ROSTER -- 12 originals across all 6 regions
 // ════════════════════════════════════════════════════════════════
@@ -488,6 +540,7 @@ const ENEMIES=[
   // ── REGION 1: GRASS/FOREST ──
   // 0 -- Moss Lurker
   {name:'Moss Lurker',emoji:'🌿',hp:12,maxHp:12,atk:4,color:'#3a9050',bgType:'forest',
+   inflicts:'poison',
    desc:'A territorial plant-creature of the Verdant Wood. Moves slowly but strikes with surprising force. Not aggressive by nature — it patrols rather than hunts.',
    gold:8,xp:5,
    intro:['* A MOSS LURKER emerges from the undergrowth!\n* It reeks of damp earth.','* It watches you with amber eyes.'],
@@ -510,6 +563,7 @@ const ENEMIES=[
   // ── REGION 2: DESERT ──
   // 2 -- Dune Crawler
   {name:'Dune Crawler',emoji:'🦂',hp:18,maxHp:18,atk:6,color:'#c09030',bgType:'desert',
+   inflicts:'poison',
    desc:'A sand-burrowing arthropod with a venomous tail and a surprisingly pragmatic disposition. It responds well to offerings of food.',
    gold:14,xp:10,
    intro:['* A DUNE CRAWLER bursts from beneath the sand!\n* Mandibles click rhythmically.','* It sizes you up with six gleaming eyes.'],
@@ -554,6 +608,7 @@ const ENEMIES=[
   // ── REGION 4: SPOOKY ──
   // 6 -- Fen Haunt
   {name:'Fen Haunt',emoji:'👻',hp:24,maxHp:24,atk:8,color:'#6080a0',bgType:'spooky',
+   inflicts:'silence',
    desc:'A ghost drifting through the Shadowfen, stripped of its name and history. It clings to any acknowledgement that it once existed.',
    gold:20,xp:15,
    intro:['* A FEN HAUNT drifts up from the murk!\n* It pulses with cold inner light.','* HAUNT: ...I had a name, once.\n* HAUNT: I think I\'ve forgotten it.'],
@@ -576,6 +631,7 @@ const ENEMIES=[
   // ── REGION 5: MOUNTAIN ──
   // 8 -- Stoneback Brute
   {name:'Stoneback Brute',emoji:'🪨',hp:35,maxHp:35,atk:12,color:'#808898',bgType:'mountain',
+   inflicts:'stun',
    desc:'A massive mountain-dwelling creature with rock-hard hide. Territorial but honourable — it respects displays of strength and will stand aside for those who earn it.',
    gold:30,xp:24,
    intro:['* A STONEBACK BRUTE drops from a cliff ledge!\n* The impact cracks the path.','* BRUTE: Mountain belongs to Brute.\n* BRUTE: You small. Leave.'],
@@ -608,6 +664,7 @@ const ENEMIES=[
    attackLines:['* HOUND rakes with burning claws!','* HOUND breathes a cone of flame!','* HOUND slams with a magma-coated shoulder!']},
   // 11 -- Lava Golem
   {name:'Lava Golem',emoji:'🌋',hp:45,maxHp:45,atk:14,color:'#c03010',bgType:'lava',
+   inflicts:'stun',
    desc:'A massive construct of volcanic rock animated by the Caldera itself. It enforces an ancient prohibition on passage and carries knowledge of the Shattering.',
    gold:40,xp:32,
    intro:['* A LAVA GOLEM rises from the caldera!\n* Molten rock drips from its fists.','* GOLEM: The Caldera does not permit passage.\n* GOLEM: It never has.'],
@@ -629,6 +686,7 @@ const ENEMIES=[
 
   // 13 -- Mirage Wisp (Region 2 extra)
   {name:'Mirage Wisp',emoji:'🌊',hp:16,maxHp:16,atk:6,color:'#d0a860',bgType:'desert',
+   inflicts:'silence',
    desc:'A heat-shimmer entity native to the deep desert. It may or may not be entirely real. Those who try to fight it on its own terms find the ground keeps shifting beneath them.',
    gold:12,xp:9,
    intro:['* A MIRAGE WISP ripples into view ahead!\n* You\'re not entirely sure it\'s there.','* WISP: Are you certain you see me?\n* WISP: Most aren\'t.'],
@@ -640,6 +698,7 @@ const ENEMIES=[
 
   // 14 -- Permafrost Golem (Region 3 extra)
   {name:'Permafrost Golem',emoji:'🏔️',hp:26,maxHp:26,atk:8,color:'#90b8d0',bgType:'frost',
+   inflicts:'stun',
    desc:'A construct of packed ice and ancient debris, older than the Shattering itself. It moves with immense slowness and immense purpose. It remembers the world before it broke.',
    gold:20,xp:15,
    intro:['* A PERMAFROST GOLEM grinds to life from the glacier!\n* Debris from another age is frozen inside it.','* GOLEM: ...Another one.\n* GOLEM: You all come through here eventually.'],
@@ -681,12 +740,80 @@ const ENEMIES=[
    spareText:'* The Cinder Wraith dims slowly, ember by ember.\n* WRAITH: I think I was tired.\n* WRAITH: I think I have been tired for a very long time.\n* The last ember winks out.',
    deathText:'* The Cinder Wraith scatters into ash.\n* It reforms in the distance, smaller now.',
    attackLines:['* WRAITH surges through you as burning smoke!','* WRAITH launches a volley of embers!','* WRAITH constricts -- the heat is unbearable!','* WRAITH explodes outward in a burst of cinders!']},
+
+  // 18 -- Rootwarden (Region 1 extra)
+  {name:'Rootwarden',emoji:'🌳',hp:18,maxHp:18,atk:6,color:'#3a6020',bgType:'forest',
+   desc:'An ancient tree-spirit that has walked the same patrol route for centuries. It becomes deeply confused when approached from an unexpected direction and reacts poorly to disruption of its routine.',
+   gold:13,xp:10,
+   intro:['* A ROOTWARDEN lurches out of the undergrowth!\n* Ancient bark creaks with every movement.','* WARDEN: You are not on the path.\n* WARDEN: The path is THERE.\n* WARDEN: Why are you not on the path.'],
+   actText:'* You step onto the path it is patrolling and walk alongside it.\n* WARDEN: ...\n* WARDEN: This is acceptable.\n* WARDEN: You are on the path.\n* WARDEN: Good.',
+   actSpares:true,spareReady:false,
+   spareText:'* The Rootwarden resumes its patrol.\n* WARDEN: Stay on the path.\n* WARDEN: The path is important.',
+   deathText:'* The Rootwarden topples slowly.\n* Old roots give way.',
+   attackLines:['* WARDEN swings a branch like a club!','* WARDEN slams roots up through the ground!','* WARDEN showers you with bark shrapnel!']},
+
+  // 19 -- Bone Raker (Region 2 extra)
+  {name:'Bone Raker',emoji:'🦴',hp:20,maxHp:20,atk:7,color:'#c8b870',bgType:'desert',
+   desc:'A skeletal scavenger that picks through ruins at the desert\'s edge, collecting things that used to belong to people. It has accumulated a great deal of history and none of the context.',
+   gold:15,xp:11,
+   intro:['* A BONE RAKER skitters from a collapsed doorway!\n* It clutches several unrelated objects.','* RAKER: Mine.\n* RAKER: All of this is mine now.\n* RAKER: Including whatever you are carrying.'],
+   actText:'* You offer it something small from your pocket.\n* RAKER freezes.\n* RAKER: ...A new thing.\n* RAKER: I do not have this one.\n* RAKER: (It is already adding it to its collection.)',
+   actSpares:true,spareReady:false,
+   spareText:'* The Bone Raker scuttles back into the ruins.\n* It drops something as it goes.\n* Old habit.',
+   deathText:'* The Bone Raker collapses into a pile of very organised debris.',
+   attackLines:['* RAKER rakes with sharpened finger-bones!','* RAKER hurls a piece of its collection at you!','* RAKER scuttles around your guard!']},
+
+  // 20 -- Snowblind Specter (Region 3 extra)
+  {name:'Snowblind Specter',emoji:'🌨️',hp:22,maxHp:22,atk:8,color:'#d0e8f8',bgType:'frost',
+   inflicts:'silence',
+   desc:'A ghost composed entirely of blizzard static. It is nearly invisible until it is already standing directly in front of you. It does not know it is dead. It thinks it is the storm.',
+   gold:17,xp:13,
+   intro:['* The air distorts.\n* A SNOWBLIND SPECTER steps through the white.','* SPECTER: The storm does not stop.\n* SPECTER: The storm never stopped.\n* SPECTER: Are you the storm?'],
+   actText:'* You stand completely still and let the wind pass through you.\n* SPECTER: ...\n* SPECTER: You are not fighting the cold.\n* SPECTER: No one has ever done that.',
+   actSpares:true,spareReady:false,
+   spareText:'* The Snowblind Specter dissipates into ordinary snowfall.\n* For a moment the air is very quiet.',
+   deathText:'* The Snowblind Specter scatters.\n* Just snow now.',
+   attackLines:['* SPECTER materialises right next to you!','* SPECTER drives a lance of frozen air through your guard!','* SPECTER blinds you with a whiteout blast!']},
+
+  // 21 -- Murk Stalker (Region 4 extra)
+  {name:'Murk Stalker',emoji:'🦎',hp:24,maxHp:24,atk:8,color:'#408060',bgType:'spooky',
+   inflicts:'poison',
+   desc:'A scaled predator of the deep fen that moves through dark water without a ripple. Territorial but cautious. It has survived this long by never attacking something it wasn\'t certain about.',
+   gold:19,xp:14,
+   intro:['* A MURK STALKER rises from the dark water!\n* Its scales shimmer with swamp oil.','* It sizes you up with cold golden eyes.\n* It has not decided yet.'],
+   actText:'* You lower yourself slowly to the ground.\n* The Stalker stops advancing.\n* STALKER: ...You\'re not running.\n* STALKER: Most run.\n* STALKER: Running makes it easier.',
+   actSpares:true,spareReady:false,
+   spareText:'* The Murk Stalker slips back into the water without a sound.\n* It was never certain enough.',
+   deathText:'* The Murk Stalker goes still in the shallows.\n* The fen quiets.',
+   attackLines:['* STALKER lunges from the water!','* STALKER rakes with hooked claws!','* STALKER spits caustic venom!','* STALKER drags you toward the water!']},
+
+  // 22 -- Vault Specter (Region 5 extra)
+  {name:'Vault Specter',emoji:'👁️',hp:30,maxHp:30,atk:10,color:'#9060c0',bgType:'mountain',
+   desc:'A luminous one-eyed entity that haunts the high vaults of the Stone Peaks. It has observed many climbers. It keeps records. It will tell you things about yourself that you did not know it knew.',
+   gold:24,xp:19,
+   intro:['* A VAULT SPECTER materialises from the cliff face!\n* A single luminous eye regards you.','* SPECTER: You carry the weight of purpose.\n* SPECTER: Interesting.\n* SPECTER: I have been watching you since the Wood.'],
+   actText:'* You ask it what it has observed.\n* SPECTER: You spare more than you fight.\n* SPECTER: The last one who came through here did not.\n* SPECTER: They did not reach the summit.\n* SPECTER: I wonder if you will.',
+   actSpares:true,spareReady:false,
+   spareText:'* The Vault Specter fades with a slow blink.\n* SPECTER: I will note this in the record.\n* SPECTER: It is a good entry.',
+   deathText:'* The Vault Specter dissolves.\n* Its eye winks out.\n* The record ends here.',
+   attackLines:['* SPECTER fires a gaze-bolt!','* SPECTER phases through your guard!','* SPECTER resonates -- your mind reels!','* SPECTER reveals something true about you -- it hurts!']},
+
+  // 23 -- Magma Tick (Region 6 extra)
+  {name:'Magma Tick',emoji:'🔴',hp:28,maxHp:28,atk:9,color:'#c04018',bgType:'lava',
+   desc:'A parasite that feeds on volcanic rock and has accidentally grown to the size of a large dog. It is not intelligent. It is not malicious. It simply has not learned that some things are not food.',
+   gold:22,xp:17,
+   intro:['* A MAGMA TICK drops from the caldera wall!\n* It immediately tries to bite your boot.','* TICK: (It does not speak.)\n* TICK: (It is trying very hard to eat your leg.)'],
+   actText:'* You hold out a piece of volcanic rock.\n* TICK freezes.\n* TICK: (It sniffs it.)\n* TICK: (It is extremely interested in the rock.)',
+   actSpares:true,spareReady:false,
+   spareText:'* The Magma Tick takes the rock and trundles away.\n* It is very satisfied.\n* It has no idea how close that was.',
+   deathText:'* The Magma Tick cools and goes still.\n* It was just hungry.',
+   attackLines:['* TICK latches on and drains heat from you!','* TICK headbutts with a molten crown!','* TICK spews superheated fluid!']},
 ];
 const FINAL_BOSS={
   name:'The Unmade',emoji:'✦',hp:280,maxHp:280,atk:28,def:10,color:'#c080ff',bgType:'boss',
   gold:1000,xp:500,
   desc:'The being that shattered the Echo Stone. Not a destroyer by nature — it broke the Stone deliberately, to prevent it being used as a weapon again. It is grief and caution given form, guarding the world from a mistake it witnessed firsthand.',
-  _enemyIdx:18,
+  _enemyIdx:24,
   intro:[
     '* THE UNMADE rises from the void at the world\'s edge!\n* Six echoes pulse around it -- one from each shard.',
     '* UNMADE: Six shards. Six regions. Six scars I left on this world.\n* UNMADE: And you stitched a path through all of them.\n* UNMADE: Remarkable. And terrible.'
@@ -708,21 +835,29 @@ const FINAL_BOSS={
 
 // Zone enemy pools by tile type (indices into ENEMIES)
 const ZONE_ENEMIES={
-  2:[0,12],           // forest -> moss lurker, thornback beetle
-  4:[6,15],           // mire -> fen haunt, hollow knight
-  17:[2,13],          // sand -> dune crawler, mirage wisp
-  18:[4,14],          // snow -> frost imp, permafrost golem
-  10:[6,15],          // dungeon -> fen haunt, hollow knight
-  20:[6,15],          // ruins -> fen haunt, hollow knight
-  14:[6,15],          // tower inside -> spooky
-  7:[8,16],           // mountain -> stoneback brute, crag harpy
-  21:[10,17],         // lava -> ember hound, cinder wraith
+  2:[0,12,18],         // forest -> moss lurker, thornback beetle, rootwarden
+  3:[4,14,20],         // cave -> frost imp, permafrost golem, snowblind specter
+  4:[6,15,21],         // mire -> fen haunt, hollow knight, murk stalker
+  17:[2,13,19],        // sand -> dune crawler, mirage wisp, bone raker
+  18:[4,14,20],        // snow -> frost imp, permafrost golem, snowblind specter
+  19:[4,14,20],        // bridge -> frost region enemies
+  10:[6,15,21],        // dungeon -> spooky enemies
+  20:[6,15,21],        // ruins -> spooky enemies
+  14:[6,15,21],        // tower inside -> spooky
+  7:[8,16,22],         // mountain -> stoneback brute, crag harpy, vault specter
+  21:[10,17,23],       // lava -> ember hound, cinder wraith, magma tick
 };
-// For path/boss tiles in lava region (cols 50-59), use lava enemies
-// We'll check region by column in encounter logic
+
+function getEnemyPool(t,col){
+  if(ZONE_ENEMIES[t])return ZONE_ENEMIES[t];
+  // Fallback by region — non-guardian enemies only
+  const reg=getRegion(col);
+  const byRegion=[[0,12,18],[2,13,19],[4,14,20],[6,15,21],[8,16,22],[10,17,23]];
+  return byRegion[reg]||[0];
+}
 
 const ENCOUNTER_RATE=0.30;
-const ENCOUNTER_COOLDOWN=2;
+const ENCOUNTER_COOLDOWN=4;
 
 // ════════════════════════════════════════════════════════════════
 // STATE
@@ -745,15 +880,207 @@ let G={
   equipped:{weapon:null,armor:null,tome:null},
   shards:0,
   finalBossActive:false,
+  status:null, // {type:'poison'|'silence'|'stun', turns:N}
   shopCooldown:false,innCooldown:false,
   seenEnemies:new Set(),sparedEnemies:new Set(),
   openedChests:new Set(),
   clearedGates:new Set(),
+  chestItems:{},
 };
 
 // ════════════════════════════════════════════════════════════════
-// SCREENS
+// AUDIO ENGINE
 // ════════════════════════════════════════════════════════════════
+const AU={ctx:null,ready:false};
+
+function getCtx(){
+  if(!AU.ctx){
+    try{AU.ctx=new(window.AudioContext||window.webkitAudioContext)();}catch(e){return null;}
+  }
+  if(AU.ctx.state==='suspended'){AU.ctx.resume();}
+  return AU.ctx;
+}
+
+// Unlock audio on first user gesture anywhere on the page
+function unlockAudio(){
+  getCtx();
+  document.removeEventListener('touchstart',unlockAudio);
+  document.removeEventListener('mousedown',unlockAudio);
+  document.removeEventListener('keydown',unlockAudio);
+}
+document.addEventListener('touchstart',unlockAudio);
+document.addEventListener('mousedown',unlockAudio);
+document.addEventListener('keydown',unlockAudio);
+
+function playTone(freq,type,vol,attack,sustain,release,delay=0){
+  try{
+    const ctx=getCtx();if(!ctx)return;
+    const osc=ctx.createOscillator();
+    const gain=ctx.createGain();
+    osc.connect(gain);gain.connect(ctx.destination);
+    osc.type=type;osc.frequency.value=freq;
+    const t=ctx.currentTime+delay;
+    gain.gain.setValueAtTime(0,t);
+    gain.gain.linearRampToValueAtTime(vol,t+attack);
+    gain.gain.setValueAtTime(vol,t+attack+sustain);
+    gain.gain.linearRampToValueAtTime(0,t+attack+sustain+release);
+    osc.start(t);osc.stop(t+attack+sustain+release+0.05);
+  }catch(e){}
+}
+
+function playNoise(vol,attack,sustain,release,delay=0){
+  try{
+    const ctx=getCtx();if(!ctx)return;
+    const buf=ctx.createBuffer(1,ctx.sampleRate*0.3,ctx.sampleRate);
+    const data=buf.getChannelData(0);
+    for(let i=0;i<data.length;i++)data[i]=(Math.random()*2-1);
+    const src=ctx.createBufferSource();
+    const gain=ctx.createGain();
+    const filter=ctx.createBiquadFilter();
+    filter.type='bandpass';filter.frequency.value=800;filter.Q.value=1.5;
+    src.buffer=buf;src.loop=true;
+    src.connect(filter);filter.connect(gain);gain.connect(ctx.destination);
+    const t=ctx.currentTime+delay;
+    gain.gain.setValueAtTime(0,t);
+    gain.gain.linearRampToValueAtTime(vol,t+attack);
+    gain.gain.setValueAtTime(vol,t+attack+sustain);
+    gain.gain.linearRampToValueAtTime(0,t+attack+sustain+release);
+    src.start(t);src.stop(t+attack+sustain+release+0.1);
+  }catch(e){}
+}
+
+const SFX={
+  step(){
+    // Soft footstep — low thud
+    playTone(80,'sine',0.06,0.01,0.02,0.06);
+    playNoise(0.03,0.01,0.01,0.04);
+  },
+  battle(){
+    // Battle encounter — dramatic sting
+    playTone(220,'sawtooth',0.18,0.01,0.08,0.12);
+    playTone(330,'sawtooth',0.12,0.01,0.08,0.12,0.05);
+    playTone(440,'sawtooth',0.15,0.01,0.06,0.20,0.10);
+    playNoise(0.10,0.01,0.05,0.15);
+  },
+  hit(){
+    // Attack lands — sharp crack
+    playNoise(0.20,0.005,0.03,0.08);
+    playTone(150,'square',0.10,0.005,0.02,0.08);
+  },
+  playerHit(){
+    // Player takes damage — lower, more painful
+    playTone(100,'sawtooth',0.14,0.005,0.04,0.12);
+    playNoise(0.12,0.005,0.04,0.10);
+  },
+  magic(){
+    // Echo Blast — sweeping tone
+    playTone(880,'sine',0.12,0.02,0.05,0.15);
+    playTone(660,'sine',0.10,0.02,0.08,0.18,0.05);
+    playTone(440,'sine',0.08,0.02,0.10,0.20,0.12);
+  },
+  levelUp(){
+    // Level up — ascending fanfare
+    [261,329,392,523].forEach((f,i)=>playTone(f,'square',0.14,0.01,0.08,0.10,i*0.10));
+    [523,659,784,1047].forEach((f,i)=>playTone(f,'triangle',0.08,0.01,0.06,0.12,0.40+i*0.10));
+  },
+  shard(){
+    // Shard collected — bright chime cascade
+    [523,659,784,1047,1319].forEach((f,i)=>playTone(f,'sine',0.14,0.01,0.10,0.30,i*0.12));
+  },
+  chest(){
+    // Chest open — sparkle arp
+    [392,494,587,784].forEach((f,i)=>playTone(f,'triangle',0.12,0.01,0.08,0.20,i*0.09));
+  },
+  buy(){
+    // Shop purchase — coin jingle
+    playTone(660,'sine',0.10,0.01,0.04,0.10);
+    playTone(880,'sine',0.10,0.01,0.04,0.10,0.08);
+  },
+  inn(){
+    // Inn rest — gentle resolution
+    [261,329,392].forEach((f,i)=>playTone(f,'sine',0.10,0.02,0.15,0.25,i*0.18));
+  },
+  spare(){
+    // Enemy spared — soft warm chord
+    [392,494,587].forEach((f,i)=>playTone(f,'sine',0.09,0.04,0.20,0.30,i*0.06));
+  },
+  gate(){
+    // Gate opens — heavy creak then release
+    playTone(55,'sawtooth',0.15,0.05,0.20,0.30);
+    playTone(110,'sine',0.08,0.10,0.20,0.25,0.15);
+  },
+  gameOver(){
+    // Game over — descending toll
+    [392,349,311,261].forEach((f,i)=>playTone(f,'sawtooth',0.15,0.02,0.20,0.30,i*0.28));
+  },
+  victory(){
+    // Final boss defeated — triumphant
+    [261,329,392,523,659,784].forEach((f,i)=>playTone(f,'square',0.12,0.01,0.10,0.25,i*0.09));
+    [523,659,784,1047].forEach((f,i)=>playTone(f,'sine',0.09,0.01,0.12,0.30,0.60+i*0.10));
+  },
+};
+
+
+const SAVE_KEY='realm-of-echoes-save';
+
+function saveGame(){
+  if(G.phase==='title'||G.phase==='gameover')return;
+  const data={
+    heroCol:G.heroCol,heroRow:G.heroRow,
+    heroHp:G.heroHp,heroMaxHp:G.heroMaxHp,
+    heroMp:G.heroMp,heroMaxMp:G.heroMaxMp,
+    heroAtk:G.heroAtk,heroDef:G.heroDef,heroMagPow:G.heroMagPow,
+    gold:G.gold,potions:G.potions,
+    xp:G.xp,xpNext:G.xpNext,level:G.level,
+    shopOwned:G.shopOwned,
+    equipped:G.equipped,
+    shards:G.shards,
+    pacifist:G.pacifist,
+    towersCleared:SHARD_TOWERS.map(t=>t.cleared),
+    clearedGates:[...G.clearedGates],
+    openedChests:[...G.openedChests],
+    chestItems:G.chestItems,
+    seenEnemies:[...G.seenEnemies],
+    sparedEnemies:[...G.sparedEnemies],
+  };
+  try{localStorage.setItem(SAVE_KEY,JSON.stringify(data));}catch(e){}
+}
+
+function loadGame(){
+  try{
+    const raw=localStorage.getItem(SAVE_KEY);
+    if(!raw)return false;
+    const d=JSON.parse(raw);
+    G.heroCol=d.heroCol??HERO_WORLD_COL;
+    G.heroRow=d.heroRow??HERO_WORLD_ROW;
+    G.heroHp=d.heroHp??20;G.heroMaxHp=d.heroMaxHp??20;
+    G.heroMp=d.heroMp??10;G.heroMaxMp=d.heroMaxMp??10;
+    G.heroAtk=d.heroAtk??3;G.heroDef=d.heroDef??0;G.heroMagPow=d.heroMagPow??5;
+    G.gold=d.gold??0;G.potions=d.potions??2;
+    G.xp=d.xp??0;G.xpNext=d.xpNext??20;G.level=d.level??1;
+    G.shopOwned=d.shopOwned??{};
+    G.equipped=d.equipped??{weapon:null,armor:null,tome:null};
+    G.shards=d.shards??0;
+    G.pacifist=d.pacifist??true;
+    if(d.towersCleared)d.towersCleared.forEach((c,i)=>{if(SHARD_TOWERS[i])SHARD_TOWERS[i].cleared=c;});
+    G.clearedGates=new Set(d.clearedGates||[]);
+    G.openedChests=new Set(d.openedChests||[]);
+    G.chestItems=d.chestItems||{};
+    G.seenEnemies=new Set(d.seenEnemies||[]);
+    G.sparedEnemies=new Set(d.sparedEnemies||[]);
+    return true;
+  }catch(e){return false;}
+}
+
+function deleteSave(){
+  try{localStorage.removeItem(SAVE_KEY);}catch(e){}
+}
+
+function hasSave(){
+  try{return!!localStorage.getItem(SAVE_KEY);}catch(e){return false;}
+}
+
+
 function showScreen(id){
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
@@ -853,7 +1180,16 @@ function drawMapTile(col,row,sx,sy){
       mx.fillStyle='#400800';mx.fillRect(sx,sy,TW,TH);
       if((col+row)%3===0){mx.fillStyle='#e04000';mx.fillRect(sx+3*p,sy+4*p,6*p,4*p);}
       break;
-    case 23:// NPC
+    case 23:{// gate portcullis
+      const locked=!G.clearedGates.has(col+','+row);
+      const bc=locked?'#505080':'#c0a020';
+      mx.fillStyle='#1a1a2a';mx.fillRect(sx,sy,TW,TH);
+      mx.strokeStyle=bc;mx.lineWidth=p*0.8;
+      for(let gi=1;gi<=3;gi++){mx.beginPath();mx.moveTo(sx+gi*3*p,sy+p);mx.lineTo(sx+gi*3*p,sy+10*p);mx.stroke();}
+      mx.beginPath();mx.moveTo(sx+p,sy+3*p);mx.lineTo(sx+11*p,sy+3*p);mx.stroke();
+      mx.beginPath();mx.moveTo(sx+p,sy+7*p);mx.lineTo(sx+11*p,sy+7*p);mx.stroke();
+      break;}
+    case 25:// NPC
       mx.fillStyle='#283878';mx.fillRect(sx+3*p,sy+4*p,6*p,7*p);
       mx.fillStyle='#f0d0a0';mx.beginPath();mx.arc(cx,sy+3*p,2.5*p,0,Math.PI*2);mx.fill();
       break;
@@ -865,12 +1201,6 @@ function drawMapTile(col,row,sx,sy){
       mx.fillStyle='#c08010';mx.fillRect(sx+2*p,sy+4*p,8*p,2*p);
       mx.fillStyle='#f0d040';mx.fillRect(sx+5*p,sy+5*p,2*p,2*p);
       break;}
-    case 25:// gate
-      mx.fillStyle='#102030';mx.fillRect(sx,sy,TW,TH);
-      mx.fillStyle='#204860';mx.fillRect(sx+4*p,sy+p,4*p,10*p);
-      mx.fillStyle='#3080a0';mx.fillRect(sx+5*p,sy+2*p,2*p,8*p);
-      mx.fillStyle='#60b0d0';mx.beginPath();mx.arc(cx,sy+p,2*p,0,Math.PI*2);mx.fill();
-      break;
     case 22:// volcanic rock
       mx.fillStyle='#381000';mx.fillRect(sx,sy,TW,TH);
       mx.fillStyle='#602010';mx.beginPath();mx.moveTo(cx,sy+p);mx.lineTo(sx+w-p,sy+9*p);mx.lineTo(sx+p,sy+9*p);mx.closePath();mx.fill();
@@ -998,11 +1328,24 @@ function doChest(){
   const key=G.heroCol+','+G.heroRow;
   if(G.openedChests.has(key))return;
   G.openedChests.add(key);
-  const reg=Math.min(5,Math.floor(G.heroCol/10));
-  const r=CHEST_REWARDS[reg];
-  G.gold+=r.gold;G.potions+=r.potion;
+  SFX.chest();
+  const r=CHEST_REWARDS[key];
+  if(!r){document.getElementById('map-msg').textContent='* The chest is empty.';return;}
+  if(r.gold)G.gold+=r.gold;
+  if(r.potion)G.potions+=r.potion;
+  if(r.item){
+    const it=r.item;
+    if(!G.chestItems)G.chestItems={};
+    if(!G.chestItems[key]){
+      G.chestItems[key]=true;
+      if(it.stat==='atk'){G.heroAtk+=it.val;}
+      else if(it.stat==='def'){G.heroDef+=it.val;}
+      else if(it.stat==='magpow'){G.heroMagPow+=it.val;}
+      else if(it.stat==='maxhp'){G.heroMaxHp+=it.val;G.heroHp=Math.min(G.heroHp+it.val,G.heroMaxHp);}
+    }
+  }
   document.getElementById('map-msg').textContent=r.msg;
-  drawMap();updateInteractBtn();
+  drawMap();updateInteractBtn();saveGame();
 }
 
 function doGate(col,row){
@@ -1015,7 +1358,7 @@ function doGate(col,row){
         G.clearedGates.add(col+','+r);
       }
     }
-    showZoneFlash('Gate unlocked!');
+    SFX.gate();showZoneFlash('Gate unlocked!');
     document.getElementById('map-msg').textContent='* The gate recognises the echo shard.\n* It swings open.';
     drawMap();updateInteractBtn();
   }else{
@@ -1048,10 +1391,10 @@ function tryMove(dir){
   let nc=G.heroCol,nr=G.heroRow;
   if(dir==='up')nr--;else if(dir==='down')nr++;
   else if(dir==='left')nc--;else if(dir==='right')nc++;
-  const rawT=(WORLD[nr]||[])[nc]||0;
+  const rawT=G.currentInterior?0:(WORLD[nr]||[])[nc]||0;
   const t=getTile(nc,nr);
-  // Gate check before passable check — gate tiles are impassable but need to trigger doGate
-  if(rawT===T.GATE){
+  // Gate check before passable check — only on overworld
+  if(!G.currentInterior&&rawT===T.GATE){
     if(G.clearedGates.has(nc+','+nr)){
       // Already cleared — treat as open, fall through to normal move
     } else {
@@ -1061,6 +1404,7 @@ function tryMove(dir){
   }
   if(!PASSABLE.has(t))return;
   G.heroCol=nc;G.heroRow=nr;
+  SFX.step();
   handleStep(nc,nr,t,dir);
   drawMap();
   updateInteractBtn();
@@ -1084,10 +1428,26 @@ function handleStep(col,row,t,dir){
         return;
       }
       G.finalBossActive=true;
-      G.seenEnemies.add(18);
+      G.seenEnemies.add(24);
       triggerBattle(deepClone(FINAL_BOSS));return;
     }
   }
+
+  // Auto-exit when stepping on exit tile inside an interior
+  if(G.currentInterior&&t===T.EXIT){
+    const wx=G.currentInterior.worldExitCol;
+    const wy=G.currentInterior.worldExitRow;
+    G.currentInterior=null;G.heroCol=wx;G.heroRow=wy;
+    showZoneFlash('Back to the overworld');
+    document.getElementById('map-msg').textContent='* You step outside.';
+    drawMap();updateInteractBtn();
+    return;
+  }
+  // Auto-trigger shop and inn inside interior
+  if(G.currentInterior&&t===T.SHOP){openShop();return;}
+  if(G.currentInterior&&t===T.INN){doInn();return;}
+  // Chests auto-open on step (overworld)
+  if(!G.currentInterior&&t===T.CHEST){doChest();return;}
 
   // Zone flash on region change
   if(!G.currentInterior){
@@ -1098,25 +1458,17 @@ function handleStep(col,row,t,dir){
 
   // Encounters
   const dangerTiles=new Set([2,3,4,7,10,14,16,17,18,20,21]);
-  // Also treat path tiles in lava region as dangerous
   const inLava=!G.currentInterior&&getRegion(col)===5;
   if(dangerTiles.has(t)||(inLava&&t===5)){
     G.stepsSince++;
     if(G.stepsSince>ENCOUNTER_COOLDOWN&&Math.random()<ENCOUNTER_RATE){
       G.stepsSince=0;
+      clearRepeat();
       const pool=getEnemyPool(t,col);
       const idx=pool[Math.floor(Math.random()*pool.length)];
       const _ec=deepClone(ENEMIES[idx]);_ec._enemyIdx=idx;G.seenEnemies.add(idx);triggerBattle(_ec);
     }
-  }else{G.stepsSince++;}
-}
-
-function getEnemyPool(t,col){
-  if(ZONE_ENEMIES[t])return ZONE_ENEMIES[t];
-  // Fallback by region
-  const reg=getRegion(col);
-  const byRegion=[[0,1],[2,3],[4,5],[6,7],[8,9],[10,11]];
-  return byRegion[reg]||[0];
+  }
 }
 
 function deepClone(o){return JSON.parse(JSON.stringify(o));}
@@ -1148,8 +1500,9 @@ function doInn(){
     document.getElementById('map-msg').textContent='* INNKEEPER: Rest costs '+INN_COST+'g. You have '+G.gold+'g.';return;
   }
   G.gold-=INN_COST;G.heroHp=G.heroMaxHp;G.heroMp=G.heroMaxMp;
+  SFX.inn();
   document.getElementById('map-msg').textContent='* You rest through the night.\n* HP and MP fully restored.';
-  drawMap();
+  drawMap();saveGame();
 }
 
 // ════════════════════════════════════════════════════════════════
@@ -1174,7 +1527,7 @@ function openShop(){
         if(item.slot)equipItem(i);
         else if(item.key==='potion')G.potions+=item.val;
         document.getElementById('shop-msg').textContent='Bought: '+item.name+'!';
-        openShop();
+        SFX.buy();saveGame();openShop();
       };row.appendChild(b);
     }else if(item.slot&&!isEq){
       const b=document.createElement('button');b.className='shop-btn equip';b.textContent='EQUIP';
@@ -1209,8 +1562,66 @@ function recalcStats(){
 function closeShop(){document.getElementById('shop-overlay').classList.remove('active');}
 
 // ════════════════════════════════════════════════════════════════
-// BATTLE CANVAS
+// STATUS EFFECTS
 // ════════════════════════════════════════════════════════════════
+const STATUS_META={
+  poison: {emoji:'🟢', label:'POISON',  color:'#40c870', turns:3},
+  silence:{emoji:'🔇', label:'SILENCE', color:'#a060e0', turns:2},
+  stun:   {emoji:'⚡', label:'STUN',    color:'#f0c040', turns:1},
+};
+
+function updateStatusIndicator(){
+  const el=document.getElementById('status-indicator');
+  if(!el)return;
+  if(!G.status){el.textContent='';return;}
+  const m=STATUS_META[G.status.type];
+  el.innerHTML=`<span style="color:${m.color}">${m.emoji} ${m.label} (${G.status.turns})</span>`;
+}
+
+function applyStatus(type){
+  if(G.status)return; // can't stack
+  G.status={type,turns:STATUS_META[type].turns};
+  updateStatusIndicator();
+}
+
+function clearStatus(){
+  G.status=null;
+  updateStatusIndicator();
+}
+
+// Called at the start of the hero's turn — processes status and returns lines to show
+// Returns {blocked:bool, lines:[...]}
+function processStatusTurn(){
+  if(!G.status)return{blocked:false,lines:[]};
+  const s=G.status;
+  const m=STATUS_META[s.type];
+  const lines=[];
+  let blocked=false;
+
+  if(s.type==='poison'){
+    const dmg=2;
+    G.heroHp=Math.max(1,G.heroHp-dmg);
+    updHeroHp();
+    lines.push(`* ${m.emoji} POISON deals ${dmg} damage! (${G.heroHp}/${G.heroMaxHp} HP)`);
+  }else if(s.type==='silence'){
+    lines.push(`* ${m.emoji} SILENCE — Echo Blast is blocked this turn!`);
+    blocked=false; // silence just disables magic, handled in doMagic
+  }else if(s.type==='stun'){
+    lines.push(`* ${m.emoji} STUN — you can't act this turn!`);
+    blocked=true;
+  }
+
+  s.turns--;
+  if(s.turns<=0){
+    lines.push(`* The ${s.type} wears off.`);
+    clearStatus();
+  }else{
+    updateStatusIndicator();
+  }
+  return{blocked,lines};
+}
+
+
 const sce=document.getElementById('scene-canvas');
 const sc_ctx=sce.getContext('2d');
 const BG={
@@ -1270,7 +1681,26 @@ function showActions(v){
   document.getElementById('action-panel').style.display=v?'flex':'none';
   document.getElementById('footer-tap').style.display=v?'none':'block';
   document.getElementById('spare-btn').disabled=!(G.enemy&&G.enemy.spareReady);
-  document.getElementById('magic-btn').textContent='ECHO BLAST ('+G.heroMp+'mp)';
+  document.getElementById('magic-btn').textContent='ECHO BLAST ('+G.heroMp+'mp)'+(G.status&&G.status.type==='silence'?' 🔇':'');
+  updateStatusIndicator();
+  if(v){
+    const {blocked,lines}=processStatusTurn();
+    if(lines.length){
+      showActions(false);
+      G.phase='dialogue';
+      queueDlg(lines,()=>{
+        if(G.heroHp<=0){triggerEnd(false);return;}
+        if(blocked){
+          // Stun — skip hero turn, go straight to enemy attack
+          enemyAtk(null,false);
+        }else{
+          G.phase='battle';
+          showActions(true);
+          setDlg('','* What will you do?');
+        }
+      });
+    }
+  }
 }
 
 function updHeroHp(){
@@ -1294,6 +1724,8 @@ function updEnemyHp(){
 function triggerBattle(e){
   clearRepeat();
   G.stepsSince=0;
+  clearStatus();
+  SFX.battle();
   if(e._enemyIdx!==undefined)G.seenEnemies.add(e._enemyIdx);
   G.enemy=e;G.phase='dialogue';
   showScreen('battle-screen');
@@ -1307,16 +1739,17 @@ function endBattle(){
   if(G.finalBossActive){triggerEnd(true);return;}
   if(e&&e._isShard){
     const idx=e._shardIdx;
-    SHARD_TOWERS[idx].cleared=true;G.shards++;
+    SHARD_TOWERS[idx].cleared=true;G.shards++;SFX.shard();
     G.gold+=e.gold;G.xp+=e.xp||0;
     const lv=checkLevel();
     const msg='* ✦ ECHO SHARD CLAIMED! ('+G.shards+'/6)'+(G.shards<6?'\n* The next tower awaits.':'\n* All six shards are yours!\n* Seek the Final Gate.')+(lv?'\n* '+lv:'');
     G.phase='map';
-    doFlash(()=>{showScreen('map-screen');resizeMapCanvas();drawMap();document.getElementById('map-msg').textContent=msg;});
+    doFlash(()=>{showScreen('map-screen');resizeMapCanvas();drawMap();document.getElementById('map-msg').textContent=msg;saveGame();});
     return;
   }
   G.phase='map';
   G.stepsSince=0;
+  clearStatus();
   const earned=e?e.gold:0;const xpEarned=e?e.xp||0:0;
   G.gold+=earned;G.xp+=xpEarned;
   const lvMsg=checkLevel();
@@ -1324,7 +1757,7 @@ function endBattle(){
   if(earned)parts.push('* '+earned+'g earned!');
   if(xpEarned)parts.push('* '+xpEarned+' XP! ('+G.xp+'/'+G.xpNext+')');
   if(lvMsg)parts.push('* '+lvMsg);
-  doFlash(()=>{showScreen('map-screen');resizeMapCanvas();drawMap();document.getElementById('map-msg').textContent=parts.join(' ')||'* You return to the overworld.';});
+  doFlash(()=>{showScreen('map-screen');resizeMapCanvas();drawMap();document.getElementById('map-msg').textContent=parts.join(' ')||'* You return to the overworld.';saveGame();});
 }
 
 function checkLevel(){
@@ -1333,7 +1766,7 @@ function checkLevel(){
     G.xp-=G.xpNext;G.level++;G.xpNext=Math.floor(G.xpNext*1.7);
     G.heroMaxHp+=7;G.heroHp=Math.min(G.heroHp+7,G.heroMaxHp);
     G.heroMaxMp+=3;G.heroMp=Math.min(G.heroMp+3,G.heroMaxMp);
-    recalcStats();msg='LEVEL UP! Lv.'+G.level+'!';
+    recalcStats();SFX.levelUp();msg='LEVEL UP! Lv.'+G.level+'!';
   }
   return msg;
 }
@@ -1342,7 +1775,7 @@ function doFight(){
   if(G.phase!=='battle')return;G.pacifist=false;
   const e=G.enemy;
   const dmg=Math.max(1,Math.floor(Math.random()*4)+G.heroAtk-Math.floor(e.def||0));
-  e.hp=Math.max(0,e.hp-dmg);updEnemyHp();showActions(false);
+  e.hp=Math.max(0,e.hp-dmg);updEnemyHp();SFX.hit();showActions(false);
   if(e.hp<=0){G.phase='dialogue';queueDlg(['* You strike for '+dmg+' damage!\n* '+e.name+' is defeated!',e.deathText],endBattle);return;}
   enemyAtk('* You strike for '+dmg+' damage!');
 }
@@ -1359,9 +1792,12 @@ function doAct(){
 
 function doMagic(){
   if(G.phase!=='battle')return;
+  if(G.status&&G.status.type==='silence'){
+    setDlg('','* 🔇 SILENCE — Echo Blast is blocked!');return;
+  }
   const cost=4;
   if(G.heroMp<cost){setDlg('','* Not enough MP! (Need '+cost+')');return;}
-  G.heroMp=Math.max(0,G.heroMp-cost);updHeroHp();showActions(false);G.phase='dialogue';
+  G.heroMp=Math.max(0,G.heroMp-cost);updHeroHp();SFX.magic();showActions(false);G.phase='dialogue';
   const e=G.enemy;
   const dmg=Math.floor(Math.random()*6)+G.heroMagPow;
   e.hp=Math.max(0,e.hp-dmg);updEnemyHp();
@@ -1383,6 +1819,7 @@ function doSpare(){
   if(!e.spareReady){setDlg('','* '+e.name+' is not ready.\n* Try COMMUNE first.');return;}
   showActions(false);G.phase='dialogue';
   drawBattle(e.bgType,null,'✨');
+  SFX.spare();
   if(e._enemyIdx!==undefined)G.sparedEnemies.add(e._enemyIdx);
   queueDlg([e.spareText,'* '+e.name+' departs.'],endBattle);
 }
@@ -1393,13 +1830,19 @@ function enemyAtk(prefix,skip){
   const rawDmg=skip?0:Math.floor(Math.random()*(e.atk/2))+Math.ceil(e.atk/2);
   const defR=Math.floor(G.heroDef*(G.finalBossActive?0.3:1));
   const dmg=Math.max(skip?0:1,rawDmg-defR);
-  if(!skip){G.heroHp=Math.max(0,G.heroHp-dmg);updHeroHp();shakeDlg();}
-  const lines=[];if(prefix)lines.push(prefix);if(!skip)lines.push(al+'\n* You take '+dmg+' damage!');
+  if(!skip){G.heroHp=Math.max(0,G.heroHp-dmg);updHeroHp();SFX.playerHit();shakeDlg();}
+  // Status infliction — 35% chance if enemy inflicts and hero has no status
+  let statusLine='';
+  if(!skip&&e.inflicts&&!G.status&&Math.random()<0.35){
+    applyStatus(e.inflicts);
+    const m=STATUS_META[e.inflicts];
+    statusLine=`\n* ${m.emoji} You are ${e.inflicts==='stun'?'STUNNED':'inflicted with '+e.inflicts.toUpperCase()}! (${m.turns} turns)`;
+  }
+  const lines=[];if(prefix)lines.push(prefix);if(!skip)lines.push(al+'\n* You take '+dmg+' damage!'+statusLine);
   G.phase='dialogue';
   queueDlg(lines.length?lines:['* ...'],()=>{
     if(G.heroHp<=0){triggerEnd(false);return;}
     G.phase='battle';showActions(true);
-    document.getElementById('magic-btn').textContent='ECHO BLAST ('+G.heroMp+'mp)';
     setDlg('','* What will you do?');
   });
 }
@@ -1412,12 +1855,12 @@ function triggerEnd(win){
   const title=document.getElementById('end-title');
   const msg=document.getElementById('end-msg');
   if(win){
-    title.style.color='var(--gold)';title.textContent='THE ECHO RESTORED';
+    title.style.color='var(--gold)';title.textContent='THE ECHO RESTORED';SFX.victory();
     msg.textContent=G.pacifist
       ?'Six regions. Six shards. Six creatures\nspared across a broken world.\n\nYou listened to every one of them.\n\nThe Unmade was not a monster.\nIt was grief given form.\n\nThe Echo Stone remains shattered.\nAnd the world remains whole.\n\n-- TRUE ENDING --'
       :'Six regions. Six shards.\nOne wanderer who never turned back.\n\nThe Unmade is gone.\nThe world breathes again.\n\n-- THE END --\n(Try sparing everyone next time!)';
   }else{
-    title.style.color='var(--red)';title.textContent='THE WANDERER FALLS';
+    title.style.color='var(--red)';title.textContent='THE WANDERER FALLS';SFX.gameOver();
     msg.textContent='* The echoes go silent...\n\nRest at an Inn to restore HP.\nThe realm still needs you.\n\nTry again.';
   }
 }
@@ -1477,7 +1920,7 @@ function openBestiary(){
   const spared=G.sparedEnemies||new Set();
   let seenCount=0;
   // Region index per enemy
-  const ENEMY_REGION=[0,0,1,1,2,2,3,3,4,4,5,5,0,1,2,3,4,5];
+  const ENEMY_REGION=[0,0,1,1,2,2,3,3,4,4,5,5,0,1,2,3,4,5,0,1,2,3,4,5];
   const GUARDIAN_IDX=new Set([1,3,5,7,9,11]);
   // Render in region order, guardians last within each region
   const order=[...ENEMIES.keys()].sort((a,b)=>{
@@ -1520,12 +1963,12 @@ function openBestiary(){
     }
     list.appendChild(div);
   });
-  document.getElementById('bestiary-count').textContent=seenCount+'/'+ENEMIES.length+' encountered (+'+(seen.has(18)?1:0)+' boss)';
+  document.getElementById('bestiary-count').textContent=seenCount+'/'+ENEMIES.length+' encountered (+'+(seen.has(24)?1:0)+' boss)';
   // Add The Unmade entry at the bottom
   const bossDiv=document.createElement('div');
   const bossRegion='✦ World\'s Edge';
-  const bossSeen=seen.has(18);
-  const bossSpared=spared.has(18);
+  const bossSeen=seen.has(24);
+  const bossSpared=spared.has(24);
   bossDiv.className='be-entry'+(bossSeen?'':' unseen');
   if(!bossSeen){
     bossDiv.innerHTML=`<div class="be-header"><span class="be-emoji">?</span>
@@ -1559,10 +2002,31 @@ function closeBestiary(){
 // ════════════════════════════════════════════════════════════════
 // START
 // ════════════════════════════════════════════════════════════════
-function startGame(){
+function startGame(load=false){
+  if(load){
+    if(!loadGame()){startGame(false);return;}
+  }else{
+    deleteSave();
+  }
   G.phase='map';showScreen('map-screen');resizeMapCanvas();drawMap();
-  showZoneFlash('Welcome to the Realm of Echoes!');
-  document.getElementById('map-msg').textContent='* Six regions. Six shards.\n* Travel east. The path connects them all.';
+  if(load){
+    showZoneFlash('Welcome back, Wanderer.');
+    document.getElementById('map-msg').textContent='* Your journey continues.';
+  }else{
+    showZoneFlash('Welcome to the Realm of Echoes!');
+    document.getElementById('map-msg').textContent='* Six regions. Six shards.\n* Travel east. The path connects them all.';
+  }
+}
+
+// Init title screen
+if(hasSave()){
+  document.getElementById('continue-btn').style.display='block';
+  try{
+    const d=JSON.parse(localStorage.getItem(SAVE_KEY));
+    const si=document.getElementById('save-info');
+    si.style.display='block';
+    si.textContent='Lv.'+d.level+' · '+d.shards+'/6 shards · '+d.gold+'g';
+  }catch(e){}
 }
 </script>
 </body>
