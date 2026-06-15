@@ -25,15 +25,23 @@ body{background:var(--bg);color:var(--white);font-family:'Press Start 2P',monosp
 #map-screen{position:fixed;inset:0;top:30px;max-width:100%;width:100%;overflow:hidden;background:var(--bg);z-index:10;}
 /* TITLE */
 #title-screen{align-items:center;text-align:center;gap:12px;padding:18px 14px 24px;flex-shrink:0;overflow-y:auto;}
-#title-art{font-size:20px;color:var(--gold);text-shadow:0 0 20px var(--gold2);line-height:1.5;}
+/* TITLE POLISH */
+#title-screen{position:relative;overflow:hidden;}
+#title-canvas{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:0;}
+#title-content{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;gap:12px;padding:18px 14px 24px;width:100%;}
+#title-art{font-size:20px;color:var(--gold);text-shadow:0 0 20px var(--gold2),0 0 60px var(--gold2);line-height:1.5;animation:titleGlow 3s ease-in-out infinite;}
+@keyframes titleGlow{0%,100%{text-shadow:0 0 20px var(--gold2),0 0 40px var(--gold2);}50%{text-shadow:0 0 30px var(--gold),0 0 80px var(--gold),0 0 120px var(--gold2);}}
 .title-sub{font-size:7px;color:var(--cyan);letter-spacing:2px;}
-.title-lore{font-size:6px;color:var(--white);line-height:2.3;max-width:340px;border:1px solid var(--border);padding:10px 14px;background:#0a0a18;}
+.title-lore{font-size:6px;color:var(--white);line-height:2.3;max-width:340px;border:1px solid var(--border);padding:10px 14px;background:rgba(10,10,24,0.85);}
 .region-strip{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;margin-top:2px;}
-.region-pip{font-size:8px;padding:4px 7px;border:1px solid var(--border);background:var(--panel);border-radius:3px;color:var(--white);}
+.region-pip{font-size:8px;padding:4px 7px;border:1px solid var(--border);background:rgba(18,18,42,0.85);border-radius:3px;color:var(--white);}
 .start-btn{font-family:'Press Start 2P',monospace;font-size:10px;background:var(--gold);color:#000;
   border:none;padding:13px 30px;cursor:pointer;animation:pulse 1.6s infinite;box-shadow:0 0 14px var(--gold2);}
 @keyframes pulse{0%,100%{transform:scale(1);}50%{transform:scale(1.04);}}
 .hint-txt{font-size:6px;color:var(--gray);}
+/* TYPEWRITER */
+#dlg-text{white-space:pre-wrap;}
+#dlg-arrow{position:absolute;bottom:7px;right:10px;font-size:8px;color:var(--white);animation:blink .9s infinite;display:none;}
 /* MAP */
 #map-wrap{position:absolute;inset:0;background:#000;overflow:hidden;}
 #map-canvas{width:100%;height:100%;image-rendering:pixelated;display:block;}
@@ -64,6 +72,23 @@ body{background:var(--bg);color:var(--white);font-family:'Press Start 2P',monosp
   padding:9px 14px;cursor:pointer;
   box-shadow:0 0 10px var(--gold2);
 }
+
+/* PAUSE */
+.pause-section{background:var(--panel);border:2px solid var(--border);padding:10px 12px;}
+.pause-section-title{font-size:7px;color:var(--gold);margin-bottom:8px;border-bottom:1px solid var(--border);padding-bottom:5px;}
+.pause-row{display:flex;justify-content:space-between;align-items:center;font-size:6px;margin-bottom:5px;}
+.pause-label{color:var(--gray);}
+.pause-val{color:var(--white);}
+.pause-val.gold{color:var(--gold);}
+.pause-val.cyan{color:var(--cyan);}
+.pause-val.green{color:#40c870;}
+.pause-val.red{color:var(--red);}
+.pause-xp-wrap{height:6px;background:#1a1a30;border:1px solid #333355;flex:1;margin-left:8px;}
+.pause-xp-bar{height:100%;background:var(--gold);}
+.pause-region-row{display:flex;align-items:center;gap:6px;font-size:6px;margin-bottom:4px;}
+.pause-region-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.pause-equip-row{font-size:6px;margin-bottom:4px;color:var(--cyan);}
+.pause-equip-none{color:var(--gray);}
 
 /* BESTIARY */
 #bestiary-overlay{display:none;position:fixed;inset:0;background:#000e;z-index:60;flex-direction:column;align-items:center;}
@@ -145,11 +170,12 @@ body{background:var(--bg);color:var(--white);font-family:'Press Start 2P',monosp
 .btn.spare{border-color:#40c870;color:#40c870;}.btn.spare:hover{background:#40c870;color:#000;}
 .btn:disabled{opacity:.35;pointer-events:none;}
 /* END */
-#end-screen{align-items:center;text-align:center;gap:14px;padding:22px 16px;flex-shrink:0;}
-#end-screen h2{font-size:14px;}
+#end-screen{align-items:center;text-align:center;gap:14px;padding:22px 16px;flex-shrink:0;position:relative;overflow:hidden;min-height:100vh;}
+#end-screen h2{font-size:13px;}
 #end-screen p{font-size:7px;line-height:2.2;color:var(--white);max-width:340px;white-space:pre-wrap;}
 .restart-btn{font-family:'Press Start 2P',monospace;font-size:8px;background:var(--gold);
-  color:#000;border:none;padding:10px 22px;cursor:pointer;margin-top:6px;}
+  color:#000;border:none;padding:10px 22px;cursor:pointer;margin-top:6px;box-shadow:0 0 14px var(--gold2);animation:pulse 1.6s infinite;}
+@keyframes endBob{0%,100%{transform:translateY(0) scale(1);}50%{transform:translateY(-8px) scale(1.08);}}
 #flash{position:fixed;inset:0;background:#fff;opacity:0;pointer-events:none;z-index:999;transition:opacity .14s;}
 </style>
 </head>
@@ -171,6 +197,8 @@ body{background:var(--bg);color:var(--white);font-family:'Press Start 2P',monosp
 
 <!-- TITLE -->
 <div id="title-screen" class="screen active">
+  <canvas id="title-canvas"></canvas>
+  <div id="title-content">
   <div id="title-art">REALM<br>OF<br>ECHOES</div>
   <div class="title-sub">-- six regions · six shards --</div>
   <div style="font-size:6px;color:var(--gray);margin-top:-4px;">by Picco Iacopelli</div>
@@ -194,7 +222,20 @@ body{background:var(--bg);color:var(--white);font-family:'Press Start 2P',monosp
   <button class="start-btn" onclick="startGame(false)">&#9658; NEW JOURNEY</button>
   <button class="start-btn" id="continue-btn" onclick="startGame(true)" style="display:none;background:#2a3a6a;box-shadow:0 0 14px #4060c0;">&#9654; CONTINUE</button>
   <div id="save-info" style="font-size:6px;color:var(--gray);display:none;"></div>
+  <button onclick="openCredits()" style="font-family:'Press Start 2P',monospace;font-size:6px;background:transparent;border:1px solid var(--gray);color:var(--gray);padding:5px 12px;cursor:pointer;">CREDITS</button>
   <div class="hint-txt">Arrow keys / D-pad &middot; Enter villages to shop &amp; rest</div>
+  </div><!-- end title-content -->
+</div>
+
+<!-- CREDITS -->
+<div id="credits-overlay" style="display:none;position:fixed;inset:0;background:#000e;z-index:70;flex-direction:column;align-items:center;justify-content:flex-start;overflow:hidden;">
+  <div style="width:100%;max-width:560px;height:100%;display:flex;flex-direction:column;background:var(--bg);position:relative;overflow:hidden;">
+    <div id="credits-scroll" style="flex:1;overflow:hidden;position:relative;">
+      <div id="credits-inner" style="position:absolute;width:100%;text-align:center;padding:60px 24px 120px;display:flex;flex-direction:column;align-items:center;gap:0;"></div>
+    </div>
+    <div style="position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,var(--bg) 60%);height:80px;pointer-events:none;"></div>
+    <button onclick="closeCredits()" style="font-family:'Press Start 2P',monospace;font-size:7px;background:transparent;border:2px solid var(--gray);color:var(--gray);padding:7px 16px;cursor:pointer;position:absolute;bottom:16px;left:50%;transform:translateX(-50%);z-index:1;">CLOSE</button>
+  </div>
 </div>
 
 <!-- MAP -->
@@ -213,6 +254,8 @@ body{background:var(--bg);color:var(--white);font-family:'Press Start 2P',monosp
     <span id="hud-shards" style="color:var(--cyan)">✦:0/6</span>
     <span id="hud-region"></span>
     <button id="bestiary-btn" onclick="openBestiary()" style="font-family:'Press Start 2P',monospace;font-size:6px;background:transparent;border:1px solid var(--gray);color:var(--gray);padding:3px 6px;cursor:pointer;margin-left:4px;">📖</button>
+    <button id="mute-btn" onclick="toggleMute()" style="font-family:'Press Start 2P',monospace;font-size:6px;background:transparent;border:1px solid var(--gray);color:var(--gray);padding:3px 6px;cursor:pointer;margin-left:2px;">🔊</button>
+    <button id="pause-btn" onclick="openPause()" style="font-family:'Press Start 2P',monospace;font-size:6px;background:transparent;border:1px solid var(--gray);color:var(--gray);padding:3px 6px;cursor:pointer;margin-left:2px;">⏸</button>
   </div>
   <div id="dpad">
     <div></div>
@@ -257,7 +300,7 @@ body{background:var(--bg);color:var(--white);font-family:'Press Start 2P',monosp
     </div>
     <div class="arow">
       <button class="btn magic" id="magic-btn" onclick="doMagic()">ECHO BLAST</button>
-      <button class="btn item" onclick="doItem()">POTION</button>
+      <button class="btn item" id="item-btn" onclick="openItemMenu()">ITEMS</button>
     </div>
     <div class="arow">
       <button class="btn spare" id="spare-btn" onclick="doSpare()">SPARE</button>
@@ -266,6 +309,17 @@ body{background:var(--bg);color:var(--white);font-family:'Press Start 2P',monosp
   <div id="footer-tap" style="font-size:6px;color:var(--gray);text-align:center;padding:3px 0;display:none;">Tap text box to continue</div>
 </div>
 
+
+<!-- PAUSE -->
+<div id="pause-overlay" style="display:none;position:fixed;inset:0;background:#000e;z-index:60;flex-direction:column;align-items:center;">
+  <div style="width:100%;max-width:560px;height:100%;display:flex;flex-direction:column;background:var(--bg);">
+    <div style="background:var(--panel);border-bottom:2px solid var(--gold);padding:8px 14px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;">
+      <span style="font-size:9px;color:var(--gold);">⏸ PAUSED</span>
+      <button onclick="closePause()" style="font-family:'Press Start 2P',monospace;font-size:7px;background:transparent;border:2px solid var(--gray);color:var(--gray);padding:5px 10px;cursor:pointer;">RESUME</button>
+    </div>
+    <div id="pause-body" style="flex:1;overflow-y:auto;padding:12px 14px;display:flex;flex-direction:column;gap:12px;"></div>
+  </div>
+</div>
 
 <!-- BESTIARY -->
 <div id="bestiary-overlay">
@@ -281,9 +335,15 @@ body{background:var(--bg);color:var(--white);font-family:'Press Start 2P',monosp
 
 <!-- END -->
 <div id="end-screen" class="screen">
-  <h2 id="end-title">GAME OVER</h2>
-  <p id="end-msg"></p>
-  <button class="restart-btn" onclick="deleteSave();location.reload()">Play Again</button>
+  <canvas id="end-canvas" style="position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:0;"></canvas>
+  <div id="end-content" style="position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;text-align:center;gap:14px;padding:22px 16px;width:100%;max-width:560px;">
+    <div id="end-emblem" style="font-size:48px;animation:endBob 2s ease-in-out infinite;">✦</div>
+    <h2 id="end-title" style="font-size:13px;">GAME OVER</h2>
+    <div id="end-subtitle" style="font-size:7px;color:var(--cyan);letter-spacing:2px;"></div>
+    <p id="end-msg" style="font-size:7px;line-height:2.2;color:var(--white);max-width:340px;white-space:pre-wrap;border:1px solid var(--border);padding:12px 14px;background:rgba(8,8,22,0.85);"></p>
+    <div id="end-stats" style="font-size:6px;color:var(--gray);display:flex;flex-direction:column;gap:5px;max-width:280px;width:100%;"></div>
+    <button class="restart-btn" onclick="deleteSave();location.reload()">Play Again</button>
+  </div>
 </div>
 
 <script>
@@ -326,58 +386,72 @@ const TC={
 // Bottom row 34 is the main highway path connecting all regions
 // ════════════════════════════════════════════════════════════════
 const WORLD=[
-[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-[7,7,7,7,7,7,7,7,7,1,7,7,7,7,7,7,7,7,7,17,7,7,7,7,7,7,7,7,7,18,7,7,7,7,7,7,7,7,7,20,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7],
-[7,7,7,7,7,7,7,7,7,1,7,7,7,7,7,7,7,7,7,17,7,7,7,7,7,7,7,7,7,18,7,7,7,7,7,7,7,7,7,20,7,7,7,7,7,7,7,7,7,7,7,22,22,22,22,22,7,7,7,7],
-[1,1,2,2,9,9,9,1,1,23,17,17,7,7,9,9,9,17,17,23,18,18,18,18,9,9,9,18,18,23,20,4,4,4,9,9,9,20,20,20,7,7,7,7,9,9,9,7,7,7,21,22,22,22,9,21,5,5,6,6],
-[1,1,2,2,9,9,9,1,1,23,17,17,7,7,9,9,9,17,17,23,18,18,18,18,9,9,9,18,18,23,20,4,4,4,9,9,9,20,20,20,7,7,7,7,9,9,9,7,7,7,21,22,22,22,9,9,9,21,21,21],
-[1,1,2,2,9,16,9,1,1,23,17,17,7,7,9,16,9,17,17,23,18,18,18,18,9,16,9,18,18,23,20,4,4,4,9,16,9,20,20,20,7,7,7,7,9,16,9,7,7,7,21,22,22,22,9,16,9,21,21,21],
-[1,1,2,2,9,9,9,1,1,23,17,17,17,17,9,9,9,17,17,23,18,3,3,3,9,9,9,18,18,23,20,20,4,4,9,9,9,20,20,20,7,7,7,7,9,9,9,7,7,7,21,22,22,22,9,9,9,21,21,21],
-[1,1,2,2,9,9,9,1,1,23,17,17,17,17,9,9,9,17,17,23,18,3,18,3,9,9,9,18,18,23,20,4,4,4,9,9,9,20,20,20,7,7,7,7,9,9,9,7,7,7,21,21,21,21,9,9,9,21,21,21],
-[1,1,2,1,2,1,1,1,1,23,17,17,17,17,17,17,17,7,7,23,18,3,3,3,3,18,18,18,18,23,20,4,4,4,4,20,20,20,20,20,7,5,5,5,5,5,7,7,7,7,21,21,21,21,21,5,21,21,21,21],
-[1,1,2,2,2,1,1,1,1,23,17,24,17,17,17,17,17,7,7,23,18,24,3,3,3,18,18,18,18,23,20,4,4,4,4,20,20,20,20,20,7,7,5,5,5,5,7,7,7,7,21,21,21,21,21,5,21,21,21,21],
-[1,1,2,2,2,1,1,1,1,23,17,17,17,17,17,17,17,7,7,23,18,3,3,3,3,18,18,18,18,23,20,4,4,4,4,20,20,20,20,20,7,5,5,5,5,5,7,7,7,7,21,21,21,22,22,5,22,22,21,21],
-[1,1,1,1,1,1,1,1,1,23,17,17,17,17,17,17,17,7,7,23,18,3,3,3,3,18,18,18,18,23,20,20,20,20,20,20,20,20,20,20,7,5,5,5,5,5,7,7,7,7,21,21,21,22,22,24,22,22,21,21],
-[1,2,24,2,2,1,1,1,1,23,17,17,17,17,17,17,17,17,17,23,18,18,18,18,18,18,18,18,18,23,20,24,20,2,2,20,2,20,2,20,7,5,24,5,5,5,7,7,7,7,21,21,21,22,22,5,22,22,21,21],
-[1,2,2,2,2,1,1,1,1,23,17,17,17,17,17,17,17,17,17,23,18,18,18,18,18,18,18,18,18,23,20,20,20,2,2,20,2,2,2,20,7,5,5,5,3,5,3,7,7,7,21,21,21,22,22,5,22,22,21,21],
-[1,2,2,2,2,1,1,1,1,23,17,17,17,17,17,17,17,17,17,23,19,19,19,19,19,18,19,19,19,23,20,20,20,2,2,20,2,2,2,20,7,5,5,5,3,5,3,7,7,7,21,21,21,22,22,5,22,22,21,21],
-[1,2,2,2,2,1,1,1,1,23,17,17,17,17,17,17,17,17,17,23,19,19,19,19,19,18,19,24,19,23,20,20,20,2,2,20,2,2,2,20,7,5,5,5,3,5,7,7,7,7,21,21,21,22,22,5,22,22,21,21],
-[1,2,2,2,2,1,1,1,1,23,17,17,17,17,17,17,17,24,17,23,18,18,18,18,18,18,3,3,3,23,20,20,20,2,2,20,2,24,2,20,7,5,5,5,3,5,3,7,7,7,21,21,21,22,22,5,22,22,21,21],
-[1,1,1,1,1,1,1,1,1,23,17,17,17,17,17,17,17,17,17,23,18,18,18,18,18,18,3,3,3,23,20,20,20,2,2,20,2,2,2,20,7,5,5,5,3,5,3,7,7,7,21,21,21,21,21,5,21,21,21,21],
-[1,1,1,2,24,1,2,1,1,23,17,17,17,17,17,17,17,17,17,23,18,18,18,18,18,18,3,3,3,23,20,20,20,20,2,20,2,2,2,20,7,5,5,5,3,5,3,7,7,7,21,21,21,21,21,5,21,21,21,21],
-[1,1,1,2,2,1,2,1,1,23,17,17,17,17,17,17,17,17,17,23,18,18,18,18,18,18,3,3,3,23,20,20,20,20,20,20,20,20,20,20,7,7,7,7,7,5,7,7,7,7,21,21,21,21,21,5,21,21,21,21],
-[1,1,1,2,2,1,2,1,1,23,17,17,17,17,17,17,17,17,17,23,18,18,18,18,18,18,3,3,3,3,10,10,10,10,20,20,20,20,20,23,19,19,19,19,19,5,19,19,19,19,21,21,21,21,21,5,21,21,21,21],
-[1,1,1,2,2,1,2,1,1,23,17,17,17,17,17,17,17,17,17,23,18,18,18,18,18,18,18,18,18,18,10,10,10,10,20,20,20,20,20,23,19,19,19,19,19,5,19,19,19,19,21,21,21,21,21,5,21,21,21,21],
-[1,1,1,2,2,1,2,1,1,23,17,17,17,17,17,17,17,17,17,23,18,18,18,18,18,18,18,18,18,18,10,10,10,10,20,20,20,20,20,20,7,7,7,5,5,5,5,5,5,7,21,22,22,22,22,24,21,21,21,21],
-[1,1,1,2,2,1,2,1,1,23,17,17,17,17,17,17,17,17,17,23,18,18,18,18,18,18,18,18,18,18,10,10,10,10,20,20,20,20,20,20,7,7,7,5,5,5,5,5,24,7,21,22,22,22,22,5,21,21,21,21],
-[1,1,1,2,2,1,2,1,1,23,17,17,17,17,17,17,17,17,17,23,18,18,18,18,18,18,18,18,18,18,10,10,10,10,20,20,20,20,20,20,7,7,7,5,5,5,5,5,7,7,21,22,22,22,22,5,21,21,21,21],
-[1,1,1,1,1,1,1,1,1,23,17,17,17,17,17,17,17,17,17,23,18,18,18,18,18,18,18,18,18,18,10,10,10,10,20,20,20,20,20,20,7,7,7,5,5,5,5,5,5,7,21,22,22,22,22,5,21,21,21,21],
-[1,1,8,8,8,8,8,8,1,23,17,17,8,8,8,8,8,8,17,23,18,18,8,8,8,8,8,8,18,18,10,10,8,8,8,8,8,8,20,20,7,7,8,8,8,8,8,8,5,7,21,21,8,8,8,8,8,8,21,21],
-[1,1,8,12,8,8,13,8,1,23,17,17,8,12,8,8,13,8,17,23,18,18,8,12,8,8,13,8,18,23,20,20,8,12,8,8,13,8,20,20,7,7,8,12,8,8,13,8,5,7,21,21,8,12,8,8,13,8,21,21],
-[1,1,8,8,8,8,8,8,1,23,17,17,8,8,8,8,8,8,17,23,18,18,8,8,8,8,8,8,18,23,20,20,8,8,8,8,8,8,20,20,7,7,8,8,8,8,8,8,5,7,21,21,8,8,8,8,8,8,21,21],
-[1,1,8,8,8,8,8,8,1,23,17,17,8,8,8,8,8,8,17,23,18,18,8,8,8,8,8,8,18,23,20,20,8,8,8,8,8,8,20,20,7,7,8,8,8,8,8,8,7,7,21,21,8,8,8,8,8,8,21,21],
-[1,1,8,8,8,8,8,8,1,23,17,17,8,8,8,8,8,8,17,23,18,18,8,8,8,8,8,8,18,23,20,20,8,8,8,8,8,8,20,20,7,7,8,8,8,8,8,8,7,7,21,21,8,8,8,8,8,8,21,21],
-[1,1,1,1,1,1,1,1,1,23,17,17,17,17,17,17,17,17,17,23,18,18,18,18,18,18,18,18,18,23,20,20,20,20,20,20,20,20,20,20,7,7,7,7,7,5,7,7,7,7,21,21,21,21,21,5,21,21,21,21],
-[1,1,1,1,1,1,1,1,1,23,17,17,17,17,17,17,17,17,17,23,18,18,18,18,18,18,18,18,18,23,20,20,20,20,20,20,20,20,20,23,5,5,5,5,5,5,5,5,5,23,5,5,5,5,5,5,5,5,5,5],
-[1,1,5,5,5,5,5,5,5,23,17,17,17,17,17,17,17,17,17,23,18,18,18,18,18,18,18,18,18,23,20,20,20,20,20,20,20,20,20,20,7,7,7,7,7,7,7,7,7,7,21,21,21,21,21,21,21,21,21,21],
-[1,1,1,5,5,5,5,5,1,23,17,17,17,17,17,17,17,17,17,23,18,18,18,18,18,18,18,18,18,23,20,20,20,20,20,20,20,20,20,20,7,7,7,7,7,7,7,7,7,7,21,21,21,21,21,21,21,21,21,21],
-[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+[7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7],
+[7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7],
+[7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,6,6,7],
+[7,7,7,2,9,9,9,1,1,1,1,1,1,1,7,7,7,7,7,9,9,9,17,17,17,17,17,17,17,7,18,18,18,18,9,9,9,18,18,18,18,18,18,18,7,20,20,20,20,9,9,9,20,20,20,20,20,20,20,7,7,7,7,7,9,9,9,7,7,7,7,7,7,7,7,21,22,22,22,9,5,5,5,5,5,5,5,6,6,7],
+[7,7,7,2,9,9,9,1,1,1,1,1,1,1,23,7,7,7,7,9,9,9,17,17,17,17,17,17,17,23,18,18,18,18,9,9,9,18,18,18,18,18,18,18,23,20,20,20,20,9,9,9,20,20,20,20,20,20,20,23,7,7,7,7,9,9,9,7,7,7,7,7,7,7,23,21,22,22,22,9,9,9,21,21,21,21,21,7,7,7],
+[7,7,7,2,9,16,9,1,1,1,1,1,1,1,23,7,7,7,7,9,16,9,17,17,17,17,17,17,17,23,18,18,18,18,9,16,9,18,18,18,18,18,18,18,23,20,20,20,20,9,16,9,20,20,20,20,20,20,20,23,7,7,7,7,9,16,9,7,7,7,7,7,7,7,23,21,22,22,22,9,16,9,21,21,21,21,21,7,7,7],
+[7,7,7,2,9,9,9,2,2,2,1,1,1,1,23,7,7,7,7,9,9,9,17,17,17,17,17,17,17,23,18,3,3,3,9,9,9,18,18,18,18,18,18,18,23,20,20,20,20,9,9,9,20,20,20,20,20,20,20,23,7,7,7,7,9,9,9,7,7,7,7,7,7,7,23,21,22,22,22,9,9,9,21,21,21,21,21,7,7,7],
+[7,7,7,2,9,9,9,2,2,2,1,1,1,1,23,7,7,7,7,9,9,9,17,17,17,17,17,17,17,23,18,3,3,3,9,9,9,18,18,18,18,18,18,18,23,20,20,20,20,9,9,9,20,20,20,20,20,20,20,23,7,7,7,7,9,9,9,7,7,7,7,7,7,7,23,21,22,22,22,9,9,9,21,21,21,21,21,7,7,7],
+[7,7,7,2,9,9,9,5,2,2,1,1,1,1,23,17,17,17,17,9,5,9,17,17,17,17,7,7,7,23,18,5,3,3,9,5,9,18,18,18,18,18,18,18,23,4,5,4,4,9,5,9,20,20,20,20,20,20,20,23,7,5,5,5,9,5,9,7,7,7,7,7,7,7,23,21,5,21,21,9,5,9,21,21,21,21,21,7,7,7],
+[7,7,7,2,2,2,2,5,2,2,1,1,1,1,23,17,17,17,17,17,5,17,17,17,17,17,7,7,7,23,18,5,3,3,3,5,18,18,18,18,18,18,18,18,23,4,5,4,4,4,5,20,20,20,20,20,20,20,20,23,7,5,5,5,5,5,7,7,7,7,7,7,7,7,23,21,5,21,21,21,5,21,21,21,21,21,21,7,7,7],
+[7,7,7,2,2,2,2,5,24,2,1,1,1,1,23,17,17,17,17,17,5,17,17,17,17,17,7,7,7,23,18,5,24,3,3,5,18,18,18,18,18,18,18,18,23,4,5,4,4,4,5,20,20,20,20,20,20,20,20,23,7,5,5,5,5,5,7,7,7,7,7,7,7,7,23,21,5,21,21,21,5,21,22,22,22,22,22,7,7,7],
+[7,7,7,2,2,2,2,5,2,2,1,1,1,1,23,17,17,24,17,17,5,17,17,17,17,17,7,7,7,23,18,5,3,3,3,5,18,18,18,18,18,18,18,18,23,4,5,4,4,4,5,20,20,20,20,20,20,20,20,23,7,5,24,5,5,5,7,7,7,7,7,7,7,7,23,21,5,21,21,21,5,21,22,22,22,22,22,7,7,7],
+[7,7,7,2,2,2,2,5,2,2,1,1,1,1,23,17,17,17,17,17,5,17,17,17,17,17,7,7,7,23,18,5,3,3,3,5,18,18,18,18,18,18,18,18,23,4,5,24,4,4,5,20,20,20,2,2,2,2,2,23,7,5,5,5,5,5,7,7,7,7,7,7,7,7,23,21,5,24,21,21,5,21,22,22,22,22,22,7,7,7],
+[7,7,7,24,2,1,2,5,2,2,1,1,1,1,23,17,5,17,17,17,5,17,17,17,17,17,17,17,17,23,18,5,3,3,3,5,18,18,18,18,18,18,18,18,23,4,5,4,4,4,5,20,20,20,2,2,2,2,2,23,7,5,5,5,5,5,5,5,5,5,5,7,7,7,23,21,5,21,21,21,5,21,22,22,22,22,22,7,7,7],
+[7,7,7,2,2,1,2,5,2,2,1,1,1,1,23,17,5,5,5,5,5,17,17,17,17,17,17,17,17,23,18,5,3,3,3,5,18,18,18,18,18,18,18,18,23,4,5,4,4,4,5,20,20,20,2,2,2,2,2,23,7,5,5,5,5,5,3,3,3,3,5,7,7,7,23,21,5,21,21,21,5,21,22,22,22,22,22,7,7,7],
+[7,7,7,2,2,1,2,5,2,2,1,1,1,1,23,17,5,17,17,17,5,17,17,17,17,17,17,17,17,23,18,5,18,18,18,5,5,5,5,5,18,18,18,18,23,4,5,4,4,4,5,20,20,20,2,2,2,2,2,23,7,5,5,5,5,5,3,3,3,3,5,7,7,7,23,21,5,21,21,21,5,21,22,22,22,22,22,7,7,7],
+[7,7,7,2,2,1,2,5,2,2,1,1,1,1,23,7,5,7,17,17,5,17,17,17,17,17,17,17,17,23,18,5,18,18,18,5,18,18,3,5,3,3,3,3,23,4,5,4,4,4,5,20,20,20,2,2,24,2,2,23,7,5,5,5,5,5,3,3,3,3,5,7,7,7,23,21,5,21,21,21,5,21,22,22,22,22,22,7,7,7],
+[7,7,7,2,2,1,2,5,2,2,1,1,1,1,23,7,5,7,17,17,5,17,17,17,17,17,17,17,17,23,18,5,18,18,18,5,18,18,3,5,3,3,3,3,23,4,5,4,4,4,5,20,20,20,2,2,2,2,2,23,7,5,5,5,5,5,3,3,3,3,5,7,7,7,23,21,5,5,5,5,5,21,21,21,21,21,21,7,7,7],
+[7,7,7,5,5,5,5,5,2,2,1,1,1,1,23,7,5,7,20,20,5,20,20,17,17,17,17,17,17,23,18,5,18,18,18,5,18,18,3,5,3,3,3,3,23,4,5,4,4,4,5,20,20,20,2,2,2,2,2,23,7,5,5,5,5,5,3,3,3,3,5,7,7,7,23,21,5,21,22,22,5,22,22,21,21,21,21,7,7,7],
+[7,7,7,2,2,1,1,5,1,1,24,1,1,1,23,7,5,7,20,20,5,20,20,17,17,17,17,17,17,23,18,5,18,18,18,5,18,18,3,5,3,3,3,3,23,20,5,5,5,5,5,20,20,20,2,2,2,2,2,23,19,19,19,19,19,19,19,19,19,19,5,19,19,19,23,21,5,21,22,22,5,22,22,21,21,21,21,7,7,7],
+[7,7,7,2,2,1,1,5,2,2,2,2,1,1,23,7,5,7,20,20,5,20,20,17,17,17,17,17,17,23,18,5,18,18,18,5,18,18,3,5,24,3,3,3,23,20,5,20,20,20,5,20,20,4,2,2,2,2,2,23,19,19,5,19,19,5,19,19,19,19,5,19,19,19,23,21,5,21,22,22,5,22,22,21,21,21,21,7,7,7],
+[7,7,7,2,2,1,1,5,2,2,2,2,1,1,23,17,5,5,5,5,5,4,20,17,17,17,17,17,17,23,18,5,18,18,18,5,18,18,3,5,3,3,3,3,23,20,5,20,20,20,5,20,20,4,4,4,4,4,4,23,7,7,5,5,5,5,5,5,5,7,5,7,7,7,23,19,5,19,19,19,5,19,19,21,21,21,21,7,7,7],
+[7,7,7,2,2,1,1,5,2,2,2,2,1,1,23,17,5,17,20,4,5,4,24,17,17,17,17,17,17,23,18,5,18,18,18,5,18,18,3,5,3,3,3,3,23,20,5,10,10,10,5,10,10,10,10,4,4,4,4,23,7,7,5,5,5,5,5,5,5,7,5,7,7,7,23,21,5,19,19,24,5,19,19,21,21,21,21,7,7,7],
+[7,7,7,2,2,1,1,5,2,2,2,2,1,1,23,17,5,17,20,4,5,4,20,17,7,7,7,7,7,23,18,5,18,18,18,5,18,18,3,5,3,3,3,3,23,20,5,10,10,10,5,5,5,5,5,4,4,4,4,23,7,7,5,5,5,5,5,5,24,7,5,7,7,7,23,21,5,22,22,22,5,22,22,21,21,21,21,7,7,7],
+[7,7,7,1,1,1,1,5,2,2,2,2,1,1,23,17,5,3,3,3,5,20,20,17,7,7,7,7,7,23,18,5,18,18,18,5,18,18,3,5,3,3,3,3,23,20,5,10,10,10,5,10,10,10,5,4,4,4,4,23,7,7,5,5,5,5,5,5,5,7,5,7,7,7,23,21,5,22,22,22,5,22,22,21,21,21,21,7,7,7],
+[7,7,7,1,1,1,1,5,2,2,2,2,1,1,23,17,5,3,3,3,5,20,20,17,7,7,7,7,7,23,18,5,5,5,5,5,18,18,18,5,18,18,18,18,23,20,5,10,10,10,5,10,10,10,5,4,4,4,4,23,7,7,5,5,5,5,5,5,5,7,5,7,7,7,23,21,5,22,22,22,5,22,22,21,21,21,21,7,7,7],
+[7,7,7,5,5,5,5,5,2,2,2,2,1,1,23,17,5,3,3,3,5,17,17,17,7,7,7,7,7,23,18,5,19,19,19,5,19,19,19,5,18,18,18,18,23,20,5,10,10,10,5,5,24,5,5,4,4,4,4,23,7,3,5,3,3,5,5,5,5,7,5,7,7,7,23,21,5,5,24,5,5,21,21,21,21,21,21,7,7,7],
+[7,7,7,2,2,2,2,5,2,2,2,2,1,1,23,17,5,3,3,3,5,17,17,17,7,7,7,7,7,23,18,5,19,19,19,5,19,19,19,5,18,18,18,18,23,20,5,10,10,10,5,10,10,10,5,4,4,4,4,23,7,3,5,3,3,5,5,5,5,7,5,7,7,7,23,21,5,22,22,22,5,21,21,21,21,21,21,7,7,7],
+[7,7,7,2,2,2,2,5,2,2,2,2,2,1,23,17,5,5,5,5,5,17,17,17,7,7,7,7,7,23,18,5,19,24,19,5,19,19,19,5,18,18,18,18,23,20,5,10,10,10,5,10,10,10,5,4,4,4,4,23,7,3,5,5,5,5,5,5,5,5,5,7,7,7,23,21,5,22,22,22,5,21,21,21,21,21,21,7,7,7],
+[7,7,7,2,2,2,2,5,2,2,2,2,2,1,23,17,24,17,17,17,5,17,17,17,17,17,17,17,17,23,18,5,19,19,19,5,19,19,19,5,18,18,18,18,23,20,5,5,5,5,5,10,10,10,5,20,20,20,20,23,7,3,5,3,3,5,5,5,5,7,5,7,7,7,23,21,5,5,5,5,5,21,21,21,21,21,21,7,7,7],
+[7,7,7,2,2,2,2,5,2,2,2,2,2,1,23,17,5,17,17,17,5,17,17,17,17,17,17,17,17,23,18,5,19,19,19,5,5,5,5,5,18,18,18,18,23,20,5,10,10,10,5,10,10,10,5,20,20,20,20,23,7,3,5,24,3,5,5,5,5,7,5,7,7,7,23,21,5,21,21,21,5,21,21,21,21,21,21,7,7,7],
+[7,7,7,2,24,2,2,5,2,2,2,2,2,1,23,17,5,17,17,17,5,17,17,17,17,17,17,17,17,23,18,5,5,5,5,5,18,18,18,5,18,18,18,18,23,20,5,10,10,10,5,10,10,10,5,20,20,20,20,23,7,3,5,3,3,5,5,5,5,7,5,7,7,7,23,21,5,21,21,21,5,21,21,22,22,22,22,7,7,7],
+[7,7,7,2,2,2,2,5,2,2,2,2,2,1,23,17,5,17,17,17,5,17,17,17,17,17,17,17,17,23,18,5,18,18,18,5,18,18,18,5,18,18,18,18,23,20,5,10,10,10,5,10,10,10,5,20,20,20,20,23,7,3,5,3,3,5,5,5,5,7,5,7,7,7,23,21,5,21,21,21,5,21,21,22,22,22,22,7,7,7],
+[7,7,7,2,2,2,2,5,2,2,2,2,2,1,23,17,5,5,5,5,5,17,17,17,17,17,17,17,17,23,18,5,18,18,18,5,18,18,18,5,18,18,18,18,23,20,5,10,10,10,5,10,10,10,5,20,20,20,20,23,7,3,5,3,3,5,5,5,5,7,5,7,7,7,23,21,5,21,21,21,5,21,21,22,22,22,22,7,7,7],
+[7,7,7,5,5,5,5,5,1,2,2,2,2,1,23,17,5,17,17,17,5,17,17,17,17,17,17,17,17,23,18,5,18,18,18,5,18,18,18,5,18,18,18,18,23,20,5,20,20,20,5,5,5,5,5,20,20,20,20,23,7,7,5,7,7,5,5,5,5,5,5,7,7,7,23,21,5,21,21,21,5,21,21,22,22,22,22,7,7,7],
+[7,7,7,2,2,2,2,5,1,2,2,2,2,1,23,17,5,17,17,17,5,17,17,17,17,17,17,17,17,23,18,5,18,18,18,5,18,18,18,5,18,18,18,18,23,20,5,20,20,20,5,20,20,20,5,20,20,20,20,23,7,7,5,7,7,5,5,5,5,5,5,7,7,7,23,21,5,21,21,21,5,21,21,22,22,22,22,7,7,7],
+[7,7,7,8,8,8,8,8,8,8,8,8,8,1,23,17,5,8,8,8,8,8,8,8,8,8,8,8,17,23,18,5,8,8,8,8,8,8,8,8,8,8,8,18,23,20,5,8,8,8,8,8,8,8,8,8,8,8,20,23,7,7,8,8,8,8,8,8,8,8,8,8,8,7,23,21,5,8,8,8,8,8,8,8,8,8,8,7,7,7],
+[7,7,7,12,8,8,8,25,8,8,13,8,8,1,23,17,5,8,12,8,8,8,25,8,8,13,8,8,17,23,18,5,8,12,8,8,8,25,8,8,13,8,8,18,23,20,5,8,12,8,8,8,25,8,8,13,8,8,20,23,7,7,8,12,8,8,8,25,8,8,13,8,8,7,23,21,5,8,12,8,8,8,25,8,8,13,8,7,7,7],
+[7,7,7,8,8,8,8,8,8,8,8,8,8,1,23,17,5,8,8,8,8,8,8,8,8,8,8,8,17,23,18,5,8,8,8,8,8,8,8,8,8,8,8,18,23,20,5,8,8,8,8,8,8,8,8,8,8,8,20,23,7,7,8,8,8,8,8,8,8,8,8,8,8,7,23,21,5,8,8,8,8,8,8,8,8,8,8,7,7,7],
+[7,7,7,8,8,8,8,8,8,8,8,8,8,1,23,17,5,8,8,8,8,8,8,8,8,8,8,8,17,23,18,5,8,8,8,8,8,8,8,8,8,8,8,18,23,20,5,8,8,8,8,8,8,8,8,8,8,8,20,23,7,7,8,8,8,8,8,8,8,8,8,8,8,7,23,21,5,8,8,8,8,8,8,8,8,8,8,7,7,7],
+[7,7,7,8,8,8,8,8,8,8,8,8,8,1,23,17,5,8,8,8,8,8,8,8,8,8,8,8,17,23,18,5,8,8,8,8,8,8,8,8,8,8,8,18,23,20,5,8,8,8,8,8,8,8,8,8,8,8,20,23,7,7,8,8,8,8,8,8,8,8,8,8,8,7,23,21,5,8,8,8,8,8,8,8,8,8,8,7,7,7],
+[7,7,7,8,8,8,8,15,8,8,8,8,8,1,23,17,5,8,8,8,8,8,15,8,8,8,8,8,17,23,18,5,8,8,8,8,8,15,8,8,8,8,8,18,23,20,5,8,8,8,8,8,15,8,8,8,8,8,20,23,7,7,8,8,8,8,8,15,8,8,8,8,8,7,23,21,5,8,8,8,8,8,15,8,8,8,8,7,7,7],
+[7,7,7,1,1,1,1,5,1,1,1,1,1,1,23,17,5,17,17,17,5,17,17,17,17,17,17,17,17,23,18,5,18,18,18,5,24,18,18,5,18,18,18,18,23,20,5,20,20,20,5,20,20,20,5,20,20,20,20,23,7,7,5,7,7,5,7,24,7,7,5,7,7,7,23,21,5,21,21,21,5,21,21,21,21,21,21,7,7,7],
+[7,7,7,1,1,1,1,5,1,1,1,1,1,1,23,17,5,17,17,17,5,17,17,17,17,17,17,17,17,23,18,5,18,18,18,5,18,18,18,5,18,18,18,18,23,20,5,20,20,20,5,20,20,20,5,20,20,20,20,23,7,7,5,7,7,5,7,7,7,7,5,7,7,7,23,21,5,21,21,21,5,21,21,21,21,21,21,7,7,7],
+[7,7,7,1,1,1,1,5,1,1,1,1,1,1,23,17,5,17,17,17,5,17,17,17,17,17,17,17,17,23,18,5,18,18,18,5,18,18,18,5,18,18,18,18,23,20,5,20,20,20,5,20,20,20,5,20,20,20,20,23,7,7,5,7,7,5,7,7,7,7,5,7,7,7,23,21,5,21,21,21,5,21,21,21,21,21,21,7,7,7],
+[7,7,7,1,1,1,1,5,1,1,1,1,1,1,23,17,5,17,17,17,5,17,17,17,17,17,17,17,17,23,18,5,18,18,18,5,18,18,18,5,18,18,18,18,23,20,5,20,20,20,5,20,20,20,5,20,20,20,20,23,7,7,5,7,7,5,7,7,7,7,5,7,7,7,23,21,5,21,21,21,5,21,21,21,21,21,21,7,7,7],
+[7,7,7,5,5,5,5,5,5,5,5,5,5,5,23,5,5,5,5,5,5,5,5,5,5,5,5,5,5,23,5,5,5,5,5,5,5,5,5,5,5,5,5,5,23,5,5,5,5,5,5,5,5,5,5,5,5,5,5,23,5,5,5,5,5,5,5,5,5,5,5,5,5,5,23,5,5,5,5,5,5,5,5,5,5,5,5,7,7,7],
+[7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7],
+[7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7],
+[7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7],
 ];
 
-const HERO_WORLD_COL=5;
-const HERO_WORLD_ROW=36;
+const HERO_WORLD_COL=7;
+const HERO_WORLD_ROW=48;
 
 // Six shard towers, one per region
 // Each has a guardian. The SIXTH is the final boss gate.
 const SHARD_TOWERS=[
   {col:5, row:7,  name:'Verdant Spire',   region:0, cleared:false},
-  {col:15,row:7,  name:'Dune Citadel',    region:1, cleared:false},
-  {col:25,row:7,  name:'Frost Obelisk',   region:2, cleared:false},
-  {col:35,row:7,  name:'Shadow Bastion',  region:3, cleared:false},
-  {col:45,row:7,  name:'Peak Fortress',   region:4, cleared:false},
-  {col:55,row:7,  name:'Caldera Throne',  region:5, cleared:false},
+  {col:20,row:7,  name:'Dune Citadel',    region:1, cleared:false},
+  {col:35,row:7,  name:'Frost Obelisk',   region:2, cleared:false},
+  {col:50,row:7,  name:'Shadow Bastion',  region:3, cleared:false},
+  {col:65,row:7,  name:'Peak Fortress',   region:4, cleared:false},
+  {col:80,row:7,  name:'Caldera Throne',  region:5, cleared:false},
 ];
 
 // Village interiors
@@ -406,70 +480,124 @@ const VILLAGE_TEMPLATE=(id,name,wex,wey)=>({
 // Village entry: doorway at col base+5 (path corridor), row 28 only
 // Exit returns player to same col, row 33 (safely below village tiles)
 const VILLAGES=[
-  VILLAGE_TEMPLATE('v1','Thornhaven',  5, 33),
-  VILLAGE_TEMPLATE('v2','Sandmere',    15,33),
-  VILLAGE_TEMPLATE('v3','Glacespire',  25,33),
-  VILLAGE_TEMPLATE('v4','Gloomhall',   35,33),
-  VILLAGE_TEMPLATE('v5','Cresthold',   45,33),
-  VILLAGE_TEMPLATE('v6','Ashgate',     55,33),
+  VILLAGE_TEMPLATE('v1','Thornhaven',  7, 45),
+  VILLAGE_TEMPLATE('v2','Sandmere',    22,45),
+  VILLAGE_TEMPLATE('v3','Glacespire',  37,45),
+  VILLAGE_TEMPLATE('v4','Gloomhall',   52,45),
+  VILLAGE_TEMPLATE('v5','Cresthold',   67,45),
+  VILLAGE_TEMPLATE('v6','Ashgate',     82,45),
 ];
 
 const VILLAGE_ENTRIES={};
 VILLAGES.forEach((v,i)=>{
-  const doorCol=i*10+5;
-  VILLAGE_ENTRIES[doorCol+',28']=v;
+  const doorCol=i*15+7;
+  VILLAGE_ENTRIES[doorCol+',38']=v;
 });
 
 const SHOP_ITEMS=[
-  {name:'Potion x3',     stat:'Potions +3', key:'potion', slot:null,    val:3,  cost:20},
-  {name:'Thornblade',    stat:'ATK +3',     key:'atk',    slot:'weapon',val:3,  cost:30},
-  {name:'Sandedge',      stat:'ATK +6',     key:'atk',    slot:'weapon',val:6,  cost:65},
-  {name:'Frost Sword',   stat:'ATK +9',     key:'atk',    slot:'weapon',val:9,  cost:110},
-  {name:'Echo Blade',    stat:'ATK +14',    key:'atk',    slot:'weapon',val:14, cost:180},
-  {name:'Bark Vest',     stat:'DEF +2',     key:'def',    slot:'armor', val:2,  cost:25},
-  {name:'Chain Coat',    stat:'DEF +5',     key:'def',    slot:'armor', val:5,  cost:58},
-  {name:'Stone Plate',   stat:'DEF +9',     key:'def',    slot:'armor', val:9,  cost:110},
-  {name:'Ember Shield',  stat:'DEF +14',    key:'def',    slot:'armor', val:14, cost:175},
-  {name:'Echo Lens I',   stat:'MagPow +4',  key:'magpow', slot:'tome',  val:4,  cost:45},
-  {name:'Echo Lens II',  stat:'MagPow +9',  key:'magpow', slot:'tome',  val:9,  cost:100},
-  {name:'Echo Lens III', stat:'MagPow +15', key:'magpow', slot:'tome',  val:15, cost:175},
+  // ── Consumables ──
+  {name:'Potion x3',     stat:'HP +8 x3',      key:'potion',   slot:null,    val:3,  cost:20,  minRegion:0},
+  {name:'Antidote x2',   stat:'Cure Poison x2', key:'antidote', slot:null,    val:2,  cost:18,  minRegion:0},
+  {name:'Hi-Potion x2',  stat:'HP +20 x2',      key:'hiPotion', slot:null,    val:2,  cost:45,  minRegion:2},
+  {name:'Ether x2',      stat:'MP +6 x2',       key:'ether',    slot:null,    val:2,  cost:30,  minRegion:2},
+  {name:'Smelling Salts',stat:'Cure Stun x1',   key:'salts',    slot:null,    val:1,  cost:22,  minRegion:2},
+  {name:'Echo Ward',     stat:'Cure Silence x1', key:'ward',    slot:null,    val:1,  cost:22,  minRegion:2},
+  {name:'Hi-Ether x2',   stat:'MP +15 x2',      key:'hiEther',  slot:null,    val:2,  cost:60,  minRegion:4},
+  {name:'Remedy',        stat:'Cure All Status', key:'remedy',   slot:null,    val:1,  cost:50,  minRegion:4},
+  // ── Weapons ──
+  {name:'Thornblade',    stat:'ATK +3',     key:'atk',    slot:'weapon',val:3,  cost:30,  minRegion:0},
+  {name:'Sandedge',      stat:'ATK +6',     key:'atk',    slot:'weapon',val:6,  cost:65,  minRegion:1},
+  {name:'Frost Sword',   stat:'ATK +9',     key:'atk',    slot:'weapon',val:9,  cost:110, minRegion:2},
+  {name:'Echo Blade',    stat:'ATK +14',    key:'atk',    slot:'weapon',val:14, cost:180, minRegion:4},
+  // ── Armor ──
+  {name:'Bark Vest',     stat:'DEF +2',     key:'def',    slot:'armor', val:2,  cost:25,  minRegion:0},
+  {name:'Chain Coat',    stat:'DEF +5',     key:'def',    slot:'armor', val:5,  cost:58,  minRegion:1},
+  {name:'Stone Plate',   stat:'DEF +9',     key:'def',    slot:'armor', val:9,  cost:110, minRegion:3},
+  {name:'Ember Shield',  stat:'DEF +14',    key:'def',    slot:'armor', val:14, cost:175, minRegion:5},
+  // ── Tomes ──
+  {name:'Echo Lens I',   stat:'MagPow +4',  key:'magpow', slot:'tome',  val:4,  cost:45,  minRegion:0},
+  {name:'Echo Lens II',  stat:'MagPow +9',  key:'magpow', slot:'tome',  val:9,  cost:100, minRegion:2},
+  {name:'Echo Lens III', stat:'MagPow +15', key:'magpow', slot:'tome',  val:15, cost:175, minRegion:4},
 ];
 const INN_COST=12;
 
 
 // ════════════════════════════════════════════════════════════════
 // NPC DATA -- one per village, keyed by village id
+// Dialogue is a function receiving shards count, returns lines array
 // ════════════════════════════════════════════════════════════════
 const VILLAGE_NPCS={
-  v1:{name:'Elder Maren', lines:[
-    '* ELDER MAREN: The Verdant Spire has been sealed for decades.',
-    '* MAREN: Something guards it. Something old.',
-    '* MAREN: If you mean to open it... be kind. It remembers kindness.'
+  v1:{name:'Edric', getLines:(s)=>{
+    if(s===0)return[
+      '* EDRIC: You\'re heading into the Wood, aren\'t you.',
+      '* EDRIC: I\'ve felled trees in there for thirty years.\n* Something changed after the Shattering.\n* The forest started... watching.',
+      '* EDRIC: The Spire at the heart of it has a guardian.\n* Don\'t fight it angry.\n* It can smell anger.',
+    ];
+    if(s===1)return[
+      '* EDRIC: You made it through the Spire.\n* I wasn\'t sure you would.',
+      '* EDRIC: The forest is quieter now.\n* Whatever you did in there -- it helped.',
+    ];
+    return[
+      '* EDRIC: '+s+' shards.\n* You\'re really doing this.',
+      '* EDRIC: My father said the Stone would be restored one day.\n* I thought he was telling stories.',
+    ];
+  }},
+  v2:{name:'Sable', getLines:(s)=>{
+    if(s<1)return[
+      '* SABLE: My caravan stopped here twelve years ago.\n* The desert took the rest of them.\n* I stayed.',
+      '* SABLE: The Dune Citadel used to be a waypoint.\n* Merchants, pilgrims, scholars.\n* Then the guardian woke and the road died.',
+      '* SABLE: The tombs out there... they hold things that were buried for a reason.\n* Treat them accordingly.',
+    ];
+    if(s<3)return[
+      '* SABLE: The Citadel is quiet now.\n* First time in years.',
+      '* SABLE: A caravan came through last week.\n* First one since the guardian woke.\n* Maybe the road is coming back.',
+    ];
+    return[
+      '* SABLE: You\'ve come a long way from the Wood, wanderer.',
+      '* SABLE: Whatever is at the end of this -- I hope it\'s worth what you\'ve walked through.',
+    ];
+  }},
+  v3:{name:'Orren', getLines:(s)=>{
+    if(s<2)return[
+      '* ORREN: I came to study the glacier. That was eleven years ago.\n* I keep finding reasons to stay.',
+      '* ORREN: The ice here is ancient.\n* There are things frozen inside it that should not be disturbed.',
+      '* ORREN: The Wyrm beneath the Obelisk... I\'ve heard it moving.\n* It resonates at the same frequency as the Echo Stone fragments.\n* Fascinating. Terrifying.',
+    ];
+    if(s<4)return[
+      '* ORREN: You\'ve been to the Obelisk.\n* The resonance has shifted -- I measured it this morning.',
+      '* ORREN: My theory is confirmed.\n* The shards are harmonically linked.\n* Each one you carry changes the frequency of the others.',
+      '* ORREN: Whatever you\'re building toward... the glacier is listening.',
+    ];
+    return[
+      '* ORREN: Three shards or more.\n* The readings are extraordinary.',
+      '* ORREN: The Stone wants to be whole.\n* I can feel it in the data.\n* Be careful what you do when it is.',
+    ];
+  }},
+  v4:{name:'Vesper', getLines:(s)=>{
+    if(s<3)return[
+      '* VESPER: I was a knight once.\n* Before the Shattering, before the Fen took everything.',
+      '* VESPER: The Hollow Knight in the ruins...\n* I knew them.\n* We served in the same order.',
+      '* VESPER: They didn\'t survive the Shattering the way I did.\n* If you find them -- speak their name.\n* Sir Aldren of the Outer Watch.\n* They deserve to hear it.',
+    ];
+    if(s<5)return[
+      '* VESPER: You\'ve been to the Bastion.\n* How did you find it?',
+      '* VESPER: The Fen has been calmer since you passed through.\n* The Haunt near the east pool... it stopped drifting.\n* I think it\'s at peace.',
+    ];
+    return[
+      '* VESPER: '+s+' shards.\n* The old order used to say the Stone\'s restoration was a prophecy.',
+      '* VESPER: I stopped believing in prophecy after the Shattering.\n* But I\'m starting to reconsider.',
+    ];
+  }},
+  v5:{name:'Pip', getLines:(_s)=>[
+    '* PIP: Don\'t look down.\n* That\'s my one rule.\n* I\'ve mapped every peak within forty miles and I have never once looked down.',
+    '* PIP: The Peak Fortress is up there somewhere.\n* I know because I mapped it.\n* I have not been inside.\n* I\'m not going inside.',
+    '* PIP: There\'s something in the high passes.\n* One eye, luminous.\n* It watches you.\n* I put it on the map as "Do Not Investigate."\n* You should investigate it.',
   ]},
-  v2:{name:'Trader Sous', lines:[
-    '* TRADER SOUS: The Dune Citadel used to be a waypoint for caravans.',
-    '* SOUS: Then the guardian woke. No one has passed since.',
-    '* SOUS: Whatever is inside -- it\'s been alone a very long time.'
-  ]},
-  v3:{name:'Hilde the Watcher', lines:[
-    '* HILDE: I\'ve counted fourteen travelers approach the Frost Obelisk.',
-    '* HILDE: Eleven turned back. Three didn\'t return.',
-    '* HILDE: You\'ll be the fifteenth. I\'ll be watching.'
-  ]},
-  v4:{name:'Brother Edric', lines:[
-    '* BROTHER EDRIC: This village was built on the ruins of something older.',
-    '* EDRIC: The Shadow Bastion remembers what it was.',
-    '* EDRIC: The guardian isn\'t protecting the shard. It\'s protecting us from it.'
-  ]},
-  v5:{name:'Stonecutter Vera', lines:[
-    '* STONECUTTER VERA: The Peak Fortress was carved by hands, not nature.',
-    '* VERA: Whoever built it knew the stone would outlast them.',
-    '* VERA: The Brutes up there... they were left to guard it. They\'re still waiting for orders.'
-  ]},
-  v6:{name:'Ash-Speaker Jorn', lines:[
-    '* ASH-SPEAKER JORN: The Caldera Throne sits at the center of the first Shattering.',
-    '* JORN: This is where it began. The Echo Stone was whole here, once.',
-    '* JORN: What broke it is still in there. Be careful which questions you ask.'
+  v6:{name:'Cinder', getLines:(_s)=>[
+    '* CINDER: You have the echo frequency.\n* I can hear it on you.\n* The Stone\'s resonance.',
+    '* CINDER: The Unmade shattered it deliberately.\n* You should know that before you face it.\n* It was not destruction.\n* It was a choice.',
+    '* CINDER: The last one who held the Stone whole used it to end a war.\n* The war, the army, the valley -- all of it.\n* The Unmade watched it happen.\n* Then it took the Stone apart.',
+    '* CINDER: What you do at the end... is yours to decide.\n* But go in knowing what you\'re deciding.',
   ]},
 };
 
@@ -479,59 +607,71 @@ const VILLAGE_NPCS={
 // Chest rewards keyed by "col,row" — gold chests and unique item chests
 const CHEST_REWARDS={
   // ── REGION 1: VERDANT WOOD ──
-  '2,14':{
-    gold:25,potion:1,
-    msg:'* An old traveler\'s cache.\n* You find 25 gold and a potion.'
+  '3,15':{
+    gold:25,potion:1,antidote:2,
+    msg:'* An old traveler\'s cache hidden in the undergrowth.\n* You find 25 gold, a potion, and 2 antidotes.'
   },
-  '4,20':{
+  '10,21':{
     gold:0,potion:0,item:{name:'Thornweave Cloak',stat:'def',val:1},
-    msg:'* Wrapped in bark and vine — someone left this deliberately.\n* You find the THORNWEAVE CLOAK.\n* DEF +1'
+    msg:'* Wrapped in bark and vine deep in the hidden glade.\n* You find the THORNWEAVE CLOAK.\n* DEF +1'
   },
+  '15,3':{gold:15,potion:1,msg:'* A small cache along the forest path.\n* 15 gold and a potion.'},
+  '8,12':{gold:20,potion:0,antidote:1,msg:'* Tucked near the Spire entrance.\n* 20 gold and an antidote.'},
   // ── REGION 2: AMBER DESERT ──
-  '11,11':{
-    gold:35,potion:1,
-    msg:'* A caravan strongbox, half-buried.\n* You find 35 gold and a potion.'
+  '17,13':{
+    gold:35,potion:1,ward:1,
+    msg:'* A caravan strongbox, half-buried in sand.\n* 35 gold, a potion, and an Echo Ward.'
   },
-  '17,18':{
+  '22,24':{
     gold:0,potion:0,item:{name:'Sun-Bleached Tome',stat:'magpow',val:2},
-    msg:'* Pages scorched but readable. Someone studied the echo frequencies out here.\n* You find the SUN-BLEACHED TOME.\n* MagPow +2'
+    msg:'* Pages scorched but readable. Echo frequency notes.\n* You find the SUN-BLEACHED TOME.\n* MagPow +2'
   },
+  '16,31':{gold:25,potion:0,ward:1,msg:'* Buried near the western path.\n* 25 gold and an Echo Ward.'},
+  '21,42':{gold:30,potion:1,msg:'* Near Sandmere\'s outskirts.\n* 30 gold and a potion.'},
   // ── REGION 3: FROST WASTES ──
-  '21,11':{
-    gold:50,potion:0,
-    msg:'* Frozen solid for decades, thawed by your touch.\n* You find 50 gold.'
+  '32,12':{
+    gold:50,potion:0,salts:2,
+    msg:'* Frozen solid for decades, thawed by your touch.\n* 50 gold and 2 smelling salts.'
   },
-  '27,17':{
+  '33,30':{
     gold:0,potion:0,item:{name:'Frost Shard Pendant',stat:'maxhp',val:5},
-    msg:'* A pendant carved from a glacier fragment. It hums faintly.\n* You find the FROST SHARD PENDANT.\n* Max HP +5'
+    msg:'* Resting on the frozen lake surface.\n* You find the FROST SHARD PENDANT.\n* Max HP +5'
   },
+  '40,22':{gold:35,potion:1,salts:1,msg:'* Hidden deep in the ice caves.\n* 35 gold, a potion, and smelling salts.'},
+  '36,44':{gold:25,potion:0,msg:'* Near Glacespire\'s southern path.\n* 25 gold.'},
   // ── REGION 4: SHADOWFEN ──
-  '31,14':{
-    gold:60,potion:1,
-    msg:'* Hidden beneath a collapsed arch.\n* You find 60 gold and a potion.'
+  '47,14':{
+    gold:60,potion:1,antidote:2,ward:1,
+    msg:'* A healer\'s kit hidden in the mire.\n* 60 gold, a potion, 2 antidotes, and an Echo Ward.'
   },
-  '37,18':{
+  '52,28':{
     gold:0,potion:0,item:{name:'Wraith Silk',stat:'def',val:2},
-    msg:'* Woven from something that shouldn\'t exist. Lighter than air.\n* You find the WRAITH SILK.\n* DEF +2'
+    msg:'* Deep in the dungeon maze — worth the search.\n* You find the WRAITH SILK.\n* DEF +2'
   },
+  '56,18':{gold:40,potion:1,msg:'* In the dark forest.\n* 40 gold and a potion.'},
+  '50,43':{gold:45,potion:0,antidote:1,msg:'* Near Gloomhall.\n* 45 gold and an antidote.'},
   // ── REGION 5: STONE PEAKS ──
-  '42,14':{
-    gold:75,potion:0,
-    msg:'* A surveyor\'s pack, abandoned mid-climb.\n* You find 75 gold.'
+  '62,13':{
+    gold:75,potion:0,salts:2,remedy:1,
+    msg:'* A surveyor\'s pack from the first cave.\n* 75 gold, 2 smelling salts, and a remedy.'
   },
-  '48,25':{
+  '68,25':{
     gold:0,potion:0,item:{name:'Peak Crystal',stat:'magpow',val:3},
-    msg:'* It resonates at the same frequency as the Echo Stone fragments.\n* You find the PEAK CRYSTAL.\n* MagPow +3'
+    msg:'* On the high ridge — it resonates with the shards.\n* You find the PEAK CRYSTAL.\n* MagPow +3'
   },
+  '63,32':{gold:50,potion:1,salts:1,msg:'* Deep in the mountain cave.\n* 50 gold, a potion, and salts.'},
+  '67,44':{gold:60,potion:0,remedy:1,msg:'* Near Cresthold.\n* 60 gold and a remedy.'},
   // ── REGION 6: EMBER CALDERA ──
-  '55,13':{
-    gold:100,potion:2,
-    msg:'* Sealed with volcanic glass. The contents survived somehow.\n* You find 100 gold and 2 potions.'
+  '77,14':{
+    gold:100,potion:2,remedy:2,
+    msg:'* Sealed with volcanic glass near the west path.\n* 100 gold, 2 potions, and 2 remedies.'
   },
-  '55,24':{
+  '79,24':{
     gold:0,potion:0,item:{name:'Ember Core',stat:'atk',val:2},
-    msg:'* A crystallised fragment from the first Shattering.\n* Still warm after all this time.\n* You find the EMBER CORE.\n* ATK +2'
+    msg:'* On the lava island — only reachable by the bridge.\n* You find the EMBER CORE.\n* ATK +2'
   },
+  '78,28':{gold:80,potion:1,remedy:1,msg:'* On the caldera path.\n* 80 gold, a potion, and a remedy.'},
+  '80,40':{gold:70,potion:2,msg:'* Near Ashgate.\n* 70 gold and 2 potions.'},
 };
 // ════════════════════════════════════════════════════════════════
 // ENEMY ROSTER -- 12 originals across all 6 regions
@@ -849,9 +989,15 @@ const ZONE_ENEMIES={
 };
 
 function getEnemyPool(t,col){
-  if(ZONE_ENEMIES[t])return ZONE_ENEMIES[t];
-  // Fallback by region — non-guardian enemies only
   const reg=getRegion(col);
+  // For tiles that appear in multiple regions, use region to disambiguate
+  if(t===3||t===10||t===14){
+    // Cave/dungeon/tower-inside: use region-specific pool
+    const byRegion=[[0,12,18],[2,13,19],[4,14,20],[6,15,21],[8,16,22],[10,17,23]];
+    return byRegion[reg]||[0];
+  }
+  if(ZONE_ENEMIES[t])return ZONE_ENEMIES[t];
+  // General fallback by region
   const byRegion=[[0,12,18],[2,13,19],[4,14,20],[6,15,21],[8,16,22],[10,17,23]];
   return byRegion[reg]||[0];
 }
@@ -864,13 +1010,13 @@ const ENCOUNTER_COOLDOWN=4;
 // ════════════════════════════════════════════════════════════════
 let G={
   phase:'title',
-  map:WORLD,mapCols:60,mapRows:38,
+  map:WORLD,mapCols:90,mapRows:52,
   currentInterior:null,
   heroCol:HERO_WORLD_COL,heroRow:HERO_WORLD_ROW,
   heroHp:20,heroMaxHp:20,
   heroMp:10,heroMaxMp:10,
   heroAtk:3,heroDef:0,heroMagPow:5,
-  gold:0,potions:2,xp:0,xpNext:20,level:1,
+  gold:0,items:{potion:2,hiPotion:0,ether:0,hiEther:0,antidote:0,salts:0,ward:0,remedy:0},xp:0,xpNext:20,level:1,
   stepsSince:999,
   enemy:null,
   dlgQ:[],dlgI:0,afterDlg:null,
@@ -904,6 +1050,7 @@ function getCtx(){
 // Unlock audio on first user gesture anywhere on the page
 function unlockAudio(){
   getCtx();
+  MUSIC.play('title');
   document.removeEventListener('touchstart',unlockAudio);
   document.removeEventListener('mousedown',unlockAudio);
   document.removeEventListener('keydown',unlockAudio);
@@ -1023,6 +1170,214 @@ const SFX={
 
 const SAVE_KEY='realm-of-echoes-save';
 
+// ════════════════════════════════════════════════════════════════
+// MUSIC ENGINE
+// ════════════════════════════════════════════════════════════════
+const MUSIC={
+  _ctx:null,_nodes:[],_playing:null,_muted:false,_vol:0.18,
+  ctx(){
+    if(!this._ctx)this._ctx=new(window.AudioContext||window.webkitAudioContext)();
+    if(this._ctx.state==='suspended')this._ctx.resume();
+    return this._ctx;
+  },
+  stop(){
+    this._nodes.forEach(n=>{try{n.stop();}catch(e){}});
+    this._nodes=[];this._playing=null;
+  },
+  play(trackName){
+    if(this._playing===trackName)return;
+    this.stop();
+    if(this._muted){this._playing=trackName;return;}
+    this._playing=trackName;
+    const fn=TRACKS[trackName];
+    if(fn)fn(this);
+  },
+  mute(v){
+    this._muted=v;
+    if(v)this.stop();
+    else if(this._playing){const t=this._playing;this._playing=null;this.play(t);}
+  },
+  sequence(notes,bpm,masterVol,waveType){
+    const ctx=this.ctx();
+    const beat=60/bpm;
+    let t=ctx.currentTime+0.05;
+    const master=ctx.createGain();
+    master.gain.value=(masterVol||1)*this._vol;
+    master.connect(ctx.destination);
+    this._nodes.push(master);
+    const self=this;
+    const schedulePass=()=>{
+      notes.forEach(n=>{
+        if(!n.freq){t+=n.dur*beat;return;}
+        const osc=ctx.createOscillator();
+        const g=ctx.createGain();
+        osc.type=waveType||'square';
+        osc.frequency.value=n.freq;
+        const v=n.vol||0.8;
+        g.gain.setValueAtTime(0,t);
+        g.gain.linearRampToValueAtTime(v,t+0.01);
+        g.gain.setValueAtTime(v,t+n.dur*beat-0.04);
+        g.gain.linearRampToValueAtTime(0,t+n.dur*beat);
+        osc.connect(g);g.connect(master);
+        try{osc.start(t);osc.stop(t+n.dur*beat);}catch(e){}
+        t+=n.dur*beat;
+      });
+      const loopTime=(t-ctx.currentTime)*1000-100;
+      setTimeout(()=>{if(self._playing&&!self._muted)schedulePass();},Math.max(0,loopTime));
+    };
+    schedulePass();
+  },
+};
+
+const N={
+  C3:130.8,D3:146.8,E3:164.8,F3:174.6,G3:196,A3:220,Bb3:233.1,B3:246.9,
+  C4:261.6,D4:293.7,E4:329.6,F4:349.2,G4:392,A4:440,Bb4:466.2,B4:493.9,
+  C5:523.3,D5:587.3,E5:659.3,F5:698.5,G5:784,A5:880,
+  Cs4:277.2,Ds4:311.1,Fs4:370,Gs4:415.3,
+  Cs5:554.4,Ds5:622.3,Fs5:740,Gs5:830.6,
+  _:0
+};
+
+const TRACKS={
+  title(m){
+    m.sequence([
+      {freq:N.A3,dur:2},{freq:N.E4,dur:1},{freq:N.C4,dur:1},
+      {freq:N.G3,dur:2},{freq:N.D4,dur:1},{freq:N.B3,dur:1},
+      {freq:N.F3,dur:2},{freq:N.C4,dur:1},{freq:N.A3,dur:1},
+      {freq:N.E3,dur:3},{freq:N._,dur:1},
+    ],52,0.9,'triangle');
+    m.sequence([
+      {freq:N.A3/2,dur:4},{freq:N.G3/2,dur:4},
+      {freq:N.F3/2,dur:4},{freq:N.E3/2,dur:4},
+    ],52,0.4,'sine');
+  },
+  wood(m){
+    m.sequence([
+      {freq:N.C5,dur:0.5},{freq:N.E5,dur:0.5},{freq:N.G5,dur:1},
+      {freq:N.A5,dur:0.5},{freq:N.G5,dur:0.5},{freq:N.E5,dur:1},
+      {freq:N.F5,dur:0.5},{freq:N.E5,dur:0.5},{freq:N.D5,dur:1},
+      {freq:N.C5,dur:2},
+      {freq:N.D5,dur:0.5},{freq:N.F5,dur:0.5},{freq:N.A5,dur:1},
+      {freq:N.G5,dur:0.5},{freq:N.F5,dur:0.5},{freq:N.E5,dur:1},
+      {freq:N.D5,dur:0.5},{freq:N.C5,dur:0.5},{freq:N.B4,dur:1},
+      {freq:N.C5,dur:2},
+    ],88,0.8,'triangle');
+    m.sequence([
+      {freq:N.C4,dur:2},{freq:N.G3,dur:2},{freq:N.F3,dur:2},{freq:N.G3,dur:2},
+      {freq:N.A3,dur:2},{freq:N.F3,dur:2},{freq:N.G3,dur:2},{freq:N.C4,dur:2},
+    ],88,0.5,'sine');
+  },
+  desert(m){
+    m.sequence([
+      {freq:N.A4,dur:1.5},{freq:N._,dur:0.5},{freq:N.G4,dur:0.5},{freq:N.Fs4,dur:0.5},{freq:N.E4,dur:1},
+      {freq:N.D4,dur:2},{freq:N._,dur:1},{freq:N.E4,dur:1},
+      {freq:N.Fs4,dur:1},{freq:N.A4,dur:0.5},{freq:N.G4,dur:0.5},{freq:N.Fs4,dur:1},{freq:N._,dur:1},
+      {freq:N.E4,dur:3},{freq:N._,dur:1},
+    ],72,0.85,'triangle');
+    m.sequence([
+      {freq:N.A3,dur:4},{freq:N.E3,dur:4},{freq:N.D3,dur:4},{freq:N.A3,dur:4},
+    ],72,0.45,'sine');
+  },
+  frost(m){
+    m.sequence([
+      {freq:N.E4,dur:2},{freq:N.D4,dur:1},{freq:N.C4,dur:1},
+      {freq:N.B3,dur:3},{freq:N._,dur:1},
+      {freq:N.C4,dur:2},{freq:N.Bb3,dur:1},{freq:N.A3,dur:1},
+      {freq:N.G3,dur:3},{freq:N._,dur:1},
+      {freq:N.A3,dur:1.5},{freq:N.C4,dur:0.5},{freq:N.E4,dur:1},{freq:N.D4,dur:1},
+      {freq:N.C4,dur:4},
+    ],58,0.8,'triangle');
+    m.sequence([
+      {freq:N.C3,dur:4},{freq:N.G3,dur:4},{freq:N.A3,dur:4},{freq:N.E3,dur:4},
+    ],58,0.4,'sine');
+  },
+  shadowfen(m){
+    m.sequence([
+      {freq:N.A3,dur:0.75},{freq:N.Bb3,dur:0.25},{freq:N.A3,dur:1},{freq:N._,dur:1},{freq:N.Gs4,dur:1},
+      {freq:N.A3,dur:0.75},{freq:N.G3,dur:0.25},{freq:N.Fs4,dur:2},{freq:N._,dur:1},
+      {freq:N.E4,dur:0.5},{freq:N.Ds4,dur:0.5},{freq:N.D4,dur:1},{freq:N.C4,dur:1},{freq:N.B3,dur:1},
+      {freq:N.A3,dur:3},{freq:N._,dur:1},
+    ],66,0.75,'sawtooth');
+    m.sequence([
+      {freq:N.A3/2,dur:2},{freq:N.Bb3/2,dur:2},{freq:N.Gs3/2,dur:2},{freq:N.A3/2,dur:2},
+    ],66,0.4,'sine');
+  },
+  peaks(m){
+    m.sequence([
+      {freq:N.G4,dur:0.5},{freq:N.B4,dur:0.5},{freq:N.D5,dur:1},{freq:N.G5,dur:1},{freq:N._,dur:1},
+      {freq:N.E5,dur:0.5},{freq:N.D5,dur:0.5},{freq:N.C5,dur:1},{freq:N.B4,dur:1.5},{freq:N._,dur:0.5},
+      {freq:N.A4,dur:0.5},{freq:N.C5,dur:0.5},{freq:N.E5,dur:1},{freq:N.A5,dur:1},{freq:N._,dur:1},
+      {freq:N.G5,dur:0.5},{freq:N.F5,dur:0.5},{freq:N.E5,dur:1},{freq:N.D5,dur:2},
+    ],96,0.8,'square');
+    m.sequence([
+      {freq:N.G3,dur:2},{freq:N.D4,dur:2},{freq:N.C4,dur:2},{freq:N.G3,dur:2},
+      {freq:N.A3,dur:2},{freq:N.E4,dur:2},{freq:N.D4,dur:2},{freq:N.G3,dur:2},
+    ],96,0.45,'sine');
+  },
+  caldera(m){
+    m.sequence([
+      {freq:N.A4,dur:0.25},{freq:N.A4,dur:0.25},{freq:N._,dur:0.25},{freq:N.A4,dur:0.25},
+      {freq:N.C5,dur:0.5},{freq:N.A4,dur:0.5},{freq:N.G4,dur:1},
+      {freq:N.Fs4,dur:0.25},{freq:N.Fs4,dur:0.25},{freq:N._,dur:0.25},{freq:N.Fs4,dur:0.25},
+      {freq:N.A4,dur:0.5},{freq:N.Fs4,dur:0.5},{freq:N.E4,dur:1},
+      {freq:N.G4,dur:0.5},{freq:N.A4,dur:0.5},{freq:N.C5,dur:0.5},{freq:N.B4,dur:0.5},
+      {freq:N.A4,dur:0.5},{freq:N.G4,dur:0.5},{freq:N.Fs4,dur:1},
+      {freq:N.E4,dur:1},{freq:N.Fs4,dur:0.5},{freq:N.G4,dur:0.5},
+      {freq:N.A4,dur:2},
+    ],112,0.85,'sawtooth');
+    m.sequence([
+      {freq:N.A3,dur:0.5},{freq:N._,dur:0.5},{freq:N.A3,dur:0.5},{freq:N._,dur:0.5},
+      {freq:N.A3,dur:0.5},{freq:N._,dur:0.5},{freq:N.G3,dur:0.5},{freq:N._,dur:0.5},
+      {freq:N.Fs3,dur:0.5},{freq:N._,dur:0.5},{freq:N.Fs3,dur:0.5},{freq:N._,dur:0.5},
+      {freq:N.E3,dur:0.5},{freq:N._,dur:0.5},{freq:N.E3,dur:1},
+    ],112,0.5,'sine');
+  },
+  battle(m){
+    m.sequence([
+      {freq:N.A4,dur:0.25},{freq:N.C5,dur:0.25},{freq:N.E5,dur:0.5},{freq:N.A5,dur:0.25},{freq:N._,dur:0.25},
+      {freq:N.G4,dur:0.25},{freq:N.Bb4,dur:0.25},{freq:N.D5,dur:0.5},{freq:N.G5,dur:0.25},{freq:N._,dur:0.25},
+      {freq:N.F4,dur:0.25},{freq:N.A4,dur:0.25},{freq:N.C5,dur:0.5},{freq:N.F5,dur:0.25},{freq:N._,dur:0.25},
+      {freq:N.E4,dur:0.5},{freq:N.B4,dur:0.25},{freq:N.Gs4,dur:0.25},{freq:N.A4,dur:0.5},{freq:N._,dur:0.5},
+    ],148,0.9,'square');
+    m.sequence([
+      {freq:N.A3,dur:0.5},{freq:N._,dur:0.5},{freq:N.G3,dur:0.5},{freq:N._,dur:0.5},
+      {freq:N.F3,dur:0.5},{freq:N._,dur:0.5},{freq:N.E3,dur:0.5},{freq:N._,dur:0.5},
+    ],148,0.55,'sine');
+  },
+  guardian(m){
+    m.sequence([
+      {freq:N.E5,dur:0.5},{freq:N.D5,dur:0.25},{freq:N.C5,dur:0.25},{freq:N.B4,dur:0.5},{freq:N._,dur:0.5},
+      {freq:N.A4,dur:0.25},{freq:N.B4,dur:0.25},{freq:N.C5,dur:0.25},{freq:N.D5,dur:0.25},{freq:N.E5,dur:0.5},{freq:N.A5,dur:0.5},
+      {freq:N.G5,dur:0.5},{freq:N.Fs5,dur:0.25},{freq:N.E5,dur:0.25},{freq:N.D5,dur:0.5},{freq:N._,dur:0.5},
+      {freq:N.C5,dur:0.25},{freq:N.D5,dur:0.25},{freq:N.E5,dur:0.25},{freq:N.Fs5,dur:0.25},{freq:N.G5,dur:0.5},{freq:N.E5,dur:0.5},
+      {freq:N.A5,dur:0.75},{freq:N.G5,dur:0.25},{freq:N.Fs5,dur:0.5},{freq:N.E5,dur:0.5},
+      {freq:N.D5,dur:0.25},{freq:N.E5,dur:0.25},{freq:N.Fs5,dur:1},{freq:N._,dur:0.5},
+      {freq:N.B4,dur:0.5},{freq:N.D5,dur:0.5},{freq:N.Fs5,dur:0.5},{freq:N.B5,dur:0.5},
+      {freq:N.A5,dur:1},{freq:N.E5,dur:1},
+    ],132,0.9,'square');
+    m.sequence([
+      {freq:N.A3,dur:1},{freq:N.E3,dur:1},{freq:N.D3,dur:1},{freq:N.A3,dur:1},
+      {freq:N.G3,dur:1},{freq:N.D3,dur:1},{freq:N.E3,dur:1},{freq:N.B3,dur:1},
+    ],132,0.5,'sine');
+  },
+  finalBoss(m){
+    m.sequence([
+      {freq:N.A4,dur:1},{freq:N._,dur:0.5},{freq:N.G4,dur:0.5},{freq:N.Fs4,dur:1},{freq:N.E4,dur:1},
+      {freq:N.D4,dur:1.5},{freq:N._,dur:0.5},{freq:N.E4,dur:1},{freq:N.Fs4,dur:1},
+      {freq:N.G4,dur:1},{freq:N.A4,dur:0.5},{freq:N.Bb4,dur:0.5},{freq:N.A4,dur:1},{freq:N.G4,dur:1},
+      {freq:N.Fs4,dur:1.5},{freq:N._,dur:0.5},{freq:N.E4,dur:1},{freq:N.A3,dur:1},
+      {freq:N.C5,dur:1},{freq:N.B4,dur:0.5},{freq:N.A4,dur:0.5},{freq:N.G4,dur:1},{freq:N.Fs4,dur:1},
+      {freq:N.E4,dur:1.5},{freq:N._,dur:0.5},{freq:N.D4,dur:1},{freq:N.E4,dur:1},
+      {freq:N.Fs4,dur:0.5},{freq:N.G4,dur:0.5},{freq:N.A4,dur:1},{freq:N.B4,dur:1.5},{freq:N._,dur:0.5},
+      {freq:N.A4,dur:4},
+    ],76,0.85,'sawtooth');
+    m.sequence([
+      {freq:N.A3/2,dur:2},{freq:N.E3/2,dur:2},{freq:N.D3/2,dur:2},{freq:N.A3/2,dur:2},
+      {freq:N.C3/2,dur:2},{freq:N.G3/2,dur:2},{freq:N.Fs3/2,dur:2},{freq:N.A3/2,dur:2},
+    ],76,0.5,'sine');
+  },
+};
+
 function saveGame(){
   if(G.phase==='title'||G.phase==='gameover')return;
   const data={
@@ -1030,7 +1385,7 @@ function saveGame(){
     heroHp:G.heroHp,heroMaxHp:G.heroMaxHp,
     heroMp:G.heroMp,heroMaxMp:G.heroMaxMp,
     heroAtk:G.heroAtk,heroDef:G.heroDef,heroMagPow:G.heroMagPow,
-    gold:G.gold,potions:G.potions,
+    gold:G.gold,items:G.items,
     xp:G.xp,xpNext:G.xpNext,level:G.level,
     shopOwned:G.shopOwned,
     equipped:G.equipped,
@@ -1056,7 +1411,7 @@ function loadGame(){
     G.heroHp=d.heroHp??20;G.heroMaxHp=d.heroMaxHp??20;
     G.heroMp=d.heroMp??10;G.heroMaxMp=d.heroMaxMp??10;
     G.heroAtk=d.heroAtk??3;G.heroDef=d.heroDef??0;G.heroMagPow=d.heroMagPow??5;
-    G.gold=d.gold??0;G.potions=d.potions??2;
+    G.gold=d.gold??0;G.items=Object.assign({potion:2,hiPotion:0,ether:0,hiEther:0,antidote:0,salts:0,ward:0,remedy:0},d.items||{});
     G.xp=d.xp??0;G.xpNext=d.xpNext??20;G.level=d.level??1;
     G.shopOwned=d.shopOwned??{};
     G.equipped=d.equipped??{weapon:null,armor:null,tome:null};
@@ -1097,13 +1452,13 @@ function getTile(col,row){
   if(row<0||row>=m.rows||col<0||col>=m.cols)return T.VOID;
   const t=(m.tiles[row]||[])[col]||0;
   // Cleared gates act as path
-  if(t===T.GATE&&G.clearedGates.has(col+','+row))return [T.GRASS,T.SAND,T.SNOW,T.RUINS,T.PATH,T.PATH][Math.min(5,Math.floor(col/10))];
+  if(t===T.GATE&&G.clearedGates.has(col+','+row))return [T.GRASS,T.SAND,T.SNOW,T.RUINS,T.PATH,T.PATH][Math.min(5,Math.floor(col/15))];
   // Opened chests revert to natural terrain for their region
-  if(t===T.CHEST&&G.openedChests.has(col+','+row))return [T.GRASS,T.SAND,T.SNOW,T.RUINS,T.PATH,T.PATH][Math.min(5,Math.floor(col/10))];
+  if(t===T.CHEST&&G.openedChests.has(col+','+row))return [T.GRASS,T.SAND,T.SNOW,T.RUINS,T.PATH,T.PATH][Math.min(5,Math.floor(col/15))];
   return t;
 }
 
-function getRegion(col){return Math.min(5,Math.floor(col/10));}
+function getRegion(col){return Math.min(5,Math.floor(col/15));}
 
 function drawMapTile(col,row,sx,sy){
   const t=getTile(col,row);
@@ -1194,7 +1549,7 @@ function drawMapTile(col,row,sx,sy){
       mx.fillStyle='#f0d0a0';mx.beginPath();mx.arc(cx,sy+3*p,2.5*p,0,Math.PI*2);mx.fill();
       break;
     case 24:{// chest — draw terrain background first, then chest on top
-      const bgT=[T.GRASS,T.SAND,T.SNOW,T.RUINS,T.PATH,T.LAVA][Math.min(5,Math.floor(col/10))];
+      const bgT=[T.GRASS,T.SAND,T.SNOW,T.RUINS,T.PATH,T.LAVA][Math.min(5,Math.floor(col/15))];
       const bgC=TC[bgT]||TC[1];
       mx.fillStyle=bgC;mx.fillRect(sx,sy,TW,TH);
       mx.fillStyle='#7a4808';mx.fillRect(sx+2*p,sy+5*p,8*p,6*p);
@@ -1246,6 +1601,7 @@ function drawMap(){
   document.getElementById('hud-def').textContent='DEF:'+G.heroDef;
   document.getElementById('hud-lv').textContent='Lv:'+G.level;
   document.getElementById('hud-shards').textContent='✦:'+G.shards+'/6';
+  document.getElementById('hud-shards').title='Potions: '+G.items.potion;
   if(!G.currentInterior){
     const reg=getRegion(G.heroCol);
     document.getElementById('hud-region').textContent=REGION_NAMES[reg]||'';
@@ -1253,6 +1609,7 @@ function drawMap(){
     document.getElementById('hud-region').textContent=G.currentInterior.name;
   }
   updateInteractBtn();
+  updateRegionMusic();
 }
 
 function showZoneFlash(txt){
@@ -1332,7 +1689,10 @@ function doChest(){
   const r=CHEST_REWARDS[key];
   if(!r){document.getElementById('map-msg').textContent='* The chest is empty.';return;}
   if(r.gold)G.gold+=r.gold;
-  if(r.potion)G.potions+=r.potion;
+  if(r.potion)G.items.potion+=r.potion;
+  // Apply any status cure items in the chest
+  const cureKeys=['antidote','salts','ward','remedy','hiPotion','ether','hiEther'];
+  cureKeys.forEach(k=>{if(r[k])G.items[k]+=r[k];});
   if(r.item){
     const it=r.item;
     if(!G.chestItems)G.chestItems={};
@@ -1349,17 +1709,16 @@ function doChest(){
 }
 
 function doGate(col,row){
-  const gateIdx=Math.floor(col/10);
+  const gateIdx=Math.floor(col/15);
   const needed=gateIdx+1;
   if(G.shards>=needed){
-    // Clear every gate tile in this column
     for(let r=0;r<G.mapRows;r++){
-      if((G.map[r]||[])[col]===T.GATE){
-        G.clearedGates.add(col+','+r);
-      }
+      if((G.map[r]||[])[col]===T.GATE)G.clearedGates.add(col+','+r);
     }
-    SFX.gate();showZoneFlash('Gate unlocked!');
-    document.getElementById('map-msg').textContent='* The gate recognises the echo shard.\n* It swings open.';
+    SFX.gate();
+    const nextRegion=gateIdx+1;
+    const regionColors=['#1a2810','#2a2008','#0c1428','#0a0818','#101018','#200400'];
+    showRegionFanfare(REGION_NAMES[Math.min(nextRegion,5)],regionColors[Math.min(nextRegion,5)]);
     drawMap();updateInteractBtn();
   }else{
     const regionName=['Verdant Wood','Amber Desert','Frost Wastes','Shadowfen','Stone Peaks'][gateIdx]||'';
@@ -1367,23 +1726,57 @@ function doGate(col,row){
   }
 }
 
+function showRegionFanfare(name,color){
+  const el=document.createElement('div');
+  el.style.cssText=`position:fixed;inset:0;background:${color};z-index:999;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    pointer-events:none;opacity:0;transition:opacity 0.3s;`;
+  const nameEl=document.createElement('div');
+  nameEl.style.cssText=`font-family:'Press Start 2P',monospace;font-size:14px;
+    color:#f0c040;text-shadow:0 0 20px #f0c040;text-align:center;padding:20px;line-height:1.6;`;
+  nameEl.textContent=name;
+  const subEl=document.createElement('div');
+  subEl.style.cssText=`font-family:'Press Start 2P',monospace;font-size:7px;
+    color:#30d0d8;margin-top:10px;letter-spacing:3px;`;
+  subEl.textContent='ENTERING NEW REGION';
+  el.appendChild(nameEl);el.appendChild(subEl);
+  document.body.appendChild(el);
+  setTimeout(()=>el.style.opacity=1,10);
+  setTimeout(()=>el.style.opacity=0,1400);
+  setTimeout(()=>el.remove(),1800);
+  [261,329,392,523].forEach((f,i)=>{try{playTone(f,'sine',0.12,0.01,0.08,0.15,i*0.09);}catch(e){}});
+}
+
 function doNpcTalk(){
   if(!G.currentInterior)return;
   const npc=VILLAGE_NPCS[G.currentInterior.id];
   if(!npc)return;
+  const lines=npc.getLines(G.shards);
   G.phase='dialogue';
   showScreen('battle-screen');
-  // Reuse dialogue screen with no battle canvas changes needed
   document.getElementById('action-panel').style.display='none';
   document.getElementById('footer-tap').style.display='block';
   document.getElementById('scene-box').style.display='none';
   document.getElementById('status-bars').style.display='none';
-  queueDlg(npc.lines,()=>{
+  queueDlg(lines,()=>{
     G.phase='map';
     document.getElementById('scene-box').style.display='';
     document.getElementById('status-bars').style.display='';
     showScreen('map-screen');resizeMapCanvas();drawMap();
   });
+}
+
+function toggleMute(){
+  MUSIC._muted=!MUSIC._muted;
+  MUSIC.mute(MUSIC._muted);
+  document.getElementById('mute-btn').textContent=MUSIC._muted?'🔇':'🔊';
+}
+
+function updateRegionMusic(){
+  if(G.phase!=='map'||G.currentInterior)return;
+  const reg=getRegion(G.heroCol);
+  const tracks=['wood','desert','frost','shadowfen','peaks','caldera'];
+  MUSIC.play(tracks[reg]||'wood');
 }
 
 function tryMove(dir){
@@ -1457,8 +1850,8 @@ function handleStep(col,row,t,dir){
   }
 
   // Encounters
-  const dangerTiles=new Set([2,3,4,7,10,14,16,17,18,20,21]);
-  const inLava=!G.currentInterior&&getRegion(col)===5;
+  const dangerTiles=new Set([2,3,4,7,10,14,17,18,20,21]);
+  const inLava=!G.currentInterior&&getRegion(col)===5&&t!==8;
   if(dangerTiles.has(t)||(inLava&&t===5)){
     G.stepsSince++;
     if(G.stepsSince>ENCOUNTER_COOLDOWN&&Math.random()<ENCOUNTER_RATE){
@@ -1512,7 +1905,9 @@ function openShop(){
   document.getElementById('shop-gold').textContent='Your gold: '+G.gold+'g';
   document.getElementById('shop-msg').textContent='';
   const cont=document.getElementById('shop-items');cont.innerHTML='';
+  const curRegion=G.currentInterior?VILLAGES.findIndex(v=>v.id===G.currentInterior.id):0;
   SHOP_ITEMS.forEach((item,i)=>{
+    if((item.minRegion||0)>curRegion)return;
     const owned=!!G.shopOwned[i];
     const isEq=item.slot&&G.equipped[item.slot]===i;
     const row=document.createElement('div');row.className='shop-item';
@@ -1525,7 +1920,7 @@ function openShop(){
         if(G.gold<item.cost)return;
         G.gold-=item.cost;G.shopOwned[i]=true;
         if(item.slot)equipItem(i);
-        else if(item.key==='potion')G.potions+=item.val;
+        else if(G.items.hasOwnProperty(item.key))G.items[item.key]+=item.val;
         document.getElementById('shop-msg').textContent='Bought: '+item.name+'!';
         SFX.buy();saveGame();openShop();
       };row.appendChild(b);
@@ -1624,6 +2019,59 @@ function processStatusTurn(){
 
 const sce=document.getElementById('scene-canvas');
 const sc_ctx=sce.getContext('2d');
+let _battleAnim=null,_battleBg=null,_battleEnemy=null,_battleHitFlash=0;
+
+function startBattleAnim(bgType,enemyColor,enemyEmoji){
+  _battleBg={bgType,enemyColor,enemyEmoji};
+  if(_battleAnim)cancelAnimationFrame(_battleAnim);
+  let t=0;
+  function loop(){
+    t+=0.04;
+    const bob=Math.sin(t)*4;
+    const scale=1+Math.sin(t*1.3)*0.02;
+    drawBattleFrame(bgType,enemyColor,enemyEmoji,bob,scale,_battleHitFlash);
+    if(_battleHitFlash>0)_battleHitFlash=Math.max(0,_battleHitFlash-0.08);
+    _battleAnim=requestAnimationFrame(loop);
+  }
+  loop();
+}
+
+function stopBattleAnim(){
+  if(_battleAnim){cancelAnimationFrame(_battleAnim);_battleAnim=null;}
+}
+
+function triggerEnemyHitFlash(){_battleHitFlash=1;}
+
+function drawBattleFrame(bgType,enemyColor,enemyEmoji,bob=0,scale=1,hitFlash=0){
+  const bg=BG[bgType]||BG.cave;
+  const w=sce.width,h=sce.height;
+  sc_ctx.clearRect(0,0,w,h);
+  sc_ctx.fillStyle=bg.sky;sc_ctx.fillRect(0,0,w,h*0.55);
+  sc_ctx.fillStyle=bg.ground;sc_ctx.fillRect(0,h*0.55,w,h*0.45);
+  for(let i=0;i<28;i++){
+    const sx=(Math.sin(i*47.3)*0.5+0.5)*w,sy=(Math.sin(i*31.7)*0.5+0.5)*h*0.5;
+    sc_ctx.fillStyle='#ffffff33';sc_ctx.fillRect(sx,sy,1,1);
+  }
+  sc_ctx.fillStyle=bg.accent;sc_ctx.fillRect(0,h*0.53,w,h*0.05);
+  // Enemy with bob and scale
+  const ex=w*0.72,ey=h*0.38+bob;
+  sc_ctx.save();
+  sc_ctx.translate(ex,ey);sc_ctx.scale(scale,scale);
+  if(enemyColor){
+    sc_ctx.fillStyle=enemyColor+'88';
+    sc_ctx.beginPath();sc_ctx.arc(0,0,28,0,Math.PI*2);sc_ctx.fill();
+  }
+  if(hitFlash>0){
+    sc_ctx.fillStyle=`rgba(255,255,255,${hitFlash*0.7})`;
+    sc_ctx.beginPath();sc_ctx.arc(0,0,32,0,Math.PI*2);sc_ctx.fill();
+  }
+  sc_ctx.font='40px serif';sc_ctx.textAlign='center';sc_ctx.textBaseline='middle';
+  sc_ctx.fillText(enemyEmoji||'❓',0,0);
+  sc_ctx.restore();
+  // Hero
+  sc_ctx.font='32px serif';sc_ctx.textAlign='center';sc_ctx.textBaseline='middle';
+  sc_ctx.fillText('🧙',w*0.22,h*0.68);
+}
 const BG={
   forest: {sky:'#1a2810',ground:'#2a4818',accent:'#386420'},
   desert: {sky:'#2a2008',ground:'#3c2c08',accent:'#604810'},
@@ -1639,19 +2087,7 @@ const BG={
 };
 
 function drawBattle(bgType,enemyColor,enemyEmoji){
-  const bg=BG[bgType]||BG.cave;
-  const w=sce.width,h=sce.height;
-  sc_ctx.fillStyle=bg.sky;sc_ctx.fillRect(0,0,w,h*0.55);
-  sc_ctx.fillStyle=bg.ground;sc_ctx.fillRect(0,h*0.55,w,h*0.45);
-  for(let i=0;i<28;i++){
-    const sx=(Math.sin(i*47.3)*0.5+0.5)*w,sy=(Math.sin(i*31.7)*0.5+0.5)*h*0.5;
-    sc_ctx.fillStyle='#ffffff33';sc_ctx.fillRect(sx,sy,1,1);
-  }
-  sc_ctx.fillStyle=bg.accent;sc_ctx.fillRect(0,h*0.53,w,h*0.05);
-  if(enemyColor){sc_ctx.fillStyle=enemyColor+'88';sc_ctx.beginPath();sc_ctx.arc(w*0.72,h*0.38,28,0,Math.PI*2);sc_ctx.fill();}
-  sc_ctx.font='40px serif';sc_ctx.textAlign='center';sc_ctx.textBaseline='middle';
-  sc_ctx.fillText(enemyEmoji||'❓',w*0.72,h*0.38);
-  sc_ctx.font='32px serif';sc_ctx.fillText('🧙',w*0.22,h*0.68);
+  startBattleAnim(bgType,enemyColor,enemyEmoji);
 }
 
 // ════════════════════════════════════════════════════════════════
@@ -1659,13 +2095,22 @@ function drawBattle(bgType,enemyColor,enemyEmoji){
 // ════════════════════════════════════════════════════════════════
 function setDlg(name,text){
   document.getElementById('dlg-name').textContent=name;
-  document.getElementById('dlg-text').textContent=text;
-  document.getElementById('dlg-arrow').style.display='block';
+  typewriterStart(text,null);
+}
+function advanceDialogue(){
+  if(_twTimer){typewriterSkip();return;}
+  if(G.phase==='dialogue')showDlgLine();
 }
 function queueDlg(lines,cb){G.dlgQ=lines;G.dlgI=0;G.afterDlg=cb;showDlgLine();}
 function showDlgLine(){
-  if(G.dlgI>=G.dlgQ.length){document.getElementById('dlg-arrow').style.display='none';if(G.afterDlg)G.afterDlg();return;}
-  setDlg('',G.dlgQ[G.dlgI]);G.dlgI++;
+  if(G.dlgI>=G.dlgQ.length){
+    document.getElementById('dlg-arrow').style.display='none';
+    if(G.afterDlg)G.afterDlg();
+    return;
+  }
+  const text=G.dlgQ[G.dlgI];G.dlgI++;
+  document.getElementById('dlg-name').textContent='';
+  typewriterStart(text,null);
 }
 function advanceDialogue(){if(G.phase==='dialogue')showDlgLine();}
 function shakeDlg(){
@@ -1726,6 +2171,9 @@ function triggerBattle(e){
   G.stepsSince=0;
   clearStatus();
   SFX.battle();
+  if(e._isShard)MUSIC.play('guardian');
+  else if(e._enemyIdx===24)MUSIC.play('finalBoss');
+  else MUSIC.play('battle');
   if(e._enemyIdx!==undefined)G.seenEnemies.add(e._enemyIdx);
   G.enemy=e;G.phase='dialogue';
   showScreen('battle-screen');
@@ -1741,15 +2189,18 @@ function endBattle(){
     const idx=e._shardIdx;
     SHARD_TOWERS[idx].cleared=true;G.shards++;SFX.shard();
     G.gold+=e.gold;G.xp+=e.xp||0;
+    // Move hero one step south off the boss tile
+    if(G.heroRow+1<G.mapRows)G.heroRow+=1;
     const lv=checkLevel();
     const msg='* ✦ ECHO SHARD CLAIMED! ('+G.shards+'/6)'+(G.shards<6?'\n* The next tower awaits.':'\n* All six shards are yours!\n* Seek the Final Gate.')+(lv?'\n* '+lv:'');
     G.phase='map';
-    doFlash(()=>{showScreen('map-screen');resizeMapCanvas();drawMap();document.getElementById('map-msg').textContent=msg;saveGame();});
+    doFlash(()=>{stopBattleAnim();showScreen('map-screen');resizeMapCanvas();drawMap();document.getElementById('map-msg').textContent=msg;saveGame();updateRegionMusic();});
     return;
   }
   G.phase='map';
   G.stepsSince=0;
   clearStatus();
+  clearRepeat();
   const earned=e?e.gold:0;const xpEarned=e?e.xp||0:0;
   G.gold+=earned;G.xp+=xpEarned;
   const lvMsg=checkLevel();
@@ -1757,7 +2208,7 @@ function endBattle(){
   if(earned)parts.push('* '+earned+'g earned!');
   if(xpEarned)parts.push('* '+xpEarned+' XP! ('+G.xp+'/'+G.xpNext+')');
   if(lvMsg)parts.push('* '+lvMsg);
-  doFlash(()=>{showScreen('map-screen');resizeMapCanvas();drawMap();document.getElementById('map-msg').textContent=parts.join(' ')||'* You return to the overworld.';saveGame();});
+  doFlash(()=>{stopBattleAnim();showScreen('map-screen');resizeMapCanvas();drawMap();document.getElementById('map-msg').textContent=parts.join(' ')||'* You return to the overworld.';saveGame();updateRegionMusic();});
 }
 
 function checkLevel(){
@@ -1775,7 +2226,7 @@ function doFight(){
   if(G.phase!=='battle')return;G.pacifist=false;
   const e=G.enemy;
   const dmg=Math.max(1,Math.floor(Math.random()*4)+G.heroAtk-Math.floor(e.def||0));
-  e.hp=Math.max(0,e.hp-dmg);updEnemyHp();SFX.hit();showActions(false);
+  e.hp=Math.max(0,e.hp-dmg);updEnemyHp();SFX.hit();triggerEnemyHitFlash();showActions(false);
   if(e.hp<=0){G.phase='dialogue';queueDlg(['* You strike for '+dmg+' damage!\n* '+e.name+' is defeated!',e.deathText],endBattle);return;}
   enemyAtk('* You strike for '+dmg+' damage!');
 }
@@ -1800,18 +2251,98 @@ function doMagic(){
   G.heroMp=Math.max(0,G.heroMp-cost);updHeroHp();SFX.magic();showActions(false);G.phase='dialogue';
   const e=G.enemy;
   const dmg=Math.floor(Math.random()*6)+G.heroMagPow;
-  e.hp=Math.max(0,e.hp-dmg);updEnemyHp();
+  e.hp=Math.max(0,e.hp-dmg);updEnemyHp();triggerEnemyHitFlash();
   if(e.hp<=0){queueDlg(['* ECHO BLAST! '+dmg+' damage!\n* '+e.name+' is defeated!',e.deathText],endBattle);return;}
   enemyAtk('* Echo Blast! '+dmg+' damage!');
 }
 
-function doItem(){
+// Item definitions for battle menu
+const ITEM_DEFS=[
+  {key:'potion',   name:'Potion',        desc:'HP +8'},
+  {key:'hiPotion', name:'Hi-Potion',     desc:'HP +20'},
+  {key:'ether',    name:'Ether',         desc:'MP +6'},
+  {key:'hiEther',  name:'Hi-Ether',      desc:'MP +15'},
+  {key:'antidote', name:'Antidote',      desc:'Cure Poison'},
+  {key:'salts',    name:'Smelling Salts',desc:'Cure Stun'},
+  {key:'ward',     name:'Echo Ward',     desc:'Cure Silence'},
+  {key:'remedy',   name:'Remedy',        desc:'Cure All'},
+];
+
+function openItemMenu(){
   if(G.phase!=='battle')return;
-  if(G.potions<=0){setDlg('','* Out of potions!');return;}
+  // Show available items as dialogue choices
+  const available=ITEM_DEFS.filter(d=>G.items[d.key]>0);
+  if(available.length===0){setDlg('','* Your bag is empty.');return;}
+  // Build item list as dialogue with inline buttons
+  const panel=document.getElementById('action-panel');
+  const label=document.getElementById('act-label');
+  label.textContent='USE WHICH ITEM?';
+  // Clear existing rows and show items
+  const rows=panel.querySelectorAll('.item-row');
+  rows.forEach(r=>r.remove());
+  available.forEach(d=>{
+    const row=document.createElement('div');row.className='arow item-row';
+    const btn=document.createElement('button');
+    btn.className='btn item';btn.style.fontSize='6px';
+    btn.textContent=d.name+' x'+G.items[d.key]+' ('+d.desc+')';
+    btn.onclick=()=>useItem(d.key);
+    row.appendChild(btn);
+    panel.insertBefore(row,panel.lastElementChild);
+  });
+  const backRow=document.createElement('div');backRow.className='arow item-row';
+  const backBtn=document.createElement('button');backBtn.className='btn';backBtn.textContent='BACK';
+  backBtn.onclick=()=>closeItemMenu();
+  backRow.appendChild(backBtn);
+  panel.insertBefore(backRow,panel.lastElementChild);
+  // Hide main action rows
+  panel.querySelectorAll('.arow:not(.item-row)').forEach(r=>r.style.display='none');
+}
+
+function closeItemMenu(){
+  const panel=document.getElementById('action-panel');
+  panel.querySelectorAll('.item-row').forEach(r=>r.remove());
+  panel.querySelectorAll('.arow').forEach(r=>r.style.display='');
+  document.getElementById('act-label').textContent='WHAT WILL YOU DO?';
+}
+
+function useItem(key){
+  closeItemMenu();
+  if(G.phase!=='battle')return;
+  if(!G.items[key]||G.items[key]<=0){setDlg('','* None left!');return;}
+  G.items[key]--;
   showActions(false);G.phase='dialogue';
-  const heal=Math.min(8,G.heroMaxHp-G.heroHp);
-  G.heroHp=Math.min(G.heroMaxHp,G.heroHp+8);G.potions--;updHeroHp();
-  queueDlg(['* Potion used! (+'+heal+' HP)\n* Potions left: '+G.potions],()=>enemyAtk(null,true));
+  let msg='';
+  if(key==='potion'){
+    const heal=Math.min(8,G.heroMaxHp-G.heroHp);
+    G.heroHp=Math.min(G.heroMaxHp,G.heroHp+8);updHeroHp();
+    msg='* Potion used! (+'+heal+' HP)';
+  }else if(key==='hiPotion'){
+    const heal=Math.min(20,G.heroMaxHp-G.heroHp);
+    G.heroHp=Math.min(G.heroMaxHp,G.heroHp+20);updHeroHp();
+    msg='* Hi-Potion used! (+'+heal+' HP)';
+  }else if(key==='ether'){
+    const restore=Math.min(6,G.heroMaxMp-G.heroMp);
+    G.heroMp=Math.min(G.heroMaxMp,G.heroMp+6);updHeroHp();
+    msg='* Ether used! (+'+restore+' MP)';
+  }else if(key==='hiEther'){
+    const restore=Math.min(15,G.heroMaxMp-G.heroMp);
+    G.heroMp=Math.min(G.heroMaxMp,G.heroMp+15);updHeroHp();
+    msg='* Hi-Ether used! (+'+restore+' MP)';
+  }else if(key==='antidote'){
+    if(G.status&&G.status.type==='poison'){clearStatus();msg='* Antidote used!\n* Poison cured!';}
+    else{msg='* Antidote used...\n* You aren\'t poisoned.';}
+  }else if(key==='salts'){
+    if(G.status&&G.status.type==='stun'){clearStatus();msg='* Smelling Salts!\n* Stun cleared!';}
+    else{msg='* Smelling Salts used...\n* You aren\'t stunned.';}
+  }else if(key==='ward'){
+    if(G.status&&G.status.type==='silence'){clearStatus();msg='* Echo Ward activated!\n* Silence lifted!';}
+    else{msg='* Echo Ward used...\n* You aren\'t silenced.';}
+  }else if(key==='remedy'){
+    if(G.status){const t=G.status.type;clearStatus();msg='* Remedy used!\n* '+t.charAt(0).toUpperCase()+t.slice(1)+' cured!';}
+    else{msg='* Remedy used...\n* Nothing to cure.';}
+  }
+  SFX.buy();
+  queueDlg([msg],()=>enemyAtk(null,true));
 }
 
 function doSpare(){
@@ -1851,18 +2382,101 @@ function enemyAtk(prefix,skip){
 // END
 // ════════════════════════════════════════════════════════════════
 function triggerEnd(win){
-  G.phase=win?'win':'gameover';showScreen('end-screen');
+  G.phase=win?'win':'gameover';
+  showScreen('end-screen');
   const title=document.getElementById('end-title');
+  const subtitle=document.getElementById('end-subtitle');
   const msg=document.getElementById('end-msg');
-  if(win){
-    title.style.color='var(--gold)';title.textContent='THE ECHO RESTORED';SFX.victory();
-    msg.textContent=G.pacifist
-      ?'Six regions. Six shards. Six creatures\nspared across a broken world.\n\nYou listened to every one of them.\n\nThe Unmade was not a monster.\nIt was grief given form.\n\nThe Echo Stone remains shattered.\nAnd the world remains whole.\n\n-- TRUE ENDING --'
-      :'Six regions. Six shards.\nOne wanderer who never turned back.\n\nThe Unmade is gone.\nThe world breathes again.\n\n-- THE END --\n(Try sparing everyone next time!)';
-  }else{
-    title.style.color='var(--red)';title.textContent='THE WANDERER FALLS';SFX.gameOver();
-    msg.textContent='* The echoes go silent...\n\nRest at an Inn to restore HP.\nThe realm still needs you.\n\nTry again.';
+  const emblem=document.getElementById('end-emblem');
+  const statsDiv=document.getElementById('end-stats');
+
+  // Particle canvas
+  const canvas=document.getElementById('end-canvas');
+  const ctx=canvas.getContext('2d');
+  canvas.width=window.innerWidth;canvas.height=window.innerHeight;
+  let particles=[];
+  let animFrame=null;
+
+  function spawnParticles(){
+    const colors=win?['#f0c040','#ffffff','#30d0d8','#a060e0','#40c870']:['#d94040','#800000','#400000'];
+    for(let i=0;i<(win?80:40);i++){
+      particles.push({
+        x:Math.random()*canvas.width,
+        y:win?Math.random()*canvas.height*0.5:-20,
+        vx:(Math.random()-0.5)*(win?3:1.5),
+        vy:Math.random()*(win?-4:-2)-(win?1:0.5),
+        size:Math.random()*4+2,
+        color:colors[Math.floor(Math.random()*colors.length)],
+        life:1,decay:Math.random()*0.008+0.004,
+        gravity:win?0.06:0.03,
+        char:win?['✦','★','◆','·'][Math.floor(Math.random()*4)]:['·','∙'][Math.floor(Math.random()*2)],
+      });
+    }
   }
+
+  function drawParticles(){
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    particles=particles.filter(p=>p.life>0);
+    particles.forEach(p=>{
+      ctx.globalAlpha=p.life;
+      ctx.fillStyle=p.color;
+      ctx.font=p.size*4+'px serif';
+      ctx.textAlign='center';ctx.textBaseline='middle';
+      ctx.fillText(p.char,p.x,p.y);
+      p.x+=p.vx;p.y+=p.vy;p.vy+=p.gravity;p.life-=p.decay;
+    });
+    ctx.globalAlpha=1;
+    if(win&&particles.length<60)spawnParticles();
+    animFrame=requestAnimationFrame(drawParticles);
+  }
+  spawnParticles();drawParticles();
+
+  // Content
+  const seen=G.seenEnemies?G.seenEnemies.size:0;
+  const spared=G.sparedEnemies?G.sparedEnemies.size:0;
+
+  if(win){
+    const isTrue=G.pacifist;
+    emblem.textContent='✦';
+    emblem.style.color='var(--gold)';
+    emblem.style.textShadow='0 0 30px var(--gold),0 0 60px var(--gold2)';
+    title.style.color='var(--gold)';
+    title.textContent=isTrue?'THE ECHO RESTORED':'THE UNMADE FALLS';
+    subtitle.textContent=isTrue?'— true ending —':'— the wanderer prevails —';
+    subtitle.style.color='var(--cyan)';
+    msg.textContent=isTrue
+      ?'Six regions. Six shards. Six creatures\nspared across a broken world.\n\nYou listened to every one of them.\n\nThe Unmade was not a monster.\nIt was grief given form.\n\nThe Echo Stone remains shattered.\nAnd the world remains whole.'
+      :'Six regions. Six shards.\nOne wanderer who never turned back.\n\nThe Unmade is gone.\nThe world breathes again.\n\n(Spare everyone next time for the true ending.)';
+    statsDiv.innerHTML=`
+      <div style="color:var(--gold);font-size:7px;margin-bottom:4px;">— JOURNEY COMPLETE —</div>
+      <div style="display:flex;justify-content:space-between;"><span>Level reached</span><span style="color:var(--white)">${G.level}</span></div>
+      <div style="display:flex;justify-content:space-between;"><span>Gold collected</span><span style="color:var(--gold)">${G.gold}g</span></div>
+      <div style="display:flex;justify-content:space-between;"><span>Creatures met</span><span style="color:var(--white)">${seen}/25</span></div>
+      <div style="display:flex;justify-content:space-between;"><span>Creatures spared</span><span style="color:#40c870">${spared}/25</span></div>
+      <div style="display:flex;justify-content:space-between;"><span>Shards collected</span><span style="color:var(--cyan)">${G.shards}/6</span></div>
+      <div style="display:flex;justify-content:space-between;"><span>Run type</span><span style="color:${isTrue?'#40c870':'var(--amber)'}">${isTrue?'Pacifist ✓':'Fighter'}</span></div>`;
+    SFX.victory();
+  }else{
+    emblem.textContent='💀';
+    emblem.style.color='var(--red)';
+    emblem.style.textShadow='0 0 20px var(--red)';
+    title.style.color='var(--red)';
+    title.textContent='THE WANDERER FALLS';
+    subtitle.textContent='— the echoes go silent —';
+    subtitle.style.color='#804040';
+    msg.textContent='The realm still needs you.\n\nRest at an Inn to restore HP\nbefore venturing into danger.\n\nYou can do this.';
+    statsDiv.innerHTML=`
+      <div style="color:var(--red);font-size:7px;margin-bottom:4px;">— FALLEN —</div>
+      <div style="display:flex;justify-content:space-between;"><span>Level reached</span><span style="color:var(--white)">${G.level}</span></div>
+      <div style="display:flex;justify-content:space-between;"><span>Shards collected</span><span style="color:var(--cyan)">${G.shards}/6</span></div>
+      <div style="display:flex;justify-content:space-between;"><span>Creatures met</span><span style="color:var(--white)">${seen}/25</span></div>`;
+    SFX.gameOver();
+  }
+
+  // Stop particles when leaving
+  document.getElementById('end-screen').addEventListener('click',()=>{
+    if(animFrame){cancelAnimationFrame(animFrame);animFrame=null;}
+  },{once:true});
 }
 
 // ════════════════════════════════════════════════════════════════
@@ -1881,7 +2495,7 @@ function resizeMapCanvas(){
   if(w>0&&h>0){
     canvas.width=Math.round(w*dpr);canvas.height=Math.round(h*dpr);
     mx.setTransform(dpr,0,0,dpr,0,0);
-    TW=Math.max(12,Math.round(w/22));TH=TW;
+    TW=Math.max(10,Math.round(w/28));TH=TW;
   }
 }
 window.addEventListener('resize',()=>{if(G.phase==='map'){resizeMapCanvas();drawMap();}});
@@ -1894,6 +2508,11 @@ document.addEventListener('keydown',e=>{
     else advanceDialogue();
     e.preventDefault();
   }
+  if(e.key==='Escape'||e.key==='p'||e.key==='P'){
+    if(document.getElementById('pause-overlay').style.display==='flex')closePause();
+    else if(G.phase==='map')openPause();
+    e.preventDefault();
+  }
 });
 document.addEventListener('keyup',e=>{
   G.keysDown[e.key]=false;
@@ -1901,15 +2520,98 @@ document.addEventListener('keyup',e=>{
 });
 
 let _repeatTimer=null,_repeatDir=null;
-function startRepeat(dir){_repeatDir=dir;_repeatTimer=setTimeout(function rep(){tryMove(_repeatDir);_repeatTimer=setTimeout(rep,110);},280);}
+function startRepeat(dir){_repeatDir=dir;_repeatTimer=setTimeout(function rep(){tryMove(_repeatDir);_repeatTimer=setTimeout(rep,150);},300);}
 function clearRepeat(){clearTimeout(_repeatTimer);_repeatTimer=null;_repeatDir=null;}
 function dpadStart(dir){clearRepeat();tryMove(dir);startRepeat(dir);}
 function dpadEnd(){clearRepeat();}
 
 
 // ════════════════════════════════════════════════════════════════
-// BESTIARY
+// PAUSE SCREEN
 // ════════════════════════════════════════════════════════════════
+function openPause(){
+  if(G.phase!=='map')return;
+  const body=document.getElementById('pause-body');
+  body.innerHTML='';
+
+  // ── CHARACTER ──
+  const xpPct=Math.min(100,Math.round(G.xp/G.xpNext*100));
+  const charSec=document.createElement('div');charSec.className='pause-section';
+  charSec.innerHTML=`<div class="pause-section-title">🧙 WANDERER</div>
+    <div class="pause-row"><span class="pause-label">Level</span><span class="pause-val gold">${G.level}</span></div>
+    <div class="pause-row"><span class="pause-label">XP</span><span class="pause-val">${G.xp}/${G.xpNext}</span><div class="pause-xp-wrap"><div class="pause-xp-bar" style="width:${xpPct}%"></div></div></div>
+    <div class="pause-row"><span class="pause-label">HP</span><span class="pause-val ${G.heroHp<G.heroMaxHp*0.25?'red':G.heroHp<G.heroMaxHp*0.5?'gold':'green'}">${G.heroHp}/${G.heroMaxHp}</span></div>
+    <div class="pause-row"><span class="pause-label">MP</span><span class="pause-val cyan">${G.heroMp}/${G.heroMaxMp}</span></div>
+    <div class="pause-row"><span class="pause-label">ATK</span><span class="pause-val">${G.heroAtk}</span></div>
+    <div class="pause-row"><span class="pause-label">DEF</span><span class="pause-val">${G.heroDef}</span></div>
+    <div class="pause-row"><span class="pause-label">MagPow</span><span class="pause-val">${G.heroMagPow}</span></div>
+    <div class="pause-row"><span class="pause-label">Gold</span><span class="pause-val gold">${G.gold}g</span></div>
+    <div class="pause-row"><span class="pause-label">Potion</span><span class="pause-val">${G.items.potion}</span></div>
+    <div class="pause-row"><span class="pause-label">Hi-Potion</span><span class="pause-val">${G.items.hiPotion}</span></div>
+    <div class="pause-row"><span class="pause-label">Ether</span><span class="pause-val">${G.items.ether}</span></div>
+    <div class="pause-row"><span class="pause-label">Hi-Ether</span><span class="pause-val">${G.items.hiEther}</span></div>
+    <div class="pause-row"><span class="pause-label">Antidote</span><span class="pause-val">${G.items.antidote}</span></div>
+    <div class="pause-row"><span class="pause-label">Salts</span><span class="pause-val">${G.items.salts}</span></div>
+    <div class="pause-row"><span class="pause-label">Echo Ward</span><span class="pause-val">${G.items.ward}</span></div>
+    <div class="pause-row"><span class="pause-label">Remedy</span><span class="pause-val">${G.items.remedy}</span></div>`;
+  body.appendChild(charSec);
+
+  // ── EQUIPMENT ──
+  const eqSec=document.createElement('div');eqSec.className='pause-section';
+  const slotLabel={weapon:'⚔ Weapon',armor:'🛡 Armor',tome:'📘 Tome'};
+  let eqHtml=`<div class="pause-section-title">⚙ EQUIPMENT</div>`;
+  ['weapon','armor','tome'].forEach(slot=>{
+    const idx=G.equipped[slot];
+    const item=idx!==null?SHOP_ITEMS[idx]:null;
+    eqHtml+=`<div class="pause-equip-row">${slotLabel[slot]}: <span class="${item?'':'pause-equip-none'}">${item?item.name+' ('+item.stat.toUpperCase()+' +'+item.val+')':'None'}</span></div>`;
+  });
+  // Chest items
+  if(G.chestItems&&Object.keys(G.chestItems).length>0){
+    eqHtml+=`<div class="pause-section-title" style="margin-top:6px;">🎁 FOUND ITEMS</div>`;
+    Object.keys(G.chestItems).forEach(key=>{
+      const r=CHEST_REWARDS[key];
+      if(r&&r.item)eqHtml+=`<div class="pause-equip-row">${r.item.name} (${r.item.stat.toUpperCase()} +${r.item.val})</div>`;
+    });
+  }
+  eqSec.innerHTML=eqHtml;
+  body.appendChild(eqSec);
+
+  // ── JOURNEY ──
+  const regionColors=['#1e5e1e','#988038','#8898a8','#221a08','#303030','#380c00'];
+  const regionNames=REGION_NAMES;
+  let regHtml=`<div class="pause-section-title">✦ JOURNEY (${G.shards}/6 shards)</div>`;
+  SHARD_TOWERS.forEach((t,i)=>{
+    const cleared=t.cleared;
+    const gateCol=i*10+9;
+    const gateOpen=i===0||G.clearedGates.has(gateCol+','+[5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36].find(r=>true));
+    regHtml+=`<div class="pause-region-row">
+      <div class="pause-region-dot" style="background:${regionColors[i]};${cleared?'box-shadow:0 0 4px #f0c040':'opacity:0.4'}"></div>
+      <span style="color:${cleared?'var(--gold)':'var(--gray)'};flex:1">${regionNames[i]}</span>
+      <span style="color:${cleared?'#40c870':'var(--gray)'}">${cleared?'✦ CLEARED':'— locked'}</span>
+    </div>`;
+  });
+  const jSec=document.createElement('div');jSec.className='pause-section';
+  jSec.innerHTML=regHtml;
+  body.appendChild(jSec);
+
+  // ── BESTIARY PROGRESS ──
+  const seen=G.seenEnemies||new Set();
+  const spared=G.sparedEnemies||new Set();
+  const bSec=document.createElement('div');bSec.className='pause-section';
+  bSec.innerHTML=`<div class="pause-section-title">📖 BESTIARY</div>
+    <div class="pause-row"><span class="pause-label">Encountered</span><span class="pause-val">${seen.size}/25</span></div>
+    <div class="pause-row"><span class="pause-label">Spared</span><span class="pause-val green">${spared.size}/25</span></div>
+    <div class="pause-row"><span class="pause-label">Pacifist run</span><span class="pause-val ${G.pacifist?'green':'red'}">${G.pacifist?'ON TRACK':'BROKEN'}</span></div>`;
+  body.appendChild(bSec);
+
+  document.getElementById('pause-overlay').style.display='flex';
+}
+
+function closePause(){
+  document.getElementById('pause-overlay').style.display='none';
+}
+
+
 const REGION_LABELS=['🌿 Verdant Wood','🏜️ Amber Desert','❄️ Frost Wastes','🌑 Shadowfen','⛰️ Stone Peaks','🌋 Ember Caldera'];
 
 function openBestiary(){
@@ -2018,7 +2720,251 @@ function startGame(load=false){
   }
 }
 
-// Init title screen
+// ════════════════════════════════════════════════════════════════
+// CREDITS
+// ════════════════════════════════════════════════════════════════
+const CREDITS_CONTENT=[
+  {type:'gap'},
+  {type:'emblem', text:'✦'},
+  {type:'gap'},
+  {type:'title', text:'REALM OF ECHOES'},
+  {type:'sub',   text:'an original RPG'},
+  {type:'gap'},
+  {type:'gap'},
+  {type:'heading', text:'GAME DESIGN'},
+  {type:'name',    text:'Picco Iacopelli'},
+  {type:'gap'},
+  {type:'heading', text:'STORY & WRITING'},
+  {type:'name',    text:'Picco Iacopelli'},
+  {type:'gap'},
+  {type:'heading', text:'CREATURE DESIGN'},
+  {type:'name',    text:'Picco Iacopelli'},
+  {type:'gap'},
+  {type:'heading', text:'DEVELOPMENT'},
+  {type:'name',    text:'Built with Claude'},
+  {type:'small',   text:'Anthropic'},
+  {type:'gap'},
+  {type:'heading', text:'TECHNOLOGY'},
+  {type:'small',   text:'HTML · CSS · JavaScript'},
+  {type:'small',   text:'Web Audio API'},
+  {type:'small',   text:'Canvas API'},
+  {type:'small',   text:'Press Start 2P — Google Fonts'},
+  {type:'gap'},
+  {type:'gap'},
+  {type:'divider'},
+  {type:'gap'},
+  {type:'heading', text:'CAST OF CREATURES'},
+  {type:'gap'},
+  {type:'small',   text:'🌿 Verdant Wood'},
+  {type:'cast',    text:'Moss Lurker · Briar Wraith'},
+  {type:'cast',    text:'Thornback Beetle · Rootwarden'},
+  {type:'gap'},
+  {type:'small',   text:'🏜️ Amber Desert'},
+  {type:'cast',    text:'Dune Crawler · Sand Revenant'},
+  {type:'cast',    text:'Mirage Wisp · Bone Raker'},
+  {type:'gap'},
+  {type:'small',   text:'❄️ Frost Wastes'},
+  {type:'cast',    text:'Frost Imp · Glacier Wyrm'},
+  {type:'cast',    text:'Permafrost Golem · Snowblind Specter'},
+  {type:'gap'},
+  {type:'small',   text:'🌑 Shadowfen'},
+  {type:'cast',    text:'Fen Haunt · Ruin Warden'},
+  {type:'cast',    text:'Hollow Knight · Murk Stalker'},
+  {type:'gap'},
+  {type:'small',   text:'⛰️ Stone Peaks'},
+  {type:'cast',    text:'Stoneback Brute · Peak Specter'},
+  {type:'cast',    text:'Crag Harpy · Vault Specter'},
+  {type:'gap'},
+  {type:'small',   text:'🌋 Ember Caldera'},
+  {type:'cast',    text:'Ember Hound · Lava Golem'},
+  {type:'cast',    text:'Cinder Wraith · Magma Tick'},
+  {type:'gap'},
+  {type:'small',   text:'✦ World\'s Edge'},
+  {type:'cast',    text:'The Unmade'},
+  {type:'gap'},
+  {type:'gap'},
+  {type:'divider'},
+  {type:'gap'},
+  {type:'heading', text:'VILLAGES & THEIR KEEPERS'},
+  {type:'gap'},
+  {type:'cast',    text:'Thornhaven — Edric'},
+  {type:'cast',    text:'Sandmere — Sable'},
+  {type:'cast',    text:'Glacespire — Orren'},
+  {type:'cast',    text:'Gloomhall — Vesper'},
+  {type:'cast',    text:'Cresthold — Pip'},
+  {type:'cast',    text:'Ashgate — Cinder'},
+  {type:'gap'},
+  {type:'gap'},
+  {type:'divider'},
+  {type:'gap'},
+  {type:'small',   text:'Special thanks to'},
+  {type:'name',    text:'Augustine Iacopelli'},
+  {type:'small',   text:'for the space to build something real'},
+  {type:'gap'},
+  {type:'gap'},
+  {type:'emblem',  text:'✦'},
+  {type:'gap'},
+  {type:'sub',     text:'Ship something every day.'},
+  {type:'sub',     text:'It compounds.'},
+  {type:'gap'},
+  {type:'gap'},
+];
+
+let _creditsScroll=null;
+
+function openCredits(){
+  const inner=document.getElementById('credits-inner');
+  inner.innerHTML='';
+  CREDITS_CONTENT.forEach(item=>{
+    const el=document.createElement('div');
+    if(item.type==='gap'){
+      el.style.height='18px';
+    }else if(item.type==='emblem'){
+      el.style.cssText='font-size:32px;color:var(--gold);text-shadow:0 0 20px var(--gold2);margin:8px 0;';
+      el.textContent=item.text;
+    }else if(item.type==='title'){
+      el.style.cssText='font-family:"Press Start 2P",monospace;font-size:14px;color:var(--gold);text-shadow:0 0 16px var(--gold2);margin:4px 0;line-height:1.5;';
+      el.textContent=item.text;
+    }else if(item.type==='sub'){
+      el.style.cssText='font-family:"Press Start 2P",monospace;font-size:6px;color:var(--cyan);letter-spacing:2px;margin:3px 0;';
+      el.textContent=item.text;
+    }else if(item.type==='heading'){
+      el.style.cssText='font-family:"Press Start 2P",monospace;font-size:8px;color:var(--gold);margin:4px 0 6px;';
+      el.textContent=item.text;
+    }else if(item.type==='name'){
+      el.style.cssText='font-family:"Press Start 2P",monospace;font-size:9px;color:var(--white);margin:2px 0;';
+      el.textContent=item.text;
+    }else if(item.type==='small'){
+      el.style.cssText='font-family:"Press Start 2P",monospace;font-size:6px;color:var(--gray);margin:2px 0;';
+      el.textContent=item.text;
+    }else if(item.type==='cast'){
+      el.style.cssText='font-family:"Press Start 2P",monospace;font-size:6px;color:var(--white);margin:2px 0;';
+      el.textContent=item.text;
+    }else if(item.type==='divider'){
+      el.style.cssText='width:200px;height:1px;background:var(--border);margin:4px auto;';
+    }
+    inner.appendChild(el);
+  });
+  // Start scroll from top
+  const scroll=document.getElementById('credits-scroll');
+  scroll.scrollTop=0;
+  document.getElementById('credits-overlay').style.display='flex';
+  // Auto-scroll
+  clearInterval(_creditsScroll);
+  _creditsScroll=setInterval(()=>{
+    scroll.scrollTop+=0.8;
+    if(scroll.scrollTop>=inner.offsetHeight-scroll.clientHeight+60){
+      clearInterval(_creditsScroll);
+    }
+  },16);
+}
+
+function closeCredits(){
+  clearInterval(_creditsScroll);_creditsScroll=null;
+  document.getElementById('credits-overlay').style.display='none';
+}
+
+
+(function(){
+  const canvas=document.getElementById('title-canvas');
+  const ctx=canvas.getContext('2d');
+  const STARS=120;
+  const CREATURES=['🌿','🏜️','❄️','🌑','⛰️','🌋','✦','🧙'];
+  let stars=[],drifters=[],w=0,h=0;
+
+  function resize(){
+    const el=document.getElementById('title-screen');
+    w=canvas.width=el.clientWidth||360;
+    h=canvas.height=el.clientHeight||600;
+  }
+
+  function initStars(){
+    stars=[];
+    for(let i=0;i<STARS;i++){
+      stars.push({
+        x:Math.random()*w,y:Math.random()*h,
+        r:Math.random()*1.5+0.3,
+        speed:Math.random()*0.3+0.05,
+        brightness:Math.random()*0.6+0.2,
+        twinkleSpeed:Math.random()*0.03+0.01,
+        twinklePhase:Math.random()*Math.PI*2,
+      });
+    }
+    drifters=[];
+    for(let i=0;i<6;i++){
+      drifters.push({
+        emoji:CREATURES[Math.floor(Math.random()*CREATURES.length)],
+        x:Math.random()*w,y:Math.random()*h,
+        dx:(Math.random()-0.5)*0.4,dy:(Math.random()-0.5)*0.2,
+        opacity:Math.random()*0.15+0.05,
+        size:Math.random()*20+16,
+      });
+    }
+  }
+
+  let frame=0;
+  function draw(){
+    if(document.getElementById('title-screen').classList.contains('active')){
+      ctx.clearRect(0,0,w,h);
+      // Stars
+      stars.forEach(s=>{
+        s.twinklePhase+=s.twinkleSpeed;
+        const alpha=s.brightness*(0.7+0.3*Math.sin(s.twinklePhase));
+        ctx.fillStyle=`rgba(200,210,255,${alpha})`;
+        ctx.beginPath();ctx.arc(s.x,s.y,s.r,0,Math.PI*2);ctx.fill();
+        s.y+=s.speed;
+        if(s.y>h){s.y=0;s.x=Math.random()*w;}
+      });
+      // Drifting creatures
+      ctx.textAlign='center';ctx.textBaseline='middle';
+      drifters.forEach(d=>{
+        ctx.globalAlpha=d.opacity;
+        ctx.font=d.size+'px serif';
+        ctx.fillText(d.emoji,d.x,d.y);
+        d.x+=d.dx;d.y+=d.dy;
+        if(d.x<-40)d.x=w+40;if(d.x>w+40)d.x=-40;
+        if(d.y<-40)d.y=h+40;if(d.y>h+40)d.y=-40;
+      });
+      ctx.globalAlpha=1;
+    }
+    frame=requestAnimationFrame(draw);
+  }
+
+  resize();initStars();draw();
+  window.addEventListener('resize',()=>{resize();initStars();});
+})();
+
+// ════════════════════════════════════════════════════════════════
+// TYPEWRITER DIALOGUE
+// ════════════════════════════════════════════════════════════════
+let _twTimer=null,_twFull='',_twIdx=0,_twCb=null;
+
+function typewriterStart(text,onDone){
+  clearInterval(_twTimer);
+  _twFull=text;_twIdx=0;_twCb=onDone;
+  const el=document.getElementById('dlg-text');
+  el.textContent='';
+  document.getElementById('dlg-arrow').style.display='none';
+  _twTimer=setInterval(()=>{
+    if(_twIdx<_twFull.length){
+      el.textContent=_twFull.slice(0,++_twIdx);
+    }else{
+      clearInterval(_twTimer);_twTimer=null;
+      document.getElementById('dlg-arrow').style.display='block';
+      if(_twCb){const cb=_twCb;_twCb=null;cb();}
+    }
+  },22);
+}
+
+function typewriterSkip(){
+  if(_twTimer){
+    clearInterval(_twTimer);_twTimer=null;
+    document.getElementById('dlg-text').textContent=_twFull;
+    document.getElementById('dlg-arrow').style.display='block';
+    if(_twCb){const cb=_twCb;_twCb=null;cb();}
+  }
+}
+
 if(hasSave()){
   document.getElementById('continue-btn').style.display='block';
   try{
