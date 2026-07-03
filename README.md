@@ -1,61 +1,76 @@
 # Realm of Echoes
 
-*Created by Picco Iacopelli*
+**A browser RPG by Picco Iacopelli**
 
-A full browser-based RPG built in a single HTML file with zero dependencies. Six distinct regions, six Echo Shards to recover, twelve original creatures, and a final boss with a pacifist ending.
+Built with Claude · Single-file vanilla HTML/CSS/JS · Deployable to GitHub Pages
 
-## Gameplay
+---
 
-The Echo Stone has shattered into six fragments, each claimed by a different corner of the world. Travel east through six regions — Verdant Wood, Amber Desert, Frost Wastes, Shadowfen, Stone Peaks, and Ember Caldera — defeat or spare the guardian at each shard tower, and face The Unmade at the world's edge.
+## The Story
 
-### Controls
+The Echo Stone shattered into six fragments, each claimed by a different corner of the world. Cross six regions, face twenty-four creatures and their guardians, collect all six shards, and decide what to do with what waits at the end of the world.
 
-**Desktop:** Arrow keys to move, Enter/Space to interact  
-**Mobile:** D-pad buttons to move, ENTER button to interact with villages, shops, and exits
+Along the way you will find the journal of a traveler who made this journey before you. They did not finish it. You might.
 
-### Battle Actions
+---
 
-- **FIGHT** — Deal physical damage
-- **COMMUNE** — Learn about the enemy; unlocks SPARE
-- **ECHO BLAST** — Magic attack (costs 4 MP)
-- **POTION** — Restore 8 HP (limited supply)
-- **SPARE** — Resolve the encounter without fighting (requires COMMUNE first)
+## Regions
 
-### Villages
+🌿 **Verdant Wood** — A forest that watches back. The Briar Wraith guards the Verdant Spire.
 
-Each region has a village with a **Merchant** (gear upgrades) and an **Inn** (full HP/MP restore for 12g). Walk into the village area and press the gold ENTER button. Inside, walk to the shop or inn tile and press the button that appears.
+🏜️ **Amber Desert** — A caravan road that died when its guardian woke. The Sand Revenant guards the Dune Citadel.
 
-### Endings
+❄️ **Frost Wastes** — Ancient ice that remembers the world before the Shattering. The Glacier Wyrm guards the Frost Obelisk.
 
-Spare every creature — including The Unmade — to see the True Ending.
+🌑 **Shadowfen** — A fen full of things that did not survive intact. The Ruin Warden guards the Shadow Bastion.
 
-## Regions & Enemies
+⛰️ **Stone Peaks** — High passes with something watching from the cliffs. The Peak Specter guards the Peak Fortress.
 
-| Region | Enemies |
-|--------|---------|
-| 🌿 Verdant Wood | Moss Lurker, Briar Wraith |
-| 🏜️ Amber Desert | Dune Crawler, Sand Revenant |
-| ❄️ Frost Wastes | Frost Imp, Glacier Wyrm |
-| 🌑 Shadowfen | Fen Haunt, Ruin Warden |
-| ⛰️ Stone Peaks | Stoneback Brute, Peak Specter |
-| 🌋 Ember Caldera | Ember Hound, Lava Golem |
+🌋 **Ember Caldera** — The site of the original Shattering. The Lava Golem guards the Caldera Throne.
 
-## Technical
+---
 
-- Single HTML file, vanilla JS/CSS, no frameworks, no build step
-- Deployable directly to GitHub Pages
-- Fully responsive — canvas scales to any screen size via `devicePixelRatio`
-- All state in memory; no backend required
-- Font: [Press Start 2P](https://fonts.google.com/specimen/Press+Start+2P) via Google Fonts
+## Creatures
 
-## Definition of Complete
+Twenty-four creatures across six regions, each with unique spare conditions discovered through COMMUNE. Guardians require multiple successful communes before they yield. The Unmade waits at the end.
 
-- [x] Six traversable regions with distinct tile rendering
-- [x] Twelve original enemies with unique dialogue and spare conditions
-- [x] Turn-based battle system with FIGHT / COMMUNE / ECHO BLAST / POTION / SPARE
-- [x] XP and leveling system with stat scaling
-- [x] Equipment shop (weapon, armor, tome) and inn in each village
-- [x] Six shard towers with boosted guardians
-- [x] Final boss with pacifist and combat endings
-- [x] Mobile-friendly with d-pad controls and interact button
-- [x] Responsive canvas scaling for all screen sizes
+Every creature can be spared. The true ending requires sparing all of them.
+
+---
+
+## Features
+
+- Turn-based battle system with FIGHT, COMMUNE, ECHO BLAST, ITEMS, and SPARE
+- Multi-step commune system with a mercy meter
+- Status effects: Poison, Silence, Stun
+- 21 treasure chests with unique item drops per region
+- Full save system via localStorage
+- Bestiary, Lore Codex, Hint system, and Pause screen
+- 10 synthesized music tracks (Web Audio API, no external files)
+- Journal of the First Wanderer — seven pages found across the journey
+- Normal and Hard difficulty
+- Fully mobile-friendly, single HTML file
+
+---
+
+## Controls
+
+**Desktop:** Arrow keys to move, Enter/Space to interact, Escape or P to pause
+
+**Mobile:** On-screen D-pad and buttons
+
+---
+
+## Credits
+
+**Game Design, Story & Creature Design:** Picco Iacopelli
+
+**Development:** Built with Claude (Anthropic)
+
+**Technology:** HTML · CSS · JavaScript · Web Audio API · Canvas API
+
+*A sidebar project from the AppADay challenge by Augustine Iacopelli*
+
+---
+
+*Ship something every day. It compounds.*
