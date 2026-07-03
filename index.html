@@ -222,6 +222,10 @@ body{background:var(--bg);color:var(--white);font-family:'Press Start 2P',monosp
   <button class="start-btn" onclick="startGame(false)">&#9658; NEW JOURNEY</button>
   <button class="start-btn" id="continue-btn" onclick="startGame(true)" style="display:none;background:#2a3a6a;box-shadow:0 0 14px #4060c0;">&#9654; CONTINUE</button>
   <div id="save-info" style="font-size:6px;color:var(--gray);display:none;"></div>
+  <div style="display:flex;align-items:center;gap:10px;margin-top:2px;">
+    <span style="font-size:6px;color:var(--gray);">DIFFICULTY:</span>
+    <button id="diff-btn" onclick="toggleDifficulty()" style="font-family:'Press Start 2P',monospace;font-size:7px;background:var(--panel);border:2px solid var(--green);color:var(--green);padding:5px 12px;cursor:pointer;">NORMAL</button>
+  </div>
   <button onclick="openCredits()" style="font-family:'Press Start 2P',monospace;font-size:6px;background:transparent;border:1px solid var(--gray);color:var(--gray);padding:5px 12px;cursor:pointer;">CREDITS</button>
   <div class="hint-txt">Arrow keys / D-pad &middot; Enter villages to shop &amp; rest</div>
   </div><!-- end title-content -->
@@ -235,6 +239,27 @@ body{background:var(--bg);color:var(--white);font-family:'Press Start 2P',monosp
     </div>
     <div style="position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,var(--bg) 60%);height:80px;pointer-events:none;"></div>
     <button onclick="closeCredits()" style="font-family:'Press Start 2P',monospace;font-size:7px;background:transparent;border:2px solid var(--gray);color:var(--gray);padding:7px 16px;cursor:pointer;position:absolute;bottom:16px;left:50%;transform:translateX(-50%);z-index:1;">CLOSE</button>
+  </div>
+</div>
+
+<!-- HINT -->
+<div id="hint-overlay" style="display:none;position:fixed;inset:0;background:#000d;z-index:65;align-items:center;justify-content:center;">
+  <div style="width:92%;max-width:420px;background:var(--panel);border:3px solid var(--cyan);padding:18px;display:flex;flex-direction:column;gap:10px;">
+    <div style="font-family:'Press Start 2P',monospace;font-size:8px;color:var(--cyan);">? HINT</div>
+    <div id="hint-text" style="font-family:'Press Start 2P',monospace;font-size:7px;color:var(--white);line-height:2.2;white-space:pre-wrap;"></div>
+    <button onclick="closeHint()" style="font-family:'Press Start 2P',monospace;font-size:7px;background:transparent;border:2px solid var(--gray);color:var(--gray);padding:6px 14px;cursor:pointer;align-self:center;">GOT IT</button>
+  </div>
+</div>
+
+<!-- LORE CODEX -->
+<div id="codex-overlay" style="display:none;position:fixed;inset:0;background:#000e;z-index:65;flex-direction:column;align-items:center;">
+  <div style="width:100%;max-width:560px;height:100%;display:flex;flex-direction:column;background:var(--bg);">
+    <div style="background:var(--panel);border-bottom:2px solid var(--gold);padding:8px 14px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;">
+      <span style="font-size:9px;color:var(--gold);">📜 LORE CODEX</span>
+      <span id="codex-count" style="font-size:6px;color:var(--gray);"></span>
+      <button onclick="closeCodex()" style="font-family:'Press Start 2P',monospace;font-size:7px;background:transparent;border:2px solid var(--gray);color:var(--gray);padding:5px 10px;cursor:pointer;">CLOSE</button>
+    </div>
+    <div id="codex-list" style="flex:1;overflow-y:auto;padding:10px 12px;display:flex;flex-direction:column;gap:10px;"></div>
   </div>
 </div>
 
@@ -254,6 +279,8 @@ body{background:var(--bg);color:var(--white);font-family:'Press Start 2P',monosp
     <span id="hud-shards" style="color:var(--cyan)">✦:0/6</span>
     <span id="hud-region"></span>
     <button id="bestiary-btn" onclick="openBestiary()" style="font-family:'Press Start 2P',monospace;font-size:6px;background:transparent;border:1px solid var(--gray);color:var(--gray);padding:3px 6px;cursor:pointer;margin-left:4px;">📖</button>
+    <button id="codex-btn" onclick="openCodex()" style="font-family:'Press Start 2P',monospace;font-size:6px;background:transparent;border:1px solid var(--gray);color:var(--gray);padding:3px 6px;cursor:pointer;margin-left:2px;">📜</button>
+    <button id="hint-btn" onclick="openHint()" style="font-family:'Press Start 2P',monospace;font-size:6px;background:transparent;border:1px solid var(--gray);color:var(--gray);padding:3px 6px;cursor:pointer;margin-left:2px;">?</button>
     <button id="mute-btn" onclick="toggleMute()" style="font-family:'Press Start 2P',monospace;font-size:6px;background:transparent;border:1px solid var(--gray);color:var(--gray);padding:3px 6px;cursor:pointer;margin-left:2px;">🔊</button>
     <button id="pause-btn" onclick="openPause()" style="font-family:'Press Start 2P',monospace;font-size:6px;background:transparent;border:1px solid var(--gray);color:var(--gray);padding:3px 6px;cursor:pointer;margin-left:2px;">⏸</button>
   </div>
@@ -285,6 +312,10 @@ body{background:var(--bg);color:var(--white);font-family:'Press Start 2P',monosp
     <div class="ccard" id="enemy-card">
       <div class="cname" id="enemy-name-lbl">Enemy</div>
       <div class="bar-row"><span class="bar-lbl" id="enemy-hp-txt">HP</span><div class="bar-wrap"><div class="bar hp" id="enemy-hp-bar" style="width:100%"></div></div></div>
+      <div class="bar-row" id="mercy-row" style="display:none;">
+        <span class="bar-lbl" style="color:#40c870;">MERCY</span>
+        <div class="bar-wrap"><div id="mercy-bar" style="height:100%;background:#40c870;width:0%;transition:width 0.4s;"></div></div>
+      </div>
     </div>
   </div>
   <div id="dialogue-box" onclick="advanceDialogue()">
@@ -528,77 +559,91 @@ const INN_COST=12;
 // ════════════════════════════════════════════════════════════════
 const VILLAGE_NPCS={
   v1:{name:'Edric', getLines:(s)=>{
+    if(SHARD_TOWERS[0]&&SHARD_TOWERS[0].cleared)return[
+      '* EDRIC: You cleared the Spire.\n* I could feel it from here.\n* The Wood is different now.',
+      '* EDRIC: My father said the Stone would be restored one day.\n* I always thought he was telling stories.\n* Keep going east.',
+    ];
     if(s===0)return[
       '* EDRIC: You\'re heading into the Wood, aren\'t you.',
       '* EDRIC: I\'ve felled trees in there for thirty years.\n* Something changed after the Shattering.\n* The forest started... watching.',
       '* EDRIC: The Spire at the heart of it has a guardian.\n* Don\'t fight it angry.\n* It can smell anger.',
     ];
-    if(s===1)return[
-      '* EDRIC: You made it through the Spire.\n* I wasn\'t sure you would.',
-      '* EDRIC: The forest is quieter now.\n* Whatever you did in there -- it helped.',
-    ];
     return[
       '* EDRIC: '+s+' shards.\n* You\'re really doing this.',
-      '* EDRIC: My father said the Stone would be restored one day.\n* I thought he was telling stories.',
+      '* EDRIC: The forest is quieter now.\n* Whatever you did in there -- it helped.',
     ];
   }},
   v2:{name:'Sable', getLines:(s)=>{
+    if(SHARD_TOWERS[1]&&SHARD_TOWERS[1].cleared)return[
+      '* SABLE: The Citadel is quiet now.\n* First time in twelve years.',
+      '* SABLE: A caravan came through last week.\n* First one since the guardian woke.\n* I think the road is coming back.',
+    ];
     if(s<1)return[
       '* SABLE: My caravan stopped here twelve years ago.\n* The desert took the rest of them.\n* I stayed.',
-      '* SABLE: The Dune Citadel used to be a waypoint.\n* Merchants, pilgrims, scholars.\n* Then the guardian woke and the road died.',
-      '* SABLE: The tombs out there... they hold things that were buried for a reason.\n* Treat them accordingly.',
-    ];
-    if(s<3)return[
-      '* SABLE: The Citadel is quiet now.\n* First time in years.',
-      '* SABLE: A caravan came through last week.\n* First one since the guardian woke.\n* Maybe the road is coming back.',
+      '* SABLE: The Dune Citadel used to be a waypoint for caravans.',
+      '* SABLE: The tombs out there hold things buried for a reason.\n* Treat them accordingly.',
     ];
     return[
       '* SABLE: You\'ve come a long way from the Wood, wanderer.',
-      '* SABLE: Whatever is at the end of this -- I hope it\'s worth what you\'ve walked through.',
+      '* SABLE: Whatever is at the end of this -- I hope it\'s worth the walk.',
     ];
   }},
   v3:{name:'Orren', getLines:(s)=>{
-    if(s<2)return[
-      '* ORREN: I came to study the glacier. That was eleven years ago.\n* I keep finding reasons to stay.',
-      '* ORREN: The ice here is ancient.\n* There are things frozen inside it that should not be disturbed.',
-      '* ORREN: The Wyrm beneath the Obelisk... I\'ve heard it moving.\n* It resonates at the same frequency as the Echo Stone fragments.\n* Fascinating. Terrifying.',
-    ];
-    if(s<4)return[
+    if(SHARD_TOWERS[2]&&SHARD_TOWERS[2].cleared)return[
       '* ORREN: You\'ve been to the Obelisk.\n* The resonance has shifted -- I measured it this morning.',
       '* ORREN: My theory is confirmed.\n* The shards are harmonically linked.\n* Each one you carry changes the frequency of the others.',
       '* ORREN: Whatever you\'re building toward... the glacier is listening.',
     ];
+    if(s<2)return[
+      '* ORREN: I came to study the glacier. That was eleven years ago.\n* I keep finding reasons to stay.',
+      '* ORREN: The ice here is ancient.\n* There are things frozen inside it that should not be disturbed.',
+      '* ORREN: The Wyrm beneath the Obelisk resonates at the same\n  frequency as the Echo Stone fragments.\n* Fascinating. Terrifying.',
+    ];
     return[
       '* ORREN: Three shards or more.\n* The readings are extraordinary.',
-      '* ORREN: The Stone wants to be whole.\n* I can feel it in the data.\n* Be careful what you do when it is.',
+      '* ORREN: The Stone wants to be whole.\n* I can feel it in the data.',
     ];
   }},
   v4:{name:'Vesper', getLines:(s)=>{
+    if(SHARD_TOWERS[3]&&SHARD_TOWERS[3].cleared)return[
+      '* VESPER: You found the Bastion.\n* How did you find it?',
+      '* VESPER: The Fen has been calmer since you passed through.\n* The Haunt near the east pool... it stopped drifting.\n* I think it\'s at peace.',
+      '* VESPER: If you saw Aldren in there -- the Hollow Knight --\n* I hope you said the name.',
+    ];
     if(s<3)return[
       '* VESPER: I was a knight once.\n* Before the Shattering, before the Fen took everything.',
       '* VESPER: The Hollow Knight in the ruins...\n* I knew them.\n* We served in the same order.',
-      '* VESPER: They didn\'t survive the Shattering the way I did.\n* If you find them -- speak their name.\n* Sir Aldren of the Outer Watch.\n* They deserve to hear it.',
-    ];
-    if(s<5)return[
-      '* VESPER: You\'ve been to the Bastion.\n* How did you find it?',
-      '* VESPER: The Fen has been calmer since you passed through.\n* The Haunt near the east pool... it stopped drifting.\n* I think it\'s at peace.',
+      '* VESPER: If you find them -- speak their name.\n* Sir Aldren of the Outer Watch.\n* They deserve to hear it.',
     ];
     return[
       '* VESPER: '+s+' shards.\n* The old order used to say the Stone\'s restoration was a prophecy.',
       '* VESPER: I stopped believing in prophecy after the Shattering.\n* But I\'m starting to reconsider.',
     ];
   }},
-  v5:{name:'Pip', getLines:(_s)=>[
-    '* PIP: Don\'t look down.\n* That\'s my one rule.\n* I\'ve mapped every peak within forty miles and I have never once looked down.',
-    '* PIP: The Peak Fortress is up there somewhere.\n* I know because I mapped it.\n* I have not been inside.\n* I\'m not going inside.',
-    '* PIP: There\'s something in the high passes.\n* One eye, luminous.\n* It watches you.\n* I put it on the map as "Do Not Investigate."\n* You should investigate it.',
-  ]},
-  v6:{name:'Cinder', getLines:(_s)=>[
-    '* CINDER: You have the echo frequency.\n* I can hear it on you.\n* The Stone\'s resonance.',
-    '* CINDER: The Unmade shattered it deliberately.\n* You should know that before you face it.\n* It was not destruction.\n* It was a choice.',
-    '* CINDER: The last one who held the Stone whole used it to end a war.\n* The war, the army, the valley -- all of it.\n* The Unmade watched it happen.\n* Then it took the Stone apart.',
-    '* CINDER: What you do at the end... is yours to decide.\n* But go in knowing what you\'re deciding.',
-  ]},
+  v5:{name:'Pip', getLines:(_s)=>{
+    if(SHARD_TOWERS[4]&&SHARD_TOWERS[4].cleared)return[
+      '* PIP: You went inside the Fortress.\n* I mapped it but I did not go inside.\n* I had excellent reasons.',
+      '* PIP: The eye on the cliff -- the Vault Specter -- it\'s gone.\n* I\'ve updated the map.\n* New label: "Investigated. You\'re welcome."',
+    ];
+    return[
+      '* PIP: Don\'t look down.\n* That\'s my one rule.\n* I\'ve mapped every peak within forty miles and I have never once looked down.',
+      '* PIP: The Peak Fortress is up there somewhere.\n* I know because I mapped it.\n* I have not been inside.',
+      '* PIP: There\'s something in the high passes.\n* One eye, luminous.\n* It watches you.\n* I put it on the map as "Do Not Investigate."\n* You should investigate it.',
+    ];
+  }},
+  v6:{name:'Cinder', getLines:(_s)=>{
+    if(SHARD_TOWERS[5]&&SHARD_TOWERS[5].cleared)return[
+      '* CINDER: You\'ve been to the Throne.\n* The Golem let you through.\n* That has not happened before.',
+      '* CINDER: You are close to the end now.\n* The Final Gate is north of here.\n* It knows you are coming.',
+      '* CINDER: What you decide at the end... is yours to decide.\n* Go in knowing what you are deciding.',
+    ];
+    return[
+      '* CINDER: You have the echo frequency.\n* I can hear it on you.',
+      '* CINDER: The Unmade shattered the Stone deliberately.\n* It was not destruction.\n* It was a choice.',
+      '* CINDER: The last one who held the Stone whole used it to end a war.\n* The war, the army, the valley -- all of it.\n* The Unmade watched it happen.\n* Then it took the Stone apart.',
+      '* CINDER: What you do at the end... is yours to decide.\n* But go in knowing what you\'re deciding.',
+    ];
+  }},
 };
 
 // ════════════════════════════════════════════════════════════════
@@ -685,6 +730,8 @@ const ENEMIES=[
    gold:8,xp:5,
    intro:['* A MOSS LURKER emerges from the undergrowth!\n* It reeks of damp earth.','* It watches you with amber eyes.'],
    actText:'* You crouch and go very still.\n* LURKER: ...Traveler smells like old road.\n* LURKER: Not prey.',
+   communeSteps:1,
+   communeLines:['* You go completely still.\n* LURKER: (It sniffs the air.)\n* LURKER: (It decides you are not a threat.)'],
    actSpares:true,spareReady:false,
    spareText:'* The Moss Lurker lumbers back into the ferns.\n* LURKER: Take the river path next time.',
    deathText:'* The Moss Lurker dissolves into the ground.',
@@ -695,6 +742,9 @@ const ENEMIES=[
    gold:11,xp:8,
    intro:['* A BRIAR WRAITH drifts from the canopy!\n* Thorns orbit its flickering form.','* WRAITH: Another trespasser walks the old wood.'],
    actText:'* You name the oldest tree in the forest.\n* WRAITH stills.\n* WRAITH: ...You know the First Trees?\n* WRAITH: Then you have some right to be here.',
+   communeSteps:2,
+   communeLines:['* You speak to the forest, not to the Wraith.\n* WRAITH: ...\n* WRAITH: You know the old forms of address.',
+      '* You name the grove it was planted in.\n* WRAITH: That name.\n* WRAITH: No one has spoken that name in three hundred years.\n* WRAITH: Pass.'],
    actSpares:true,spareReady:false,
    spareText:'* The Briar Wraith recedes into the bark.\n* WRAITH: Walk lightly.',
    deathText:'* The Briar Wraith unravels into leaves.',
@@ -708,6 +758,8 @@ const ENEMIES=[
    gold:14,xp:10,
    intro:['* A DUNE CRAWLER bursts from beneath the sand!\n* Mandibles click rhythmically.','* It sizes you up with six gleaming eyes.'],
    actText:'* You offer it a piece of dried meat.\n* CRAWLER pauses.\n* CRAWLER: (It actually accepts the offering.)',
+   communeSteps:1,
+   communeLines:['* You offer it a piece of dried food.\n* CRAWLER: (It freezes.)\n* CRAWLER: (It takes it very carefully.)\n* CRAWLER: (It seems to reconsider everything.)'],
    actSpares:true,spareReady:false,
    spareText:'* The Dune Crawler buries itself again.\n* A small treasure glints where it stood.',
    deathText:'* The Dune Crawler goes still in the sand.',
@@ -718,6 +770,10 @@ const ENEMIES=[
    gold:18,xp:13,
    intro:['* A SAND REVENANT rises from a half-buried tomb!\n* Old wrappings trail behind it.','* REVENANT: You disturb a thousand years of silence.'],
    actText:'* You read the inscription on its tomb aloud.\n* REVENANT: ...You can read the Old Script?\n* REVENANT: Then you know what I was.\n* REVENANT: What I protected.',
+   communeSteps:3,
+   communeLines:['* You acknowledge the tomb it guards.\n* REVENANT: You see it.\n* REVENANT: Most do not see it.',
+      '* You ask what was buried here.\n* REVENANT: A family.\n* REVENANT: Three generations.\n* REVENANT: They were kind people.',
+      '* You say their names deserve to be remembered.\n* REVENANT: ...\n* REVENANT: Yes.\n* REVENANT: They do.\n* REVENANT: You may pass.'],
    actSpares:true,spareReady:false,
    spareText:'* The Sand Revenant sinks back into the earth.\n* REVENANT: Remember the name on that stone.',
    deathText:'* The Sand Revenant crumbles to dust.\n* The wind carries it away.',
@@ -740,6 +796,11 @@ const ENEMIES=[
    gold:24,xp:18,
    intro:['* A GLACIER WYRM erupts from beneath the ice!\n* The ground shakes.','* WYRM: Something warm moves across my ceiling.\n* WYRM: Interesting.'],
    actText:'* You press your hand to the ice and hum a low note.\n* The Wyrm resonates.\n* WYRM: You carry echo frequency.\n* WYRM: You seek the stone. I know where it fractured.',
+   communeSteps:2,
+   communeLines:['* You hum the echo frequency aloud.\n* WYRM: (It stops moving.)\n* WYRM: You carry the resonance.',
+      '* You hold the shard toward it.\n* WYRM: I felt that fragment fall.\n* WYRM: I have been waiting for someone\n  to come looking for it.\n* WYRM: Take it. That is what it is for.'],
+   communeSteps:1,
+   communeLines:['* You point out that it has already claimed\n  more territory than it could ever patrol.\n* IMP: ...\n* IMP: That is a fair point.\n* IMP: I have been meaning to downsize.'],
    actSpares:true,spareReady:false,
    spareText:'* The Glacier Wyrm sinks back beneath the ice.\n* WYRM: Follow the cold current. It leads to the shard.',
    deathText:'* The Glacier Wyrm crashes through the ice and is gone.',
@@ -763,6 +824,12 @@ const ENEMIES=[
    gold:26,xp:20,
    intro:['* A RUIN WARDEN rises from the crumbled arch!\n* Old glyphs glow across its shoulders.','* WARDEN: These ruins are protected by covenant.\n* WARDEN: State your purpose.'],
    actText:'* You recite the Three Oaths of the Wanderer.\n* WARDEN: ...You know the Oaths.\n* WARDEN: Then you are no tomb-robber.',
+   communeSteps:2,
+   communeLines:['* You recite the covenant that bound it.\n* WARDEN: You know the old texts.',
+      '* You invoke the release clause.\n* WARDEN: The covenant is fulfilled.\n* WARDEN: I am... released.\n* WARDEN: I did not know there was a release clause.'],
+   communeSteps:2,
+   communeLines:['* You acknowledge that it exists.\n* HAUNT: ...\n* HAUNT: You can see me.\n* HAUNT: Most people walk through me.',
+      '* You ask its name.\n* HAUNT: I had one.\n* HAUNT: I cannot remember it now.\n* HAUNT: But the asking... the asking helps.\n* HAUNT: Thank you.'],
    actSpares:true,spareReady:false,
    spareText:'* The Ruin Warden settles back into the stone.\n* WARDEN: What was lost here cannot be taken.\n* WARDEN: Only found.',
    deathText:'* The Ruin Warden crumbles. The glyphs go dark.',
@@ -776,6 +843,8 @@ const ENEMIES=[
    gold:30,xp:24,
    intro:['* A STONEBACK BRUTE drops from a cliff ledge!\n* The impact cracks the path.','* BRUTE: Mountain belongs to Brute.\n* BRUTE: You small. Leave.'],
    actText:'* You challenge the Brute to a feat of strength -- moving a boulder.\n* BRUTE: (It watches, intrigued.)\n* BRUTE: ...Small one is stronger than looks.\n* BRUTE: Maybe Small One belongs on mountain.',
+   communeSteps:1,
+   communeLines:['* You step aside and gesture at the path.\n* BRUTE: (It regards you.)\n* BRUTE: Small One passes.\n* BRUTE: This time.'],
    actSpares:true,spareReady:false,
    spareText:'* The Stoneback Brute thumps its chest.\n* BRUTE: Small One passes. This time.',
    deathText:'* The Stoneback Brute tumbles off the ledge.\n* A distant rumble.',
@@ -786,6 +855,9 @@ const ENEMIES=[
    gold:28,xp:22,
    intro:['* A PEAK SPECTER materializes from the wind!\n* Its form is made of frozen air.','* SPECTER: You carry the weight of purpose.\n* SPECTER: The peaks judge purpose harshly.'],
    actText:'* You speak aloud why you are climbing.\n* The Specter considers.\n* SPECTER: Many have said similar things.\n* SPECTER: They all turned back.\n* SPECTER: ...You might not.',
+   communeSteps:2,
+   communeLines:['* You ask what it tests travelers for.\n* SPECTER: Resolve.\n* SPECTER: Most who come here want something.\n* SPECTER: Very few know what they want.',
+      '* You say what you actually want.\n* SPECTER: ...\n* SPECTER: That is honest.\n* SPECTER: Honest is rare up here.\n* SPECTER: Pass.'],
    actSpares:true,spareReady:false,
    spareText:'* The Peak Specter disperses into the wind.\n* SPECTER: The summit answers to the honest.',
    deathText:'* The Peak Specter is swept away by its own gale.',
@@ -798,6 +870,8 @@ const ENEMIES=[
    gold:34,xp:27,
    intro:['* An EMBER HOUND bounds from the lava flow!\n* Its paw-prints scorch the rock.','* It lets out a low, volcanic growl.'],
    actText:'* You hold out your hand, palm up.\n* The Hound stops.\n* HOUND: (It lowers its head slowly.)\n* HOUND: (It sniffs. Then looks at you with molten eyes.)',
+   communeSteps:1,
+   communeLines:['* You go completely still and breathe slowly.\n* HOUND: (The fire in its eyes dims slightly.)\n* HOUND: (It sits.)\n* HOUND: (It has not sat in a very long time.)'],
    actSpares:true,spareReady:false,
    spareText:'* The Ember Hound huffs a gout of steam and trots away.\n* It glances back once.',
    deathText:'* The Ember Hound cools into charred stone.',
@@ -809,6 +883,10 @@ const ENEMIES=[
    gold:40,xp:32,
    intro:['* A LAVA GOLEM rises from the caldera!\n* Molten rock drips from its fists.','* GOLEM: The Caldera does not permit passage.\n* GOLEM: It never has.'],
    actText:'* You hold up a shard fragment.\n* It hums against the heat.\n* GOLEM: (It reaches out and touches the shard with one enormous finger.)\n* GOLEM: ...The echo frequency. You carry it.\n* GOLEM: The last one who carried that frequency is why we are all here.',
+   communeSteps:3,
+   communeLines:['* You acknowledge the prohibition it enforces.\n* GOLEM: You know what this place is.',
+      '* You ask what happened here.\n* GOLEM: The Stone was used here.\n* GOLEM: Once.\n* GOLEM: The crater to the east is what remains.',
+      '* You say you understand why it was shattered.\n* GOLEM: ...\n* GOLEM: The Unmade said someone would come\n  who understood.\n* GOLEM: I did not believe it.\n* GOLEM: Pass.'],
    actSpares:true,spareReady:false,
    spareText:'* The Lava Golem slowly steps aside.\n* GOLEM: Finish what was started.\n* GOLEM: The Caldera will remember.',
    deathText:'* The Lava Golem cracks apart and hardens into obsidian.',
@@ -819,6 +897,8 @@ const ENEMIES=[
    gold:9,xp:6,
    intro:['* A THORNBACK BEETLE trundles from beneath a root!\n* Its shell is thick as bark.','* It regards you with compound eyes, then slowly curls up.'],
    actText:'* You go completely still and wait.\n* The Beetle uncurls slightly.\n* BEETLE: (It clicks its mandibles twice -- a curious sound.)\n* BEETLE: (It decides you are not a threat.)',
+   communeSteps:1,
+   communeLines:['* You hold completely still for thirty seconds.\n* BEETLE: (It uncurls slightly.)\n* BEETLE: (It clicks its mandibles twice.)\n* BEETLE: (It decides you are acceptable.)'],
    actSpares:true,spareReady:false,
    spareText:'* The Thornback Beetle trundles back under its root.\n* It leaves a small cluster of amber resin behind.',
    deathText:'* The Thornback Beetle\'s shell cracks.\n* It goes still.',
@@ -843,6 +923,12 @@ const ENEMIES=[
    gold:20,xp:15,
    intro:['* A PERMAFROST GOLEM grinds to life from the glacier!\n* Debris from another age is frozen inside it.','* GOLEM: ...Another one.\n* GOLEM: You all come through here eventually.'],
    actText:'* You ask it what it remembers from before the Shattering.\n* The Golem pauses for a very long time.\n* GOLEM: Warmth.\n* GOLEM: There was considerably more warmth.',
+   communeSteps:2,
+   communeLines:['* You ask what it remembers from before the Shattering.\n* GOLEM: (It pauses for a very long time.)\n* GOLEM: Warmth.\n* GOLEM: There was considerably more warmth.',
+      '* You sit down and wait.\n* GOLEM: ...\n* GOLEM: You are not leaving.\n* GOLEM: Most leave.\n* GOLEM: I hope you find what you came for.\n* GOLEM: The last one did not.'],
+   communeSteps:2,
+   communeLines:['* You close your eyes.\n* WISP: You stopped trying to see me.\n* WISP: That is unusual.',
+      '* You stop believing it is there.\n* WISP: ...\n* WISP: Oh.\n* WISP: That actually worked.\n* WISP: Tell no one.'],
    actSpares:true,spareReady:false,
    spareText:'* The Permafrost Golem resettles into the glacier.\n* GOLEM: I hope you find what you came for.\n* GOLEM: The last one didn\'t.',
    deathText:'* The Permafrost Golem shatters into ancient ice.\n* Something very old ends.',
@@ -854,6 +940,9 @@ const ENEMIES=[
    gold:22,xp:17,
    intro:['* A HOLLOW KNIGHT steps from the shadows!\n* Its armour is perfect. Its visor is dark.','* It raises its sword without a word.'],
    actText:'* You address it by a title -- Knight-Warden of the Fen.\n* The sword lowers slightly.\n* KNIGHT: ...That name.\n* KNIGHT: I have not heard that name in a very long time.\n* KNIGHT: Who told you?',
+   communeSteps:2,
+   communeLines:['* You address it by its former title:\n  Knight-Warden of the Fen.\n* KNIGHT: ...\n* KNIGHT: That name.\n* KNIGHT: I have not heard that name\n  in a very long time.',
+      '* You speak the name: Sir Aldren\n  of the Outer Watch.\n* KNIGHT: ...\n* KNIGHT: You know what I was.\n* KNIGHT: Then you know I was worth\n  more than this.'],
    actSpares:true,spareReady:false,
    spareText:'* The Hollow Knight sheathes its sword.\n* KNIGHT: You know what I was.\n* KNIGHT: Then you know I was worth more than this.\n* It walks back into the dark.',
    deathText:'* The Hollow Knight collapses.\n* The armour is empty.\n* It always was.',
@@ -865,6 +954,9 @@ const ENEMIES=[
    gold:26,xp:20,
    intro:['* A CRAG HARPY drops from the cliff face!\n* Wings snap open as it lands between you and the path.','* HARPY: Turn back.\n* HARPY: The eggs are two ledges up and I will not ask again.'],
    actText:'* You back away from the cliff and lower yourself to the ground.\n* HARPY: ...\n* HARPY: You are not after the eggs.\n* HARPY: Why did you not say so immediately.',
+   communeSteps:2,
+   communeLines:['* You back away from the cliff face\n  and lower yourself to the ground.\n* HARPY: You are not after the eggs.',
+      '* You say you are heading north\n  and have no interest in the nest.\n* HARPY: ...\n* HARPY: The high path is yours.\n* HARPY: Do not look at the nest.'],
    actSpares:true,spareReady:false,
    spareText:'* The Crag Harpy steps aside with immense dignity.\n* HARPY: The high path is yours.\n* HARPY: Do not look at the nest.',
    deathText:'* The Crag Harpy falls.\n* Somewhere above, something calls for it.',
@@ -887,6 +979,11 @@ const ENEMIES=[
    gold:13,xp:10,
    intro:['* A ROOTWARDEN lurches out of the undergrowth!\n* Ancient bark creaks with every movement.','* WARDEN: You are not on the path.\n* WARDEN: The path is THERE.\n* WARDEN: Why are you not on the path.'],
    actText:'* You step onto the path it is patrolling and walk alongside it.\n* WARDEN: ...\n* WARDEN: This is acceptable.\n* WARDEN: You are on the path.\n* WARDEN: Good.',
+   communeSteps:2,
+   communeLines:['* You lower your weapon and wait.\n* WRAITH: You are not striking.\n* WRAITH: No one has ever not struck.',
+      '* You continue to wait.\n* WRAITH: ...\n* WRAITH: I think I was tired.\n* WRAITH: I think I have been tired\n  for a very long time.'],
+   communeSteps:1,
+   communeLines:['* You step onto the path it is patrolling\n  and walk alongside it.\n* WARDEN: ...\n* WARDEN: You are on the path.\n* WARDEN: This is acceptable.'],
    actSpares:true,spareReady:false,
    spareText:'* The Rootwarden resumes its patrol.\n* WARDEN: Stay on the path.\n* WARDEN: The path is important.',
    deathText:'* The Rootwarden topples slowly.\n* Old roots give way.',
@@ -898,6 +995,8 @@ const ENEMIES=[
    gold:15,xp:11,
    intro:['* A BONE RAKER skitters from a collapsed doorway!\n* It clutches several unrelated objects.','* RAKER: Mine.\n* RAKER: All of this is mine now.\n* RAKER: Including whatever you are carrying.'],
    actText:'* You offer it something small from your pocket.\n* RAKER freezes.\n* RAKER: ...A new thing.\n* RAKER: I do not have this one.\n* RAKER: (It is already adding it to its collection.)',
+   communeSteps:1,
+   communeLines:['* You offer it something small from your pack.\n* RAKER: (It freezes.)\n* RAKER: A new thing.\n* RAKER: I do not have this one.'],
    actSpares:true,spareReady:false,
    spareText:'* The Bone Raker scuttles back into the ruins.\n* It drops something as it goes.\n* Old habit.',
    deathText:'* The Bone Raker collapses into a pile of very organised debris.',
@@ -910,6 +1009,8 @@ const ENEMIES=[
    gold:17,xp:13,
    intro:['* The air distorts.\n* A SNOWBLIND SPECTER steps through the white.','* SPECTER: The storm does not stop.\n* SPECTER: The storm never stopped.\n* SPECTER: Are you the storm?'],
    actText:'* You stand completely still and let the wind pass through you.\n* SPECTER: ...\n* SPECTER: You are not fighting the cold.\n* SPECTER: No one has ever done that.',
+   communeSteps:1,
+   communeLines:['* You stand completely still and let\n  the wind pass through you.\n* SPECTER: You are not fighting the cold.\n* SPECTER: No one has ever done that.'],
    actSpares:true,spareReady:false,
    spareText:'* The Snowblind Specter dissipates into ordinary snowfall.\n* For a moment the air is very quiet.',
    deathText:'* The Snowblind Specter scatters.\n* Just snow now.',
@@ -933,6 +1034,11 @@ const ENEMIES=[
    gold:24,xp:19,
    intro:['* A VAULT SPECTER materialises from the cliff face!\n* A single luminous eye regards you.','* SPECTER: You carry the weight of purpose.\n* SPECTER: Interesting.\n* SPECTER: I have been watching you since the Wood.'],
    actText:'* You ask it what it has observed.\n* SPECTER: You spare more than you fight.\n* SPECTER: The last one who came through here did not.\n* SPECTER: They did not reach the summit.\n* SPECTER: I wonder if you will.',
+   communeSteps:2,
+   communeLines:['* You ask what it has observed about you.\n* SPECTER: You spare more than you fight.\n* SPECTER: The last one who came through here did not.',
+      '* You ask if the last one made it.\n* SPECTER: They did not reach the summit.\n* SPECTER: I wonder if you will.\n* SPECTER: I will be watching.'],
+   communeSteps:1,
+   communeLines:['* You lower yourself slowly to the ground.\n* STALKER: ...\n* STALKER: You are not running.\n* STALKER: Most run.\n* STALKER: Running makes it easier.'],
    actSpares:true,spareReady:false,
    spareText:'* The Vault Specter fades with a slow blink.\n* SPECTER: I will note this in the record.\n* SPECTER: It is a good entry.',
    deathText:'* The Vault Specter dissolves.\n* Its eye winks out.\n* The record ends here.',
@@ -944,6 +1050,8 @@ const ENEMIES=[
    gold:22,xp:17,
    intro:['* A MAGMA TICK drops from the caldera wall!\n* It immediately tries to bite your boot.','* TICK: (It does not speak.)\n* TICK: (It is trying very hard to eat your leg.)'],
    actText:'* You hold out a piece of volcanic rock.\n* TICK freezes.\n* TICK: (It sniffs it.)\n* TICK: (It is extremely interested in the rock.)',
+   communeSteps:1,
+   communeLines:['* You hold out a piece of volcanic rock.\n* TICK: (It sniffs it.)\n* TICK: (It is extremely interested in the rock.)\n* TICK: (It forgets entirely what it was doing.)'],
    actSpares:true,spareReady:false,
    spareText:'* The Magma Tick takes the rock and trundles away.\n* It is very satisfied.\n* It has no idea how close that was.',
    deathText:'* The Magma Tick cools and goes still.\n* It was just hungry.',
@@ -959,6 +1067,10 @@ const FINAL_BOSS={
     '* UNMADE: Six shards. Six regions. Six scars I left on this world.\n* UNMADE: And you stitched a path through all of them.\n* UNMADE: Remarkable. And terrible.'
   ],
   actText:'* You hold all six shards aloft.\n* They resonate together, throwing light that hurts to look at.\n* THE UNMADE recoils -- and in its face you see something crumbling.\n* UNMADE: I shattered the Stone because the last one who held it whole\n* UNMADE: burned three regions to ash in a single afternoon.\n* UNMADE: You would reassemble a weapon.',
+   communeSteps:3,
+   communeLines:['* You acknowledge what the Stone was used for.\n* UNMADE: You know.\n* UNMADE: Most who come here do not know.',
+      '* You say that what happened in the valley\n  should not have happened.\n* UNMADE: Three regions.\n* UNMADE: One afternoon.\n* UNMADE: I was there for all of it.',
+      '* You say you understand why it shattered the Stone.\n* UNMADE: ...\n* UNMADE: Do you.\n* UNMADE: Or do you say that\n  because you think it is what I need to hear.\n* (It waits.)'],
   actSpares:true,spareReady:false,
   spareText:'* THE UNMADE stills.\n* UNMADE: Then you understand.\n* UNMADE: Carry the shards separately.\n* UNMADE: Keep them apart. Keep the world whole.\n* It releases -- and the void recedes.',
   deathText:'* THE UNMADE fractures and dissolves.\n* The six shards glow.\n* Something ancient and unbearably heavy\n* lifts from the world.',
@@ -975,30 +1087,29 @@ const FINAL_BOSS={
 
 // Zone enemy pools by tile type (indices into ENEMIES)
 const ZONE_ENEMIES={
-  2:[0,12,18],         // forest -> moss lurker, thornback beetle, rootwarden
-  3:[4,14,20],         // cave -> frost imp, permafrost golem, snowblind specter
-  4:[6,15,21],         // mire -> fen haunt, hollow knight, murk stalker
-  17:[2,13,19],        // sand -> dune crawler, mirage wisp, bone raker
-  18:[4,14,20],        // snow -> frost imp, permafrost golem, snowblind specter
-  19:[4,14,20],        // bridge -> frost region enemies
-  10:[6,15,21],        // dungeon -> spooky enemies
-  20:[6,15,21],        // ruins -> spooky enemies
-  14:[6,15,21],        // tower inside -> spooky
-  7:[8,16,22],         // mountain -> stoneback brute, crag harpy, vault specter
-  21:[10,17,23],       // lava -> ember hound, cinder wraith, magma tick
+  1:[0,12,18],         // grass -> wood enemies
+  2:[0,12,18],         // forest -> wood enemies
+  3:[4,14,20],         // cave -> region-specific (overridden in getEnemyPool)
+  4:[6,15,21],         // mire -> fen enemies
+  5:[0,12,18],         // path -> region-specific (overridden in getEnemyPool)
+  9:[0,12,18],         // tower exterior -> region-specific
+  17:[2,13,19],        // sand -> desert enemies
+  18:[4,14,20],        // snow -> frost enemies
+  19:[4,14,20],        // bridge -> frost enemies
+  10:[6,15,21],        // dungeon -> shadowfen enemies
+  20:[6,15,21],        // ruins -> shadowfen enemies
+  14:[6,15,21],        // tower inside -> region-specific
+  7:[8,16,22],         // mountain -> peak enemies
+  21:[10,17,23],       // lava -> caldera enemies
+  22:[10,17,23],       // volcanic rock -> caldera enemies
 };
 
 function getEnemyPool(t,col){
   const reg=getRegion(col);
-  // For tiles that appear in multiple regions, use region to disambiguate
-  if(t===3||t===10||t===14){
-    // Cave/dungeon/tower-inside: use region-specific pool
-    const byRegion=[[0,12,18],[2,13,19],[4,14,20],[6,15,21],[8,16,22],[10,17,23]];
-    return byRegion[reg]||[0];
-  }
-  if(ZONE_ENEMIES[t])return ZONE_ENEMIES[t];
-  // General fallback by region
   const byRegion=[[0,12,18],[2,13,19],[4,14,20],[6,15,21],[8,16,22],[10,17,23]];
+  // Always use region pool for tiles that appear across multiple regions
+  if([1,3,5,9,10,14,19,20].includes(t))return byRegion[reg]||[0];
+  if(ZONE_ENEMIES[t])return ZONE_ENEMIES[t];
   return byRegion[reg]||[0];
 }
 
@@ -1026,7 +1137,8 @@ let G={
   equipped:{weapon:null,armor:null,tome:null},
   shards:0,
   finalBossActive:false,
-  status:null, // {type:'poison'|'silence'|'stun', turns:N}
+  status:null,
+  journalRead:new Set(), // tracks which journal pages have been shown // {type:'poison'|'silence'|'stun', turns:N}
   shopCooldown:false,innCooldown:false,
   seenEnemies:new Set(),sparedEnemies:new Set(),
   openedChests:new Set(),
@@ -1174,13 +1286,14 @@ const SAVE_KEY='realm-of-echoes-save';
 // MUSIC ENGINE
 // ════════════════════════════════════════════════════════════════
 const MUSIC={
-  _ctx:null,_nodes:[],_playing:null,_muted:false,_vol:0.18,
+  _ctx:null,_nodes:[],_playing:null,_muted:false,_vol:0.18,_loopId:0,
   ctx(){
     if(!this._ctx)this._ctx=new(window.AudioContext||window.webkitAudioContext)();
     if(this._ctx.state==='suspended')this._ctx.resume();
     return this._ctx;
   },
   stop(){
+    this._loopId++;  // invalidates all pending loop callbacks
     this._nodes.forEach(n=>{try{n.stop();}catch(e){}});
     this._nodes=[];this._playing=null;
   },
@@ -1206,7 +1319,9 @@ const MUSIC={
     master.connect(ctx.destination);
     this._nodes.push(master);
     const self=this;
+    const myLoopId=this._loopId;  // capture at schedule time
     const schedulePass=()=>{
+      if(self._loopId!==myLoopId)return;  // stop if invalidated
       notes.forEach(n=>{
         if(!n.freq){t+=n.dur*beat;return;}
         const osc=ctx.createOscillator();
@@ -1223,7 +1338,9 @@ const MUSIC={
         t+=n.dur*beat;
       });
       const loopTime=(t-ctx.currentTime)*1000-100;
-      setTimeout(()=>{if(self._playing&&!self._muted)schedulePass();},Math.max(0,loopTime));
+      setTimeout(()=>{
+        if(self._loopId===myLoopId&&self._playing&&!self._muted)schedulePass();
+      },Math.max(0,loopTime));
     };
     schedulePass();
   },
@@ -1397,6 +1514,7 @@ function saveGame(){
     chestItems:G.chestItems,
     seenEnemies:[...G.seenEnemies],
     sparedEnemies:[...G.sparedEnemies],
+    journalRead:[...G.journalRead],
   };
   try{localStorage.setItem(SAVE_KEY,JSON.stringify(data));}catch(e){}
 }
@@ -1423,6 +1541,7 @@ function loadGame(){
     G.chestItems=d.chestItems||{};
     G.seenEnemies=new Set(d.seenEnemies||[]);
     G.sparedEnemies=new Set(d.sparedEnemies||[]);
+    G.journalRead=new Set(d.journalRead||[]);
     return true;
   }catch(e){return false;}
 }
@@ -1609,7 +1728,6 @@ function drawMap(){
     document.getElementById('hud-region').textContent=G.currentInterior.name;
   }
   updateInteractBtn();
-  updateRegionMusic();
 }
 
 function showZoneFlash(txt){
@@ -1677,7 +1795,7 @@ function doInteract(){
     G.currentInterior=null;G.heroCol=wx;G.heroRow=wy;
     showZoneFlash('Back to the overworld');
     document.getElementById('map-msg').textContent='* You step outside.';
-    drawMap();updateInteractBtn();
+    drawMap();updateInteractBtn();updateRegionMusic();
   }
 }
 
@@ -1708,6 +1826,169 @@ function doChest(){
   drawMap();updateInteractBtn();saveGame();
 }
 
+// ════════════════════════════════════════════════════════════════
+// JOURNAL OF THE FIRST WANDERER
+// ════════════════════════════════════════════════════════════════
+const JOURNAL_PAGES=[
+  {id:'j0', region:0, title:'Page One — The Wood',
+   text:`I have been walking for three days and the forest has not ended.
+
+That is not complaint. I came here looking for something that did not want to be found, and I think the Wood respects that. It watches me. I watch it back.
+
+The tower is north. I can feel it more than see it — a low resonance in the back of my teeth, like a tuning fork pressed against bone.
+
+I do not know what I will find there. I know I have to look.
+
+— R.`},
+
+  {id:'j1', region:1, title:'Page Two — The Desert',
+   text:`The guardian did not fight me the way I expected.
+
+It was not rage. It was grief. It had been standing there so long it had forgotten what it was standing for, and it still could not stop.
+
+I spared it. I do not know if that was the right thing. It seemed like the only honest thing.
+
+The Desert is vast in a way the Wood was not. The Wood felt crowded even when it was empty. This place feels empty even when it is not.
+
+Second tower. Second shard. The resonance is louder now.
+
+— R.`},
+
+  {id:'j2', region:2, title:'Page Three — The Frost',
+   text:`There is a scholar in Glacespire who has been measuring the echo frequency for eleven years.
+
+She showed me her readings. The pattern that emerges when you plot the six resonance signatures together is not random. It is not even complex. It is a single sustained note held across an enormous distance.
+
+The Stone was not six things. It is one thing that misses itself.
+
+I do not know what to do with that.
+
+Third shard. The cold here is different from ordinary cold. It remembers something.
+
+— R.`},
+
+  {id:'j3', region:3, title:'Page Four — The Shadowfen',
+   text:`I met a former knight in Gloomhall. She told me about someone she had served with — a colleague who did not survive the Shattering intact.
+
+I found that colleague in the ruins.
+
+The armour was immaculate. The person inside had been gone for a long time. I said their name. I do not know if it helped. The armour went still in a way that felt like relief.
+
+I keep sparing them. I do not know why. It does not feel like mercy. It feels more like — recognition. These creatures are not obstacles. They are what the Shattering left behind.
+
+— R.`},
+
+  {id:'j4', region:4, title:'Page Five — The Peaks',
+   text:`Something has been watching me from the cliffs since I entered the Peaks.
+
+One eye. Luminous. It does not feel hostile. It feels like it is taking notes.
+
+I asked it what it had written about me. It said: traveler, purpose unknown, spares more than expected.
+
+I asked if others had come through before me. It said: one. A long time ago. That traveler had not spared anything.
+
+It did not say what happened to them.
+
+Five shards. The resonance is almost unbearable now. Like standing next to a bell that will not stop ringing.
+
+— R.`},
+
+  {id:'j5', region:5, title:'Page Six — The Caldera',
+   text:`Cinder told me what the Unmade is tonight.
+
+I sat by the caldera fire and Cinder said: the last person who carried those six shards together used the Stone as a weapon. Three regions. One afternoon. The Unmade was present for all of it.
+
+Then the Unmade took the Stone apart. Not in anger. In grief. In the particular grief of watching something beautiful become something terrible and knowing the only way to stop it is to make it impossible.
+
+The Unmade has been guarding the Final Gate ever since. Waiting for someone who would carry the Stone differently.
+
+I am standing at the gate tomorrow.
+
+I am not certain I am that person.
+
+— R.`},
+
+  {id:'j6', region:6, title:'Final Entry',
+   text:`I stood at the gate for a long time.
+
+The Unmade did not attack. It waited. And in that waiting I understood something I had not understood before: it was not guarding against the wrong traveler. It was waiting for the right one.
+
+I do not know if I was the right one. I was afraid. I think the right person is always afraid.
+
+I turned back.
+
+I know that sounds like failure. It did not feel like failure. It felt like honesty. I was not ready to hold the Stone whole. I did not yet know what I would do with it.
+
+If you are reading this — you found the pages. You made it here. You have walked the same path.
+
+I hope you know what you would do with it.
+
+I hope that is enough.
+
+— R.`},
+];
+
+function showJournalPage(pageId, onDone){
+  if(G.journalRead.has(pageId)){if(onDone)onDone();return;}
+  G.journalRead.add(pageId);
+  saveGame();
+  const page=JOURNAL_PAGES.find(p=>p.id===pageId);
+  if(!page){if(onDone)onDone();return;}
+
+  // Build overlay
+  const el=document.createElement('div');
+  el.style.cssText=`position:fixed;inset:0;background:rgba(8,6,4,0.96);z-index:999;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    padding:24px;opacity:0;transition:opacity 0.4s;`;
+
+  const inner=document.createElement('div');
+  inner.style.cssText=`max-width:440px;width:100%;background:#12100e;border:1px solid #4a3820;
+    padding:24px 22px;display:flex;flex-direction:column;gap:12px;max-height:90vh;overflow-y:auto;`;
+
+  const label=document.createElement('div');
+  label.style.cssText=`font-family:'Press Start 2P',monospace;font-size:6px;color:#a07840;letter-spacing:2px;`;
+  label.textContent='📖 JOURNAL FOUND';
+
+  const title=document.createElement('div');
+  title.style.cssText=`font-family:'Press Start 2P',monospace;font-size:8px;color:#d4a840;line-height:1.6;`;
+  title.textContent=page.title;
+
+  const rule=document.createElement('div');
+  rule.style.cssText=`height:1px;background:#4a3820;`;
+
+  const text=document.createElement('div');
+  text.style.cssText=`font-family:'Press Start 2P',monospace;font-size:6px;color:#e8d8b8;
+    line-height:2.4;white-space:pre-wrap;`;
+  text.textContent='';
+
+  const btn=document.createElement('button');
+  btn.style.cssText=`font-family:'Press Start 2P',monospace;font-size:7px;background:transparent;
+    border:2px solid #4a3820;color:#a07840;padding:8px 16px;cursor:pointer;align-self:center;margin-top:4px;`;
+  btn.textContent='CONTINUE';
+  btn.onclick=()=>{
+    el.style.opacity=0;
+    setTimeout(()=>{el.remove();if(onDone)onDone();},400);
+  };
+
+  inner.appendChild(label);inner.appendChild(title);inner.appendChild(rule);
+  inner.appendChild(text);inner.appendChild(btn);
+  el.appendChild(inner);
+  document.body.appendChild(el);
+  setTimeout(()=>el.style.opacity=1,10);
+
+  // Typewrite the text
+  const fullText=page.text;
+  let i=0;
+  const tw=setInterval(()=>{
+    if(i<fullText.length){text.textContent=fullText.slice(0,++i);}
+    else{clearInterval(tw);}
+  },18);
+  // Tap to skip typewriter
+  el.addEventListener('click',()=>{
+    if(i<fullText.length){clearInterval(tw);text.textContent=fullText;i=fullText.length;}
+  });
+}
+
 function doGate(col,row){
   const gateIdx=Math.floor(col/15);
   const needed=gateIdx+1;
@@ -1719,6 +2000,9 @@ function doGate(col,row){
     const nextRegion=gateIdx+1;
     const regionColors=['#1a2810','#2a2008','#0c1428','#0a0818','#101018','#200400'];
     showRegionFanfare(REGION_NAMES[Math.min(nextRegion,5)],regionColors[Math.min(nextRegion,5)]);
+    // Show journal page for the region being entered (after fanfare fades)
+    const pageId='j'+nextRegion;
+    setTimeout(()=>showJournalPage(pageId,null),1800);
     drawMap();updateInteractBtn();
   }else{
     const regionName=['Verdant Wood','Amber Desert','Frost Wastes','Shadowfen','Stone Peaks'][gateIdx]||'';
@@ -1820,9 +2104,19 @@ function handleStep(col,row,t,dir){
         document.getElementById('map-msg').textContent='* The gate pulses... but does not open.\n* You need all 6 Echo Shards.';
         return;
       }
-      G.finalBossActive=true;
-      G.seenEnemies.add(24);
-      triggerBattle(deepClone(FINAL_BOSS));return;
+      // Show final journal page before the boss fight
+      if(!G.journalRead.has('j6')){
+        showJournalPage('j6',()=>{
+          G.finalBossActive=true;
+          G.seenEnemies.add(24);
+          triggerBattle(deepClone(FINAL_BOSS));
+        });
+      }else{
+        G.finalBossActive=true;
+        G.seenEnemies.add(24);
+        triggerBattle(deepClone(FINAL_BOSS));
+      }
+      return;
     }
   }
 
@@ -1833,7 +2127,7 @@ function handleStep(col,row,t,dir){
     G.currentInterior=null;G.heroCol=wx;G.heroRow=wy;
     showZoneFlash('Back to the overworld');
     document.getElementById('map-msg').textContent='* You step outside.';
-    drawMap();updateInteractBtn();
+    drawMap();updateInteractBtn();updateRegionMusic();
     return;
   }
   // Auto-trigger shop and inn inside interior
@@ -1850,11 +2144,13 @@ function handleStep(col,row,t,dir){
   }
 
   // Encounters
-  const dangerTiles=new Set([2,3,4,7,10,14,17,18,20,21]);
-  const inLava=!G.currentInterior&&getRegion(col)===5&&t!==8;
-  if(dangerTiles.has(t)||(inLava&&t===5)){
+  // All tiles except town/safe tiles can trigger encounters
+  // Excluded: VPATH(8), SHOP(12), INN(13), EXIT(15), BOSS(16), WIN(6), CHEST(24), NPC(25), VOID(0), BLACK(11), GATE(23)
+  const dangerTiles=new Set([1,2,3,4,5,7,9,10,14,17,18,19,20,21,22]);
+  const inLava=!G.currentInterior&&getRegion(col)===5&&!([8,12,13,15,16,24,25].includes(t));
+  if(dangerTiles.has(t)){
     G.stepsSince++;
-    if(G.stepsSince>ENCOUNTER_COOLDOWN&&Math.random()<ENCOUNTER_RATE){
+    if(G.stepsSince>ENCOUNTER_COOLDOWN&&Math.random()<ENCOUNTER_RATE*getDiffMult()){
       G.stepsSince=0;
       clearRepeat();
       const pool=getEnemyPool(t,col);
@@ -2122,13 +2418,13 @@ function shakeDlg(){
 // ════════════════════════════════════════════════════════════════
 // BATTLE ENGINE
 // ════════════════════════════════════════════════════════════════
-function showActions(v){
+function showActions(v,skipStatusCheck){
   document.getElementById('action-panel').style.display=v?'flex':'none';
   document.getElementById('footer-tap').style.display=v?'none':'block';
   document.getElementById('spare-btn').disabled=!(G.enemy&&G.enemy.spareReady);
   document.getElementById('magic-btn').textContent='ECHO BLAST ('+G.heroMp+'mp)'+(G.status&&G.status.type==='silence'?' 🔇':'');
   updateStatusIndicator();
-  if(v){
+  if(v&&!skipStatusCheck){
     const {blocked,lines}=processStatusTurn();
     if(lines.length){
       showActions(false);
@@ -2136,11 +2432,10 @@ function showActions(v){
       queueDlg(lines,()=>{
         if(G.heroHp<=0){triggerEnd(false);return;}
         if(blocked){
-          // Stun — skip hero turn, go straight to enemy attack
           enemyAtk(null,false);
         }else{
           G.phase='battle';
-          showActions(true);
+          showActions(true,true); // skip status check — already processed this turn
           setDlg('','* What will you do?');
         }
       });
@@ -2170,6 +2465,12 @@ function triggerBattle(e){
   clearRepeat();
   G.stepsSince=0;
   clearStatus();
+  const actBtn=document.getElementById('act-btn');
+  if(actBtn)actBtn.textContent='COMMUNE';
+  const mercyRow=document.getElementById('mercy-row');
+  if(mercyRow)mercyRow.style.display='none';
+  const mercyBar=document.getElementById('mercy-bar');
+  if(mercyBar){mercyBar.style.width='0%';mercyBar.style.boxShadow='none';}
   SFX.battle();
   if(e._isShard)MUSIC.play('guardian');
   else if(e._enemyIdx===24)MUSIC.play('finalBoss');
@@ -2179,7 +2480,7 @@ function triggerBattle(e){
   showScreen('battle-screen');
   drawBattle(e.bgType,e.color,e.emoji);
   updHeroHp();updEnemyHp();showActions(false);
-  queueDlg(e.intro,()=>{G.phase='battle';showActions(true);setDlg('','* What will you do?');});
+  queueDlg(e.intro,()=>{G.phase='battle';showActions(true);setDlg('','* What will you do?');updateMercyBar();});
 }
 
 function endBattle(){
@@ -2231,13 +2532,69 @@ function doFight(){
   enemyAtk('* You strike for '+dmg+' damage!');
 }
 
+function updateMercyBar(){
+  const e=G.enemy;
+  const row=document.getElementById('mercy-row');
+  const bar=document.getElementById('mercy-bar');
+  if(!e||!e.actSpares){row.style.display='none';return;}
+  row.style.display='flex';
+  if(e.spareReady){
+    bar.style.width='100%';
+    bar.style.background='#40c870';
+    bar.style.boxShadow='0 0 8px #40c870';
+    return;
+  }
+  const steps=e.communeSteps||1;
+  const progress=e._communeStep||0;
+  const pct=Math.round((progress/steps)*100);
+  bar.style.width=pct+'%';
+  bar.style.background=pct>=66?'#40c870':pct>=33?'#c8c020':'#c06020';
+  bar.style.boxShadow='none';
+}
+
 function doAct(){
-  if(G.phase!=='battle')return;const e=G.enemy;showActions(false);G.phase='dialogue';
-  if(e.actSpares&&!e.spareReady){
-    e.spareReady=true;document.getElementById('spare-btn').disabled=false;
-    queueDlg([e.actText],()=>{G.phase='battle';showActions(true);setDlg('','* '+e.name+' seems willing to be spared.');});
+  if(G.phase!=='battle')return;
+  const e=G.enemy;
+  showActions(false);G.phase='dialogue';
+
+  if(!e.actSpares){
+    queueDlg(['* You look around...\n* Nothing else to be done.'],()=>enemyAtk(null,false));
+    return;
+  }
+
+  if(e.spareReady){
+    queueDlg(['* '+e.name+' is already ready to be spared.\n* Use SPARE.'],()=>enemyAtk(null,false));
+    return;
+  }
+
+  // Track commune progress on the enemy instance
+  if(e._communeStep===undefined)e._communeStep=0;
+  const steps=e.communeSteps||1;
+  const lines=e.communeLines||[e.actText];
+  const stepLine=lines[e._communeStep]||lines[lines.length-1];
+  e._communeStep++;
+
+  // Update COMMUNE button label after this resolves
+  const progress=e._communeStep;
+  const total=steps;
+
+  if(e._communeStep>=steps){
+    // Final step — spare now unlocked
+    e.spareReady=true;
+    queueDlg([stepLine],()=>{
+      document.getElementById('spare-btn').disabled=false;
+      const actBtn=document.getElementById('act-btn');
+      if(actBtn)actBtn.textContent='COMMUNE \u2713';
+      updateMercyBar();
+      enemyAtk('* '+e.name+' is willing to be spared.\n* (SPARE is now available)',false);
+    });
   }else{
-    queueDlg(['* You look around...\n* Nothing else to be done.'],()=>{G.phase='battle';showActions(true);setDlg('','* What will you do?');});
+    queueDlg([stepLine],()=>{
+      const actBtn=document.getElementById('act-btn');
+      if(actBtn)actBtn.textContent='COMMUNE '+progress+'/'+total;
+      updateMercyBar();
+      enemyAtk(null,false);
+    });
   }
 }
 
@@ -2347,7 +2704,11 @@ function useItem(key){
 
 function doSpare(){
   if(G.phase!=='battle')return;const e=G.enemy;
-  if(!e.spareReady){setDlg('','* '+e.name+' is not ready.\n* Try COMMUNE first.');return;}
+  if(!e.spareReady){
+    showActions(false);G.phase='dialogue';
+    queueDlg(['* '+e.name+' is not ready.\n* Try COMMUNE first.'],()=>enemyAtk(null,false));
+    return;
+  }
   showActions(false);G.phase='dialogue';
   drawBattle(e.bgType,null,'✨');
   SFX.spare();
@@ -2358,7 +2719,7 @@ function doSpare(){
 function enemyAtk(prefix,skip){
   const e=G.enemy;
   const al=e.attackLines[Math.floor(Math.random()*e.attackLines.length)];
-  const rawDmg=skip?0:Math.floor(Math.random()*(e.atk/2))+Math.ceil(e.atk/2);
+  const rawDmg=skip?0:Math.floor((Math.random()*(e.atk/2))+Math.ceil(e.atk/2)*getDiffMult());
   const defR=Math.floor(G.heroDef*(G.finalBossActive?0.3:1));
   const dmg=Math.max(skip?0:1,rawDmg-defR);
   if(!skip){G.heroHp=Math.max(0,G.heroHp-dmg);updHeroHp();SFX.playerHit();shakeDlg();}
@@ -2527,8 +2888,131 @@ function dpadEnd(){clearRepeat();}
 
 
 // ════════════════════════════════════════════════════════════════
-// PAUSE SCREEN
+// DIFFICULTY
 // ════════════════════════════════════════════════════════════════
+let DIFFICULTY='normal'; // 'normal' | 'hard'
+
+function toggleDifficulty(){
+  DIFFICULTY=DIFFICULTY==='normal'?'hard':'normal';
+  const btn=document.getElementById('diff-btn');
+  if(DIFFICULTY==='hard'){
+    btn.textContent='HARD';btn.style.borderColor='var(--red)';btn.style.color='var(--red)';
+  }else{
+    btn.textContent='NORMAL';btn.style.borderColor='var(--green)';btn.style.color='var(--green)';
+  }
+}
+
+function getDiffMult(){return DIFFICULTY==='hard'?1.35:1;}
+
+// ════════════════════════════════════════════════════════════════
+// HINT SYSTEM
+// ════════════════════════════════════════════════════════════════
+function getHint(){
+  const s=G.shards;
+  const reg=getRegion(G.heroCol);
+  const towerNames=['Verdant Spire','Dune Citadel','Frost Obelisk','Shadow Bastion','Peak Fortress','Caldera Throne'];
+  const regionNames=['Verdant Wood','Amber Desert','Frost Wastes','Shadowfen','Stone Peaks','Ember Caldera'];
+
+  // Gate locked?
+  const gateCol=reg*15+14;
+  const gateKey=gateCol+',48';
+  const gateLocked=G.clearedGates&&!G.clearedGates.has(gateKey)&&reg<5;
+
+  if(s===6){
+    return'* You have all six Echo Shards!\n* The Final Gate in the Ember Caldera\n  is now open.\n* Seek the gate at the far north-east\n  of the Caldera and face what waits.';
+  }
+  if(s===0){
+    return'* Your journey begins in the Verdant Wood.\n* Find the VERDANT SPIRE to the north.\n* Walk toward the tower and defeat\n  or spare its guardian to claim\n  your first Echo Shard.';
+  }
+  if(gateLocked){
+    const needed=reg;
+    return`* The gate ahead is sealed.\n* You need ${needed} shard${needed>1?'s':''} to open it.\n* You have ${s} shard${s!==1?'s':''}.\n* Clear the ${towerNames[s-1]} in\n  the ${regionNames[s-1]} first.`;
+  }
+  if(SHARD_TOWERS[reg]&&!SHARD_TOWERS[reg].cleared){
+    return`* You are in the ${regionNames[reg]}.\n* Find the ${towerNames[reg]} to the north.\n* Defeat or spare its guardian\n  to claim Echo Shard ${s+1}/6.\n* Build up gold and levels first\n  if battles feel too hard.`;
+  }
+  // In a cleared region, point to next
+  const nextUncl=SHARD_TOWERS.findIndex(t=>!t.cleared);
+  if(nextUncl>=0){
+    return`* This region is cleared!\n* Head east to the ${regionNames[nextUncl]}.\n* The gate will open with your ${nextUncl} shard${nextUncl!==1?'s':''}.\n* Find the ${towerNames[nextUncl]}\n  to claim shard ${nextUncl+1}/6.`;
+  }
+  return'* You have all six shards!\n* Head to the Final Gate\n  in the Ember Caldera.';
+}
+
+function openHint(){
+  if(G.phase!=='map')return;
+  document.getElementById('hint-text').textContent=getHint();
+  document.getElementById('hint-overlay').style.display='flex';
+}
+function closeHint(){document.getElementById('hint-overlay').style.display='none';}
+
+// ════════════════════════════════════════════════════════════════
+// LORE CODEX
+// ════════════════════════════════════════════════════════════════
+// Entries unlock as you progress: talk to NPCs, open item chests, spare enemies
+const CODEX_ENTRIES=[
+  {id:'c1', title:'The Shattering',
+   unlock:()=>G.shards>=1,
+   text:'The Echo Stone did not break by accident. Someone shattered it deliberately. The pieces scattered to six corners of the world, and the world changed around each one.'},
+  {id:'c2', title:'The Verdant Wood',
+   unlock:()=>SHARD_TOWERS[0]&&SHARD_TOWERS[0].cleared,
+   text:'The Wood existed before the Shattering, but it was quieter then. The fragment that fell here changed it — made it watchful, territorial. The creatures here remember what the forest was before.'},
+  {id:'c3', title:'The Amber Desert',
+   unlock:()=>SHARD_TOWERS[1]&&SHARD_TOWERS[1].cleared,
+   text:'The desert swallowed a civilization when the Shattering came. The tombs out here predate the catastrophe. The Sand Revenant has been standing guard since before anyone alive was born.'},
+  {id:'c4', title:'The Echo Frequency',
+   unlock:()=>G.shards>=2,
+   text:'Orren the scholar calls it "echo resonance" — a harmonic signature carried by each shard fragment. The Glacier Wyrm could feel it. So could the Vault Specter. Something about carrying the shards makes you visible to things that should not be able to see you.'},
+  {id:'c5', title:'The Frost Wastes',
+   unlock:()=>SHARD_TOWERS[2]&&SHARD_TOWERS[2].cleared,
+   text:'The glacier is older than the Shattering. The Permafrost Golem was here before it. The ice here holds things that the world has not yet decided whether to remember or forget.'},
+  {id:'c6', title:'The Hollow Knight',
+   unlock:()=>G.sparedEnemies&&G.sparedEnemies.has(7),
+   text:'Sir Aldren of the Outer Watch. They served before the Shattering, in an order that no longer exists. Vesper knew them. The armor remembers the name even when the person inside could not.'},
+  {id:'c7', title:'The Shadowfen',
+   unlock:()=>SHARD_TOWERS[3]&&SHARD_TOWERS[3].cleared,
+   text:'The Fen was always dark, but the Shattering gave the darkness somewhere to go. The Haunt near the east pool has been drifting for a century. It forgot its name long before it forgot anything else.'},
+  {id:'c8', title:'Stone Peaks',
+   unlock:()=>SHARD_TOWERS[4]&&SHARD_TOWERS[4].cleared,
+   text:'The Vault Specter has been watching from these cliffs since the Shattering. It keeps records. It noted your passage. It was not certain you would make it this far.'},
+  {id:'c9', title:'The Ember Caldera',
+   unlock:()=>SHARD_TOWERS[5]&&SHARD_TOWERS[5].cleared,
+   text:'The Caldera was the site of the original Shattering. Cinder has lived here longer than memory. The Lava Golem felt the echo frequency and recognized it. It was present the first time someone carried that frequency. It did not end well.'},
+  {id:'c10', title:'The Unmade',
+   unlock:()=>G.seenEnemies&&G.seenEnemies.has(24),
+   text:'It shattered the Stone because the last person who held it whole burned three regions to ash in a single afternoon. The Unmade is not a destroyer. It is the grief of someone who watched destruction happen and could only think of one way to stop it happening again.'},
+  {id:'c11', title:'The True Ending',
+   unlock:()=>G.sparedEnemies&&G.sparedEnemies.has(24),
+   text:'The Echo Stone remains shattered. That was the choice. Not to put the weapon back together — to carry the pieces separately, keep them apart, keep the world whole. The Unmade stood aside. The void receded. Something very old finally rested.'},
+  {id:'c12', title:'The Wanderer',
+   unlock:()=>G.level>=5,
+   text:'No name recorded. No origin known. Just a traveler who arrived at the edge of a broken world and kept walking east. The creatures they encountered will not forget them. Neither will the world.'},
+];
+
+function openCodex(){
+  if(G.phase!=='map')return;
+  const list=document.getElementById('codex-list');
+  list.innerHTML='';
+  let unlocked=0;
+  CODEX_ENTRIES.forEach(e=>{
+    const isUnlocked=e.unlock();
+    if(isUnlocked)unlocked++;
+    const div=document.createElement('div');
+    div.style.cssText='background:var(--panel);border:2px solid var(--border);padding:10px 12px;';
+    if(!isUnlocked){
+      div.innerHTML=`<div style="font-size:7px;color:var(--gray);">??? — Not yet discovered</div>`;
+    }else{
+      div.innerHTML=`<div style="font-size:7px;color:var(--gold);margin-bottom:6px;">${e.title}</div>
+        <div style="font-size:6px;color:var(--white);line-height:2.2;">${e.text}</div>`;
+    }
+    list.appendChild(div);
+  });
+  document.getElementById('codex-count').textContent=unlocked+'/'+CODEX_ENTRIES.length+' discovered';
+  document.getElementById('codex-overlay').style.display='flex';
+}
+function closeCodex(){document.getElementById('codex-overlay').style.display='none';}
+
+
 function openPause(){
   if(G.phase!=='map')return;
   const body=document.getElementById('pause-body');
@@ -2711,12 +3195,14 @@ function startGame(load=false){
     deleteSave();
   }
   G.phase='map';showScreen('map-screen');resizeMapCanvas();drawMap();
+  updateRegionMusic();
   if(load){
     showZoneFlash('Welcome back, Wanderer.');
     document.getElementById('map-msg').textContent='* Your journey continues.';
   }else{
     showZoneFlash('Welcome to the Realm of Echoes!');
     document.getElementById('map-msg').textContent='* Six regions. Six shards.\n* Travel east. The path connects them all.';
+    setTimeout(()=>showJournalPage('j0',null),1200);
   }
 }
 
